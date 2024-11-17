@@ -7,7 +7,7 @@ export function userSignup(
   req: Request<{}, {}, CreateUserDto, CreateUserQueryParams>,
   res: Response<User> // res의 타입을 지정
 ) {
-  req.customField;
+  // req.customField;
   res.status(201).send({
     id: 1,
     username: "anson",

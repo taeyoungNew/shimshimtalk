@@ -17,12 +17,20 @@
   "dependencies": {
     "express": "^4.21.1",
     "express-session": "^1.18.1",
-    "passport": "^0.7.0"
+    "mysql2": "^3.11.4",
+    "passport": "^0.7.0",
+    "reflect-metadata": "^0.2.2",
+    "sequelize": "^6.37.5",
+    "sequelize-cli": "^6.6.2",
+    "sequelize-typescript": "^2.1.6",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
     "@types/express": "^5.0.0",
+    "@types/node": "^22.9.0",
     "@types/passport": "^1.0.17",
+    "@types/validator": "^13.12.2",
     "eslint": "^9.14.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jest": "^28.8.3",
@@ -32,6 +40,9 @@
     "prettier": "3.3.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.12.2"
+    "typescript-eslint": "^8.12.2",
+    "webpack": "^5.96.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-node-externals": "^3.0.0"
   }
 }

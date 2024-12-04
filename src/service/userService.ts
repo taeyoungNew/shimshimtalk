@@ -1,9 +1,10 @@
 import { UUIDTypes } from "uuid";
-import { SignupDto } from "../dtos/signupDto";
+import { SignupDto } from "../dtos/user/signupDto";
 import UserRepository from "../repositories/signupRepository";
 
 class UserService {
   userRepository = new UserRepository();
+
   public createUser = async (signupInfo: SignupDto) => {
     try {
       await this.userRepository.createUser(signupInfo);
@@ -12,10 +13,28 @@ class UserService {
     }
   };
 
-  public findById = async (id: UUIDTypes) => {
+  // public findById = async (id: number) => {
+  //   try {
+  //     const user = await this.userRepository;
+  //   } catch {}
+  // };
+
+  public findAllUser = async () => {
     try {
-      const user = await this.userRepository;
-    } catch {}
+      const result = await this.userRepository.findAllUser();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  public findUser = async (id: string) => {
+    try {
+      const result = await this.userRepository.userFindById(id);
+      return result;
+    } catch (error) {
+      throw error;
+    }
   };
 }
 

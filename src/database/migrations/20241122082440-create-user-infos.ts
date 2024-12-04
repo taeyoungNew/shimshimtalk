@@ -5,20 +5,35 @@ import { DataTypes, QueryInterface } from "sequelize";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
-    await queryInterface.createTable("Users", {
+    await queryInterface.createTable("UserInfos", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-
-      email: {
-        type: Sequelize.STRING,
-        unique: true,
+      userId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          key: "id",
+          model: "Users",
+        },
       },
-      password: {
-        type: Sequelize.STRING,
+      username: {
+        type: Sequelize.STRING(30),
+      },
+      nickname: {
+        unique: true,
+        type: Sequelize.STRING(30),
+      },
+      aboutMe: {
+        type: Sequelize.STRING(100),
+      },
+      age: {
+        type: Sequelize.INTEGER({
+          length: 100,
+        }),
       },
       createdAt: {
         allowNull: false,
@@ -31,6 +46,6 @@ module.exports = {
     });
   },
   async down(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
-    await queryInterface.dropTable("Users");
+    await queryInterface.dropTable("UserInfos");
   },
 };

@@ -1,35 +1,19 @@
 require("ts-node/register");
-const config = require("../config");
+
+const {
+  DB_DATABASE,
+  DB_HOST,
+  DB_PASSWORD,
+  DB_USERNAME,
+  DB_PORT,
+  DB_DIALECT,
+} = require("../config");
 
 module.exports = {
-  username: config.DB_USERNAME,
-  password: config.DB_PASSWORD,
-  database: config.DB_DATABASE,
-  host: config.DB_HOST,
-  dialect: "mysql",
-  port: config.DB_PORT,
+  username: DB_USERNAME,
+  password: DB_PASSWORD,
+  database: DB_DATABASE,
+  host: DB_HOST,
+  port: DB_PORT,
+  dialect: DB_DIALECT,
 };
-
-// {
-//   "development": {
-//     "username": "root",
-//     "password": "als-794613!",
-//     "database": "database_development",
-//     "host": "127.0.0.1",
-//     "dialect": "mysql"
-//   },
-//   "test": {
-//     "username": "root",
-//     "password": null,
-//     "database": "database_test",
-//     "host": "127.0.0.1",
-//     "dialect": "mysql"
-//   },
-//   "production": {
-//     "username": "root",
-//     "password": null,
-//     "database": "database_production",
-//     "host": "127.0.0.1",
-//     "dialect": "mysql"
-//   }
-// }

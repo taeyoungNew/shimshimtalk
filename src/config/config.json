@@ -2,21 +2,21 @@
   "development": {
     "username": "root",
     "password": "als-794613!",
-    "database": "shimshimtalk_development",
+    "database": "simsim_talk",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
     "password": null,
-    "database": "shimshimtalk_test",
+    "database": "simsimtalk_test",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
     "password": null,
-    "database": "shimshimtalk_production",
+    "database": "simsimtalk_production",
     "host": "127.0.0.1",
     "dialect": "mysql"
   }

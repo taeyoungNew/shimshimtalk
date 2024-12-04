@@ -14,12 +14,11 @@ app.use(json());
 
 app.use("/api", [userRouter]);
 // 모든 곳에서 발생하는 에러를 catch
+app.use(errorHandler);
 app.all(/(.*)/, (error: Error) => {
-  // console.log(error);
+  console.log("index = ", error.message);
   throw new Error(error.message);
 });
-
-app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Running on Port ${PORT} 빌드안해도 ts가 바로 실행이 되는데?`);

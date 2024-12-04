@@ -11,6 +11,7 @@ const sequelizeConnection: Sequelize = new Sequelize(
   DB_DATABASE,
   DB_USERNAME,
   DB_PASSWORD,
+
   {
     host: DB_HOST,
     dialect: "mysql",

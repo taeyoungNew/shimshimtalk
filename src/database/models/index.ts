@@ -6,8 +6,6 @@ import fs from "fs";
 import path from "path";
 const Sequelize = require("sequelize");
 import process from "process";
-import Users from "./users";
-import UserInfos from "./userinfos";
 
 const basename = path.basename(__filename);
 const db: any = {};

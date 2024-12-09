@@ -1,14 +1,17 @@
 import { Response, Request, RequestHandler } from "express";
 import { SignupDto } from "../dtos/user/signupDto";
+import { ModifyUserDto } from "../dtos/user/modifyUserDto";
 import UserService from "../service/userService";
 import {
   emailExp,
   passwordExp,
   nicknameExp,
-} from "../common/validators/signupExp";
+  aboutMeExp,
+  ageExp,
+  username,
+} from "../common/validators/userExp";
 
-// 会s員登録
-
+// 会員登録
 class UserHandler {
   userService = new UserService();
   public createUser: RequestHandler = async (
@@ -39,7 +42,12 @@ class UserHandler {
     }
   };
 
-  public findAllUser: RequestHandler = async (req, res, next) => {
+  // 모든 회원정보 가져오기
+  public findAllUser: RequestHandler = async (
+    req: Request,
+    res: Response,
+    next
+  ) => {
     try {
       const result = await this.userService.findAllUser();
       return res.status(200).json(result);
@@ -62,11 +70,37 @@ class UserHandler {
       throw error;
     }
   };
-  public modifyUserInfo: RequestHandler = (
-    req: Request<{}, {}, SignupDto, {}>,
-    res,
+
+  // 회원정보 수정하기
+  public modifyUserInfo: RequestHandler = async (
+    req: Request<{}, {}, ModifyUserDto, {}>,
+    res: Response,
     next
-  ) => {};
+  ) => {
+    try {
+      const userInfo: ModifyUserDto = {
+        userId: req.body.userId,
+        username: req.body.username,
+        aboutMe: req.body.aboutMe,
+        age: req.body.age,
+      };
+      // aboutMe형식
+      if (aboutMeExp(userInfo.aboutMe))
+        throw new Error("100자이내로 써주세요.");
+
+      // age형식
+      if (ageExp(userInfo.age)) throw new Error("나이형식에 맞지않습니다.");
+
+      // username형식
+      if (username(userInfo.username))
+        throw new Error("유저이름형식에 맞지않습니다. ");
+
+      await this.userService.modifyUserInfo(userInfo);
+      return res.status(200).send("유저정보가 변경되었습니다. ");
+    } catch (error) {
+      throw error;
+    }
+  };
   public deleteUser: RequestHandler = (
     req: Request<{}, {}, SignupDto, {}>,
     res,

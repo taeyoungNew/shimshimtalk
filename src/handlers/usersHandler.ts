@@ -1,7 +1,7 @@
 import { Response, Request, RequestHandler } from "express";
-import { SignupDto } from "../dtos/user/signupDto";
-import { ModifyUserDto } from "../dtos/user/modifyUserDto";
-import UserService from "../service/userService";
+import { SignupDto } from "../dtos/users/signupDto";
+import { ModifyUserDto } from "../dtos/users/modifyUserDto";
+import UserService from "../service/usersService";
 import {
   emailExp,
   passwordExp,

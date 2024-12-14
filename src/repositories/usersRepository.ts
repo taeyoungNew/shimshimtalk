@@ -1,10 +1,10 @@
 import Users from "../database/models/users";
 import UserInfos from "../database/models/userinfos";
-import { ModifyUserDto } from "../dtos/user/modifyUserDto";
+import { ModifyUserDto } from "../dtos/users/modifyUserDto";
 import {
   SignupUserEntity,
   SignupUserInfosEntity,
-} from "../entity/users/userEntity";
+} from "../entity/usersEntity/userEntity";
 import sequelizeConnection from "../database/connection";
 
 class UserRepository {

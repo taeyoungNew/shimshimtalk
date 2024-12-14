@@ -1,6 +1,6 @@
-import { SignupDto } from "../dtos/user/signupDto";
-import { ModifyUserDto } from "../dtos/user/modifyUserDto";
-import UserRepository from "../repositories/signupRepository";
+import { SignupDto } from "../dtos/users/signupDto";
+import { ModifyUserDto } from "../dtos/users/modifyUserDto";
+import UserRepository from "../repositories/usersRepository";
 import sequelizeConnection from "../database/connection";
 class UserService {
   userRepository = new UserRepository();

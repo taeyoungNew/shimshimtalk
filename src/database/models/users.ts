@@ -6,15 +6,19 @@ import UserInfos from "./userinfos";
 import Posts from "./posts";
 
 interface UsersAttributes {
-  id: number;
+  id: string;
   email: string;
   password: string;
+  refToken: string;
+  refTokenExp: Date;
 }
 
 class Users extends Model implements UsersAttributes {
-  public id!: number;
+  public id!: string;
   public email!: string;
   public password!: string;
+  public refToken!: string;
+  public refTokenExp!: Date;
 
   // public static associations: { UserInfos: Association<Users, UserInfos> };
 
@@ -51,9 +55,10 @@ Users.init(
   {
     id: {
       allowNull: false,
-      autoIncrement: true,
+      // autoIncrement: true,
       primaryKey: true,
-      type: DataTypes.NUMBER,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
     },
 
     email: {
@@ -63,7 +68,13 @@ Users.init(
     },
     password: {
       allowNull: false,
+      type: DataTypes.STRING(100),
+    },
+    refToken: {
       type: DataTypes.STRING,
+    },
+    refTokenExp: {
+      type: DataTypes.DATE,
     },
     createdAt: {
       allowNull: false,

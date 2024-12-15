@@ -5,13 +5,13 @@ import connection from "../connection";
 import Users from "./users";
 
 interface FollowsAttributes {
-  followingId: number;
-  followerId: number;
+  followingId: string;
+  followerId: string;
 }
 
 class Follows extends Model implements FollowsAttributes {
-  public followerId!: number;
-  public followingId!: number;
+  public followerId!: string;
+  public followingId!: string;
 }
 
 Follows.init(
@@ -24,11 +24,11 @@ Follows.init(
     },
     followerId: {
       allowNull: false,
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
     },
     followingId: {
       allowNull: false,
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
     },
   },
   {

@@ -5,12 +5,12 @@ import Users from "./users";
 import Comments from "./comments";
 
 interface CommentLikeAttributes {
-  userId: number;
+  userId: string;
   commentId: number;
 }
 
 class CommentLikes extends Model implements CommentLikeAttributes {
-  public userId!: number;
+  public userId!: string;
   public commentId!: number;
 }
 
@@ -24,7 +24,7 @@ CommentLikes.init(
     },
     userId: {
       allowNull: false,
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
     },
     commentId: {
       allowNull: false,

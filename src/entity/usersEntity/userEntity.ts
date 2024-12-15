@@ -3,7 +3,7 @@ export interface SignupUserEntity {
   password: string;
 }
 export interface SignupUserInfosEntity {
-  userId: number;
+  userId: string;
   username: string;
   nickname: string;
   aboutMe: string;

@@ -5,13 +5,13 @@ import connection from "../connection";
 import Users from "./users";
 
 interface PostsAttributes {
-  userId: number;
+  userId: string;
   title: string;
   content: string;
 }
 
 class Posts extends Model implements PostsAttributes {
-  public userId!: number;
+  public userId!: string;
   public title!: string;
   public content!: string;
 
@@ -46,7 +46,7 @@ Posts.init(
     },
     userId: {
       allowNull: false,
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
     },
     title: { type: DataTypes.STRING, allowNull: false },
     content: { allowNull: false, type: DataTypes.STRING },

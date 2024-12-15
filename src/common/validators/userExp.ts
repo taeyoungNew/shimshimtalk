@@ -9,7 +9,7 @@ export const emailExp = (param: string): Boolean => {
 
 // 패스워드형식
 export const passwordExp = (param: string) => {
-  const exp = /[1-9]/;
+  const exp = /[1-9]{1,30}/;
   if (exp.test(param)) return true;
   return false;
 };

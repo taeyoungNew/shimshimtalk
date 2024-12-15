@@ -5,12 +5,12 @@ import Users from "./users";
 import Posts from "./posts";
 
 interface PostLikeAttributes {
-  userId: number;
+  userId: string;
   postId: number;
 }
 
 class PostLikes extends Model implements PostLikeAttributes {
-  public userId!: number;
+  public userId!: string;
   public postId!: number;
 }
 
@@ -24,7 +24,7 @@ PostLikes.init(
     },
     userId: {
       allowNull: false,
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
     },
     postId: {
       allowNull: false,

@@ -6,7 +6,7 @@ import connection from "../connection";
 import Users from "./users";
 
 interface UserInfoAttributes {
-  userId: number;
+  userId: string;
   username: string;
   nickname: string;
   aboutMe: string;
@@ -14,7 +14,7 @@ interface UserInfoAttributes {
 }
 
 class UserInfos extends Model implements UserInfoAttributes {
-  public userId!: number;
+  public userId!: string;
   public username!: string;
   public nickname!: string;
   public aboutMe!: string;
@@ -40,11 +40,11 @@ UserInfos.init(
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: DataTypes.NUMBER,
+      type: DataTypes.INTEGER,
     },
     userId: {
       allowNull: false,
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       references: {
         model: Users,
         key: "id",

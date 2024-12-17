@@ -1,7 +1,10 @@
+import AuthRepository from "../repositories/authRepository";
 class AuthService {
-  // // 로그인을 하고있는지 확인
-  // public checkAuth = async (authorization: string) => {
-  // };
+  authRepository = new AuthRepository();
+  // refToken저장
+  public saveRefToken = async (refToken: string, userId: string) => {
+    await this.authRepository.saveRefToken(refToken, userId);
+  };
 }
 
 export default AuthService;

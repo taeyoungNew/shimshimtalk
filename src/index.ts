@@ -1,6 +1,6 @@
 "use strict";
 import express, { NextFunction, Request, Response } from "express";
-import userRouter from "./routes/usersRouter";
+import router from "./routes/index";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import { json } from "express";
@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 app.use(json());
 // app.use(session({}));s
 
-app.use("/api", [userRouter]);
+app.use("/api", router);
 // 모든 곳에서 발생하는 에러를 catch
 app.use(errorHandler);
 app.all(/(.*)/, (error: Error) => {

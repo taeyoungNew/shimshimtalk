@@ -30,7 +30,7 @@ class UserRepository {
   // email로 회원정보가져오기
   public findByEmail = async (email: string) => {
     const result = await Users.findOne({
-      attributes: ["id", "email"],
+      attributes: ["id", "email", "password"],
       where: {
         email,
       },

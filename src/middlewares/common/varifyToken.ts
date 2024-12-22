@@ -20,7 +20,6 @@ const verifyToken = (tokenPayment: tokenType) => {
       return decoded;
     });
     return result;
-    // console.log("verifyToken = ", result);
   } catch (error) {
     throw error;
   }

@@ -5,12 +5,15 @@ import PostService from "../service/postService";
 import { deflate } from "zlib";
 class PostHandler {
   postService = new PostService();
+  // 게시물 작성
   public writePost: RequestHandler = async (
     req: Request<{}, {}, WritePostDto, {}>,
     res: Response,
     next
   ) => {
     try {
+      console.log(res.locals);
+
       // const { title, content } = req.body;
       // // const userId: string = req.params.id;
       // // title형식체크
@@ -23,10 +26,19 @@ class PostHandler {
       //   content,
       // };
       // await this.postService.writePost(postPayment);
+      res.status(200).json({ message: "인증이 완료" });
     } catch (error) {
       throw error;
     }
   };
+
+  // 게시물 모두 조회
+
+  // 게시물 조회
+
+  // 게시물 수정
+
+  // 게시물 삭제
 }
 
 export default PostHandler;

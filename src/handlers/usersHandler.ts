@@ -64,6 +64,8 @@ class UserHandler {
   ) => {
     try {
       const userId: string = req.params.id;
+      console.log("userId = ", userId);
+
       const result = await this.userService.findUser(userId);
       return res.status(200).json(result);
     } catch (error) {

@@ -4,6 +4,7 @@ import UserHandler from "../handlers/usersHandler";
 const userRouter = Router();
 
 const userHandler = new UserHandler();
+
 // 회원가입
 userRouter.post("/user/signup", userHandler.createUser);
 

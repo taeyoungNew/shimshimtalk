@@ -55,7 +55,7 @@ class UserService {
   public findUser = async (id: string) => {
     try {
       await this.findUserById(id);
-      const result = await this.userRepository.userFindById(id);
+      const result = await this.userRepository.findById(id);
       return result;
     } catch (error) {
       throw error;
@@ -77,8 +77,8 @@ class UserService {
   // 특정회원의 정보(id)
   public findUserById = async (userId: string) => {
     try {
-      const result = this.userRepository.userFindById(userId);
-      if (result) {
+      const result = this.userRepository.findById(userId);
+      if (!result) {
         throw new Error("존재하지않는 회원입니다.");
       }
       return result;

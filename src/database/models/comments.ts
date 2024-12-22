@@ -5,13 +5,13 @@ import Users from "./users";
 import Posts from "./posts";
 
 interface CommentsAttributes {
-  userId: number;
+  userId: string;
   postId: number;
   content: string;
 }
 
 class Comments extends Model implements CommentsAttributes {
-  public userId!: number;
+  public userId!: string;
   public postId!: number;
   public content!: string;
 }
@@ -26,7 +26,7 @@ Comments.init(
     },
     userId: {
       allowNull: false,
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
     },
     postId: {
       allowNull: false,

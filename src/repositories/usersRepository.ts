@@ -5,9 +5,16 @@ import {
   SignupUserEntity,
   SignupUserInfosEntity,
 } from "../entity/usersEntity/userEntity";
-import sequelizeConnection from "../database/connection";
 
 class UserRepository {
+  // refToken취득
+  public getRefToken = async (userId: string) => {
+    const result = await Users.findByPk(userId, {
+      attributes: ["refToken"],
+    });
+    return result;
+  };
+
   // Users 회원가입
   public createUser = async (signupInfo: SignupUserEntity) => {
     await Users.create({
@@ -30,7 +37,7 @@ class UserRepository {
   // email로 회원정보가져오기
   public findByEmail = async (email: string) => {
     const result = await Users.findOne({
-      attributes: ["id", "email"],
+      attributes: ["id", "email", "password"],
       where: {
         email,
       },
@@ -39,17 +46,26 @@ class UserRepository {
   };
 
   // id로 회원정보가져오기
-  public userFindById = async (id: string) => {
-    const result = await Users.findByPk(id, {
+  public findById = async (id: string) => {
+    console.log("id = ", id);
+
+    const result = await Users.findOne({
       attributes: ["id", "email"],
-      include: [
-        { model: UserInfos, attributes: ["username", "age", "aboutMe"] },
-      ],
+      where: { id },
     });
+    // const result = await Users.findOne({
+    //   attributes: ["id", "email"],
+    //   where: { id: id },
+    //   include: [
+    //     { model: UserInfos, attributes: ["username", "age", "aboutMe"] },
+    //   ],
+    // });
+    console.log("result = ", result);
 
     return result;
   };
 
+  // 닉네임 취득
   public checkNickname = async (nickname: string) => {
     const result = await UserInfos.findOne({
       where: {

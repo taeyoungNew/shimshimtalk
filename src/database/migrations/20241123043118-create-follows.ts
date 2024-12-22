@@ -14,7 +14,7 @@ module.exports = {
       },
       followerId: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         references: {
           key: "id",
           model: "Users",
@@ -22,7 +22,7 @@ module.exports = {
       },
       followingId: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         references: {
           key: "id",
           model: "Users",

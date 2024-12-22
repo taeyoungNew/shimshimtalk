@@ -1,25 +1,31 @@
 import { SignupDto } from "../dtos/users/signupDto";
 import { ModifyUserDto } from "../dtos/users/modifyUserDto";
 import UserRepository from "../repositories/usersRepository";
-import sequelizeConnection from "../database/connection";
+import bcrypt from "bcrypt";
 class UserService {
   userRepository = new UserRepository();
 
   // 회원가입
   public createUser = async (userInfo: SignupDto) => {
     try {
-      const signupUser = {
-        email: userInfo.email,
-        password: userInfo.password,
-      };
-
       // 중복된 이메일을 쓰는지 확인
-      await this.checkUserByEmail(signupUser.email);
+      await this.checkUserByEmail(userInfo.email);
       // 중복된 닉네임인지 확인
       await this.checkNickname(userInfo.nickname);
+      // password암호화하기
+      const hashpassword = bcrypt.hashSync(
+        userInfo.password,
+        Number(process.env.SALT_ROUND)
+      );
+      // payment
+      const signupUser = {
+        email: userInfo.email,
+        password: hashpassword,
+      };
+
       // User회원가입
       await this.userRepository.createUser(signupUser);
-
+      // email로 회원가입하는 회원의 id값을 가져옴
       const result = await this.findUserByEmail(userInfo.email);
       const signupUserInfo = {
         userId: result.id,
@@ -28,6 +34,7 @@ class UserService {
         nickname: userInfo.nickname,
         age: userInfo.age,
       };
+      // userInfo저장
       await this.userRepository.createUserInfo(signupUserInfo);
     } catch (e) {
       throw e;
@@ -48,7 +55,7 @@ class UserService {
   public findUser = async (id: string) => {
     try {
       await this.findUserById(id);
-      const result = await this.userRepository.userFindById(id);
+      const result = await this.userRepository.findById(id);
       return result;
     } catch (error) {
       throw error;
@@ -65,37 +72,13 @@ class UserService {
     }
   };
 
-  // 회원탈퇴
-
-  // public modifyNickname = (userId: string, nickanem: string) => {
-  //   try {
-  //     const checkUser = this.userRepository.userFindById(userId);
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // };
-
-  // public modifyAboutMe = (userId: string, aboutMe: string) => {
-  //   try {
-  //     const checkUser = this.userRepository.userFindById(userId);
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // };
-
-  // public modifyPasssword = (userId: string, password: string) => {
-  //   try {
-  //     const checkUser = this.findUserById(userId);
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // };
+  //
 
   // 특정회원의 정보(id)
   public findUserById = async (userId: string) => {
     try {
-      const result = this.userRepository.userFindById(userId);
-      if (result) {
+      const result = this.userRepository.findById(userId);
+      if (!result) {
         throw new Error("존재하지않는 회원입니다.");
       }
       return result;

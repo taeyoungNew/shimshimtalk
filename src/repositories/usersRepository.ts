@@ -60,7 +60,6 @@ class UserRepository {
     //     { model: UserInfos, attributes: ["username", "age", "aboutMe"] },
     //   ],
     // });
-    console.log("result = ", result);
 
     return result;
   };

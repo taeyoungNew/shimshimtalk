@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 // accToken생성
 export const accessToken = (userId: string, email: string) => {
   dotenv.config();
-  console.log("accToken = ", userId, email);
 
   const accToken = jwt.sign(
     { userId, email },

@@ -62,6 +62,8 @@ export const authMiddleware = async (
         // 다시 로그인하라고 에러
         throw new Error("토큰이 만료되어 다시 로그인해주십시오.");
       } else {
+        console.log("accToken만료");
+
         // refToken이 유효할경우 user정보를 가져와선
         // accToken을 재발급하고
         const getCacheUserId = await userCache.get("userId");
@@ -69,11 +71,18 @@ export const authMiddleware = async (
         const userInfo = await userRepository.findById(
           getCacheUserId.replace(/\"/gi, "") // json.stringfy로 저장을 했기때문에 이렇게 한번 큰따옴표와 \를 없애야한다.
         );
+        console.log("userInfo = ", userInfo);
+
+        // 새로운 acc토큰을 발급받고
         const newAccToken = accessToken(userInfo.id, userInfo.email);
+        // res.locals로 다음 모듈에 유저의 정보들을 넘겨준다.
         res.locals.userInfo = {
           userId: userInfo.id,
           email: userInfo.email,
         };
+
+        console.log("newAccToken = ", newAccToken);
+
         res.cookie("authorization", `Bearer ${newAccToken}`);
         next();
       }

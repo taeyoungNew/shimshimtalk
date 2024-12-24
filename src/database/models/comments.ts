@@ -14,6 +14,17 @@ class Comments extends Model implements CommentsAttributes {
   public userId!: string;
   public postId!: number;
   public content!: string;
+
+  static associate() {
+    Comments.belongsTo(Posts, {
+      foreignKey: "postId",
+      targetKey: "id",
+    });
+    Comments.belongsTo(Users, {
+      foreignKey: "userId",
+      targetKey: "id",
+    });
+  }
 }
 
 Comments.init(

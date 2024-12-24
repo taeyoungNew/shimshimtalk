@@ -1,5 +1,5 @@
 import { Response, Request, RequestHandler } from "express";
-import { CreatePostDto } from "../dtos/posts/PostDto";
+import { CreatePostDto, GetAllPostDto } from "../dtos/posts/PostDto";
 import { postTitleExp, postContentExp } from "../common/validators/postExp";
 import PostService from "../service/postService";
 class PostHandler {
@@ -32,13 +32,29 @@ class PostHandler {
     }
   };
 
+  // 게시물 모두조회
+  public getAllPosts: RequestHandler = async (
+    req: Request<{}, {}, GetAllPostDto, {}>,
+    res: Response,
+    next
+  ) => {
+    try {
+      const postLastId: GetAllPostDto = {
+        postLastId: req.body.postLastId,
+      };
+
+      const result = await this.postService.getAllPosts(postLastId);
+      return res.status(200).json({ data: result });
+    } catch (error) {
+      throw error;
+    }
+  };
+
   // 한 게시물만 조회
   public getPost = async () => {};
 
   // 게시물 수정
   public modifyPost = async () => {};
-  // 게시물 모두조회
-  public getAllPosts = async () => {};
   // user의 게시물 조회
   public getUserPosts = async () => {};
   // 게시물 삭제

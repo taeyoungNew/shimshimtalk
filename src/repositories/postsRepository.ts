@@ -1,10 +1,13 @@
 import {
   CreatePostEntity,
+  GetAllPostEntity,
   GetPostEntity,
   GetUserPostsEntity,
 } from "../entity/postsEntity/postEntity";
 import Posts from "../database/models/posts";
 import Comments from "../database/models/comments";
+import { and, Op } from "sequelize";
+
 class PostRepository {
   // Post 작성
   public createPost = async (postInfo: CreatePostEntity) => {
@@ -42,9 +45,11 @@ class PostRepository {
     );
   };
   // user의 Post 불러오기
-  public getUserPosts = async (userId: GetUserPostsEntity) => {
+  public getUserPosts = async (param: GetUserPostsEntity) => {
     return await Posts.findAll({
-      where: { userId },
+      where: {
+        userId: param.userId,
+      },
       limit: 10,
       order: ["createDate", "desc"],
       include: {
@@ -54,7 +59,16 @@ class PostRepository {
     });
   };
   // Post 모두 불러오기
-  public getAllPosts = async () => {
+  public getAllPosts = async (param: GetAllPostEntity) => {
+    let where = {};
+    param.postLastId != null
+      ? (where = {
+          id: {
+            [Op.lt]: param.postLastId,
+          },
+        })
+      : "";
+
     return await Posts.findAll({
       limit: 10,
       order: ["createDate", "desc"],
@@ -62,6 +76,7 @@ class PostRepository {
         model: Comments,
         attributes: ["id", "postId", "userId", "content", "createAt"],
       },
+      where,
     });
   };
   // Post 삭제

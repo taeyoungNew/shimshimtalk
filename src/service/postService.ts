@@ -2,6 +2,7 @@ import PostRepository from "../repositories/postsRepository";
 import UserService from "./usersService";
 import {
   CreatePostDto,
+  GetAllPostDto,
   GetPostDto,
   GetUserPostsDto,
 } from "../dtos/posts/PostDto";
@@ -44,8 +45,9 @@ class PostService {
     }
   };
   // 게시물 모두조회
-  public getAllPosts = async () => {
+  public getAllPosts = async (param: GetAllPostDto) => {
     try {
+      return await this.postRepository.getAllPosts(param);
     } catch (error) {
       throw error;
     }

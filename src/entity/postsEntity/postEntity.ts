@@ -6,20 +6,25 @@ export interface CreatePostEntity {
 
 export interface ModifyPostEntity {
   userId: string;
-  postId: string;
+  postId: number;
   title: string;
   content: string;
 }
 
-export interface GetUserPostsEntity {
-  userId: string;
+export interface GetPostEntity {
+  postId: number;
 }
 
-export interface GetPostEntity {
-  postId: string;
+export interface GetAllPostEntity {
+  postLastId: number;
+}
+
+export interface GetUserPostsEntity {
+  userId: string;
+  postLastId: number;
 }
 
 export interface DeletePostEntity {
   userId: string;
-  postId: string;
+  postId: number;
 }

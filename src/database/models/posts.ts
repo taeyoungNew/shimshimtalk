@@ -15,25 +15,7 @@ class Posts extends Model implements PostsAttributes {
   public title!: string;
   public content!: string;
 
-  static associate() {
-    // user - post
-    Posts.belongsTo(Users, {
-      foreignKey: {
-        name: "userId",
-        allowNull: false,
-      },
-      targetKey: "id",
-      foreignKeyConstraint: true,
-      onDelete: "cascade",
-    });
-
-    // post - like
-    Posts.belongsToMany(Users, {
-      through: "PostLikes",
-      as: "postId",
-      onDelete: "cascade",
-    });
-  }
+  static associate() {}
 }
 
 Posts.init(
@@ -56,5 +38,23 @@ Posts.init(
     modelName: "Posts",
   }
 );
+
+// user - post
+Posts.belongsTo(Users, {
+  foreignKey: {
+    name: "userId",
+    allowNull: false,
+  },
+  targetKey: "id",
+  foreignKeyConstraint: true,
+  onDelete: "cascade",
+});
+
+// post - like
+Posts.belongsToMany(Users, {
+  through: "PostLikes",
+  as: "postId",
+  onDelete: "cascade",
+});
 
 export default Posts;

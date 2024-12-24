@@ -14,6 +14,7 @@ postRouter.post("/create_post", authMiddleware, postHandler.writePost);
 // 유저의 게시물들을 조회
 
 // 모든 게시물을 조회
+postRouter.get("/posts", postHandler.getAllPosts);
 
 // 한 게시물만 조회
 

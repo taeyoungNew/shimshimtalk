@@ -3,6 +3,7 @@ import { Model, DataTypes, Association } from "sequelize";
 import connection from "../connection";
 import Users from "./users";
 import Posts from "./posts";
+import CommentLikes from "./commentlike";
 
 interface CommentsAttributes {
   userId: string;
@@ -23,6 +24,12 @@ class Comments extends Model implements CommentsAttributes {
     Comments.belongsTo(Users, {
       foreignKey: "userId",
       targetKey: "id",
+    });
+
+    Comments.belongsToMany(CommentLikes, {
+      through: "CommentLikes",
+      as: "commentId",
+      onDelete: "cascade",
     });
   }
 }

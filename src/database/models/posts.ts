@@ -3,6 +3,8 @@
 import { Model, DataTypes, Association } from "sequelize";
 import connection from "../connection";
 import Users from "./users";
+import Comments from "./comments";
+import PostLikes from "./postlikes";
 
 interface PostsAttributes {
   userId: string;
@@ -15,7 +17,25 @@ class Posts extends Model implements PostsAttributes {
   public title!: string;
   public content!: string;
 
-  static associate() {}
+  static associate() {
+    // user - post
+    Posts.belongsTo(Users, {
+      foreignKey: {
+        name: "userId",
+        allowNull: false,
+      },
+      targetKey: "id",
+      foreignKeyConstraint: true,
+      onDelete: "cascade",
+    });
+
+    // 좋아요
+    Posts.belongsToMany(PostLikes, {
+      through: "PostLikes",
+      as: "postId",
+      onDelete: "cascade",
+    });
+  }
 }
 
 Posts.init(
@@ -39,22 +59,9 @@ Posts.init(
   }
 );
 
-// user - post
-Posts.belongsTo(Users, {
-  foreignKey: {
-    name: "userId",
-    allowNull: false,
-  },
-  targetKey: "id",
-  foreignKeyConstraint: true,
-  onDelete: "cascade",
-});
-
-// post - like
-Posts.belongsToMany(Users, {
-  through: "PostLikes",
-  as: "postId",
-  onDelete: "cascade",
+Posts.hasMany(Comments, {
+  foreignKey: "postId",
+  sourceKey: "id",
 });
 
 export default Posts;

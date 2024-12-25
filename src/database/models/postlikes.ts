@@ -12,6 +12,18 @@ interface PostLikeAttributes {
 class PostLikes extends Model implements PostLikeAttributes {
   public userId!: string;
   public postId!: number;
+
+  static associate() {
+    PostLikes.belongsTo(Users, {
+      foreignKey: "userId",
+      targetKey: "id",
+    });
+
+    PostLikes.belongsTo(Posts, {
+      foreignKey: "postId",
+      targetKey: "id",
+    });
+  }
 }
 
 PostLikes.init(
@@ -36,16 +48,6 @@ PostLikes.init(
     modelName: "PostLikes",
   }
 );
-
-// PostLikes.belongsTo(Users, {
-//   foreignKey: "userId",
-//   targetKey: "id",
-// });
-
-// PostLikes.belongsTo(Posts, {
-//   foreignKey: "postId",
-//   targetKey: "id",
-// });
 
 export default PostLikes;
 

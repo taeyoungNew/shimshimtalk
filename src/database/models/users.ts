@@ -4,6 +4,9 @@ import { Model, DataTypes, Association } from "sequelize";
 import connection from "../connection";
 import UserInfos from "./userinfos";
 import Posts from "./posts";
+import Comments from "./comments";
+import PostLikes from "./postlikes";
+import CommentLikes from "./commentlike";
 
 interface UsersAttributes {
   id: string;
@@ -22,7 +25,31 @@ class Users extends Model implements UsersAttributes {
 
   // public static associations: { UserInfos: Association<Users, UserInfos> };
 
-  static associate() {}
+  static associate() {
+    // following follower
+    Users.belongsToMany(Users, {
+      through: "Follows",
+      as: "followerId",
+      onDelete: "cascade",
+    });
+    Users.belongsToMany(Users, {
+      through: "Follows",
+      as: "followingId",
+      onDelete: "cascade",
+    });
+
+    Users.belongsToMany(PostLikes, {
+      through: "PostLikes",
+      as: "userId",
+      onDelete: "cascade",
+    });
+
+    Users.belongsToMany(CommentLikes, {
+      through: "CommentLikes",
+      as: "commentId",
+      onDelete: "cascade",
+    });
+  }
   // public static associate() {
   //   // // user - userInfo
   //   this.hasOne(UserInfos, {
@@ -91,18 +118,20 @@ Users.init(
   }
 );
 
-// // user - userInfo
-
-// Users.hasOne(UserInfos, {
-//   foreignKey: "userId",
-//   sourceKey: "id",
-// });
+// 유저정보
 Users.hasOne(UserInfos, {
   foreignKey: "userId",
   sourceKey: "id",
 });
 
+// 게시물
 Users.hasMany(Posts, {
+  foreignKey: "userId",
+  sourceKey: "id",
+});
+
+// 댓글
+Users.hasMany(Comments, {
   foreignKey: "userId",
   sourceKey: "id",
 });

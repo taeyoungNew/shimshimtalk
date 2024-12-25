@@ -12,6 +12,17 @@ interface FollowsAttributes {
 class Follows extends Model implements FollowsAttributes {
   public followerId!: string;
   public followingId!: string;
+  static associate() {
+    Follows.belongsTo(Users, {
+      foreignKey: "followerId",
+      targetKey: "id",
+    });
+
+    Follows.belongsTo(Users, {
+      foreignKey: "followingId",
+      targetKey: "id",
+    });
+  }
 }
 
 Follows.init(
@@ -36,16 +47,6 @@ Follows.init(
     modelName: "Follows",
   }
 );
-
-// Follows.belongsTo(Users, {
-//   foreignKey: "followerId",
-//   targetKey: "id",
-// });
-
-// Follows.belongsTo(Users, {
-//   foreignKey: "followingId",
-//   targetKey: "id",
-// });
 
 export default Follows;
 

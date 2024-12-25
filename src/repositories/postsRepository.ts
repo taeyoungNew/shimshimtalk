@@ -70,12 +70,13 @@ class PostRepository {
       : "";
 
     return await Posts.findAll({
-      limit: 10,
-      order: ["createDate", "desc"],
+      attributes: ["id", "title", "content", "createdAt"],
       include: {
         model: Comments,
-        attributes: ["id", "postId", "userId", "content", "createAt"],
+        attributes: ["id", "postId", "userId", "content", "createdAt"],
       },
+      limit: 10,
+      order: [["createdAt", "desc"]],
       where,
     });
   };

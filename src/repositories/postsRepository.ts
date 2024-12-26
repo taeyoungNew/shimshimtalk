@@ -1,5 +1,6 @@
 import {
   CreatePostEntity,
+  DeletePostEntity,
   GetAllPostEntity,
   GetPostEntity,
   GetUserPostsEntity,
@@ -25,7 +26,7 @@ class PostRepository {
       },
       include: {
         model: Comments,
-        attributes: ["id", "postId", "userId", "content", "createAt"],
+        attributes: ["id", "postId", "userId", "content", "createdAt"],
       },
     });
   };
@@ -46,15 +47,24 @@ class PostRepository {
   };
   // user의 Post 불러오기
   public getUserPosts = async (param: GetUserPostsEntity) => {
+    let where = {};
+    param.postLastId != null
+      ? (where = {
+          id: {
+            [Op.lt]: param.postLastId,
+          },
+          userId: param.userId,
+        })
+      : (where = {
+          userId: param.userId,
+        });
     return await Posts.findAll({
-      where: {
-        userId: param.userId,
-      },
+      where,
       limit: 10,
-      order: ["createDate", "desc"],
+      order: [["createdAt", "desc"]],
       include: {
         model: Comments,
-        attributes: ["id", "postId", "userId", "content", "createAt"],
+        attributes: ["id", "postId", "userId", "content", "createdAt"],
       },
     });
   };
@@ -81,8 +91,10 @@ class PostRepository {
     });
   };
   // Post 삭제
-  public deletePost = async (postId: number) => {
-    await Posts.destroy({ where: { id: postId } });
+  public deletePost = async (param: DeletePostEntity) => {
+    console.log("postId = ", param);
+
+    await Posts.destroy({ where: { id: param.postId, userId: param.userId } });
   };
 }
 

@@ -1,5 +1,10 @@
 import { Response, Request, RequestHandler } from "express";
-import { CreatePostDto, GetAllPostDto } from "../dtos/posts/PostDto";
+import {
+  CreatePostDto,
+  DeletePostDto,
+  GetAllPostDto,
+  GetUserPostsDto,
+} from "../dtos/posts/PostDto";
 import { postTitleExp, postContentExp } from "../common/validators/postExp";
 import PostService from "../service/postService";
 class PostHandler {
@@ -55,10 +60,40 @@ class PostHandler {
 
   // 게시물 수정
   public modifyPost = async () => {};
+
   // user의 게시물 조회
-  public getUserPosts = async () => {};
+  public getUserPosts: RequestHandler = async (
+    req: Request<{}, {}, GetUserPostsDto, {}>,
+    res: Response,
+    next
+  ) => {
+    const param = {
+      userId: res.locals.userInfo.userId,
+      postLastId: req.body.postLastId,
+    };
+    const result = await this.postService.getUserPosts(param);
+    res.status(200).json({ data: result });
+  };
+
   // 게시물 삭제
-  public deletePost = () => {};
+  public deletePost: RequestHandler = async (
+    req: Request<{}, {}, DeletePostDto, {}>,
+    res: Response,
+    next
+  ) => {
+    try {
+      const userId = res.locals.userInfo.userId;
+      const postPayment: DeletePostDto = {
+        userId,
+        postId: req.body.postId,
+      };
+
+      await this.postService.deletePost(postPayment);
+      res.status(200).json({ message: "게시물이 삭제되었습니다." });
+    } catch (error) {
+      throw error;
+    }
+  };
 }
 
 export default PostHandler;

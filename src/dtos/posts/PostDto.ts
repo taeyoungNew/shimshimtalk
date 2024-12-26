@@ -28,3 +28,8 @@ export interface DeletePostDto {
   userId: string;
   postId: number;
 }
+
+export interface IsUserPost {
+  userId: string;
+  postId: number;
+}

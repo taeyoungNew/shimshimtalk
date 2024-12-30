@@ -2,9 +2,11 @@ import { tokenType } from "../../types/tokenType";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 // 토큰이 유효한지 확인
-const verifyToken = (tokenPayment: tokenType) => {
+const verifyAccToken = (tokenPayment: tokenType) => {
   try {
     const { token, type } = tokenPayment;
+    console.log("token = ", JSON.stringify(token));
+
     const secretKey =
       type === "accToken"
         ? process.env.SECRET_ACCTOKEN_KEY
@@ -12,6 +14,8 @@ const verifyToken = (tokenPayment: tokenType) => {
 
     const result = jwt.verify(String(token), secretKey, (err, decoded) => {
       if (err) {
+        console.log("jwt.verify = ", err.name);
+
         switch (err.name) {
           case "TokenExpiredError":
             return "jwt exired";
@@ -19,10 +23,12 @@ const verifyToken = (tokenPayment: tokenType) => {
       }
       return decoded;
     });
+    console.log("result = ", result);
+
     return result;
   } catch (error) {
     throw error;
   }
 };
 
-export default verifyToken;
+export default verifyAccToken;

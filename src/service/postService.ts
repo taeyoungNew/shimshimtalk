@@ -23,7 +23,10 @@ class PostService {
   // 한 게시물만 조회
   public getPost = async (postInfo: GetPostDto) => {
     try {
-      return await this.postRepository.getPost(postInfo);
+      // 그 게시물이 있는지 확인
+      const result = await this.postRepository.getPost(postInfo);
+      if (!result) throw new Error("해당 게시물이 존재하지 않습니다.");
+      return result;
     } catch (error) {
       throw error;
     }
@@ -44,6 +47,7 @@ class PostService {
   public modifyPost = async (postInfo: ModifyPostDto) => {
     try {
       await this.isUserPost(postInfo);
+      await this.postRepository.modifyPost(postInfo);
     } catch (error) {
       throw error;
     }

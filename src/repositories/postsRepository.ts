@@ -10,6 +10,11 @@ import Comments from "../database/models/comments";
 import { and, Op } from "sequelize";
 
 class PostRepository {
+  public findPostById = async (postId: GetPostEntity) => {
+    const id = postId.postId;
+    return await Posts.findByPk(id);
+  };
+
   // Post 작성
   public createPost = async (postInfo: CreatePostEntity) => {
     await Posts.create({
@@ -19,10 +24,15 @@ class PostRepository {
     });
   };
   // 한 게시물만 조회
+
   public getPost = async (postInfo: GetPostEntity) => {
+    console.log("postInfo = ", postInfo);
+
+    // console.log("postId = ", postId);
+
     return await Posts.findOne({
       where: {
-        id: postInfo.postId,
+        id: Number(postInfo),
       },
       include: {
         model: Comments,

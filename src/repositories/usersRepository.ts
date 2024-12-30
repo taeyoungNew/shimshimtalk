@@ -5,12 +5,14 @@ import {
   SignupUserEntity,
   SignupUserInfosEntity,
 } from "../entity/usersEntity/userEntity";
+import { ModifyPostEntity } from "../entity/postsEntity/postEntity";
 
 class UserRepository {
   // refToken취득
   public getRefToken = async (userId: string) => {
     const result = await Users.findByPk(userId, {
       attributes: ["refToken"],
+      raw: true,
     });
     return result;
   };
@@ -128,8 +130,11 @@ class UserRepository {
 
   // 회원정보수정
   public modifyUserInfos = async (userInfo: ModifyUserDto) => {
-    await Users.update(userInfo, { where: { userId: userInfo.userId } });
+    await UserInfos.update(userInfo, { where: { userId: userInfo.userId } });
   };
+
+  // 회원탈퇴
+  public deleteAccount = async () => {};
 }
 
 export default UserRepository;

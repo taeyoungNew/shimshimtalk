@@ -45,8 +45,11 @@ class AuthHandler {
 
   public logoutUser = async (req: Request, res: Response) => {
     try {
+      // const userId = res.locals;
+
       await userCache.del("userId");
       res.clearCookie("authorization");
+      // await this.authService.logoutUser(userId);
       return res.status(200).json({
         message: "로그아웃되었습니다. ",
       });

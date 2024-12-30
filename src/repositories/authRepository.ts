@@ -12,6 +12,10 @@ class AuthRepository {
       }
     );
   };
+
+  public logoutUser = async (userId: string) => {
+    await Users.update({ refToken: "" }, { where: { id: userId } });
+  };
 }
 
 export default AuthRepository;

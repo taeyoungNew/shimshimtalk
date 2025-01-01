@@ -1,11 +1,20 @@
 import {
   CreatePostEntity,
+  DeletePostEntity,
+  GetAllPostEntity,
   GetPostEntity,
   GetUserPostsEntity,
 } from "../entity/postsEntity/postEntity";
 import Posts from "../database/models/posts";
 import Comments from "../database/models/comments";
+import { and, Op } from "sequelize";
+
 class PostRepository {
+  public findPostById = async (postId: GetPostEntity) => {
+    const id = postId.postId;
+    return await Posts.findByPk(id);
+  };
+
   // Post 작성
   public createPost = async (postInfo: CreatePostEntity) => {
     await Posts.create({
@@ -15,14 +24,19 @@ class PostRepository {
     });
   };
   // 한 게시물만 조회
+
   public getPost = async (postInfo: GetPostEntity) => {
+    console.log("postInfo = ", postInfo);
+
+    // console.log("postId = ", postId);
+
     return await Posts.findOne({
       where: {
-        id: postInfo.postId,
+        id: Number(postInfo),
       },
       include: {
         model: Comments,
-        attributes: ["id", "postId", "userId", "content", "createAt"],
+        attributes: ["id", "postId", "userId", "content", "createdAt"],
       },
     });
   };
@@ -42,31 +56,55 @@ class PostRepository {
     );
   };
   // user의 Post 불러오기
-  public getUserPosts = async (userId: GetUserPostsEntity) => {
+  public getUserPosts = async (param: GetUserPostsEntity) => {
+    let where = {};
+    param.postLastId != null
+      ? (where = {
+          id: {
+            [Op.lt]: param.postLastId,
+          },
+          userId: param.userId,
+        })
+      : (where = {
+          userId: param.userId,
+        });
     return await Posts.findAll({
-      where: { userId },
+      where,
       limit: 10,
-      order: ["createDate", "desc"],
+      order: [["createdAt", "desc"]],
       include: {
         model: Comments,
-        attributes: ["id", "postId", "userId", "content", "createAt"],
+        attributes: ["id", "postId", "userId", "content", "createdAt"],
       },
     });
   };
   // Post 모두 불러오기
-  public getAllPosts = async () => {
+  public getAllPosts = async (param: GetAllPostEntity) => {
+    let where = {};
+    param.postLastId != null
+      ? (where = {
+          id: {
+            [Op.lt]: param.postLastId,
+          },
+        })
+      : "";
+
     return await Posts.findAll({
-      limit: 10,
-      order: ["createDate", "desc"],
+      attributes: ["id", "title", "content", "createdAt"],
       include: {
         model: Comments,
-        attributes: ["id", "postId", "userId", "content", "createAt"],
+        attributes: ["id", "postId", "userId", "content", "createdAt"],
       },
+      limit: 10,
+      order: [["createdAt", "desc"]],
+      where,
     });
   };
   // Post 삭제
-  public deletePost = async (postId: number) => {
-    await Posts.destroy({ where: { id: postId } });
+  public deletePost = async (param: DeletePostEntity) => {
+    console.log("postId = ", param);
+
+    await Posts.destroy({ where: { id: param.postId, userId: param.userId } });
   };
 }
 

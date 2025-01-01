@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { checkAuth } from "../middlewares/common/checkAuth";
 import { tokenType } from "../types/tokenType";
-import { Jwt, JwtPayload } from "jsonwebtoken";
+
 import { accessToken } from "../middlewares/common/accToken";
-import verifyToken from "./common/varifyToken";
+import verifyAccToken from "./common/varifyAccToken";
 import userRedisClient from "../common/cache/userIdCache";
 import UserRepository from "../repositories/usersRepository";
 import userCache from "../common/cache/userIdCache";
+import verifyRefToken from "./common/varifyRefToken";
 
 /**
  *
@@ -14,6 +15,11 @@ import userCache from "../common/cache/userIdCache";
  * @param res
  * @param next
  */
+
+type Authorization = {
+  tokenType: string;
+  token: string;
+};
 export const authMiddleware = async (
   req: Request,
   res: Response,
@@ -25,6 +31,8 @@ export const authMiddleware = async (
     // acctoken의 유무를 확인
     //  -> 없으면 로그인하라는 에러와 함께 로그인화면으로 go
     const { authorization } = req.cookies;
+    console.log("authorization = ", authorization);
+
     const [tokenType, token] = authorization.split(" ");
     checkAuth(authorization, tokenType, token);
 
@@ -35,12 +43,13 @@ export const authMiddleware = async (
       type: "accToken",
     };
 
-    const decodeAccToken = verifyToken(accTokenPayment);
+    const decodeAccToken = verifyAccToken(accTokenPayment);
 
     if (typeof decodeAccToken === "string" && decodeAccToken === "jwt exired") {
       // accToken이 만료되었을경우
       // 캐시에 저장된 userId를 가져온다
-      const userId = await userRedisClient.get("userId");
+      const result = await userRedisClient.get("userId");
+      const userId = result.replace(/\"/gi, "");
 
       // DB에 저장된 유저의 refToken을 가져온다.
       const dbRefToken = await userRepository.getRefToken(userId);
@@ -50,7 +59,7 @@ export const authMiddleware = async (
         token: dbRefToken,
         type: "refToken",
       };
-      const decodeRefToken = verifyToken(refTokenPayment);
+      const decodeRefToken = verifyRefToken(refTokenPayment);
 
       // refToken이 만료되었을 경우
       if (
@@ -62,8 +71,6 @@ export const authMiddleware = async (
         // 다시 로그인하라고 에러
         throw new Error("토큰이 만료되어 다시 로그인해주십시오.");
       } else {
-        console.log("accToken만료");
-
         // refToken이 유효할경우 user정보를 가져와선
         // accToken을 재발급하고
         const getCacheUserId = await userCache.get("userId");
@@ -71,7 +78,6 @@ export const authMiddleware = async (
         const userInfo = await userRepository.findById(
           getCacheUserId.replace(/\"/gi, "") // json.stringfy로 저장을 했기때문에 이렇게 한번 큰따옴표와 \를 없애야한다.
         );
-        console.log("userInfo = ", userInfo);
 
         // 새로운 acc토큰을 발급받고
         const newAccToken = accessToken(userInfo.id, userInfo.email);
@@ -80,8 +86,6 @@ export const authMiddleware = async (
           userId: userInfo.id,
           email: userInfo.email,
         };
-
-        console.log("newAccToken = ", newAccToken);
 
         res.cookie("authorization", `Bearer ${newAccToken}`);
         next();

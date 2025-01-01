@@ -1,4 +1,4 @@
-import { Response, Request, RequestHandler } from "express";
+import { Response, Request, RequestHandler, NextFunction } from "express";
 import { SignupDto } from "../dtos/users/signupDto";
 import { ModifyUserDto } from "../dtos/users/modifyUserDto";
 import UserService from "../service/usersService";
@@ -57,10 +57,10 @@ class UserHandler {
   };
 
   // 유저의 정보가져오기
-  public findUser: RequestHandler = async (
-    req: Request,
+  public findUser = async (
+    req: Request<{ id: string }>,
     res: Response,
-    next
+    next: NextFunction
   ) => {
     try {
       const userId: string = req.params.id;
@@ -74,14 +74,16 @@ class UserHandler {
   };
 
   // 회원정보 수정하기
-  public modifyUserInfo: RequestHandler = async (
-    req: Request<{}, {}, ModifyUserDto, {}>,
+  public modifyUserInfo = async (
+    req: Request<{ id: string }, {}, ModifyUserDto, {}>,
     res: Response,
-    next
+    next: NextFunction
   ) => {
     try {
+      console.log("수정하기");
+
       const userInfo: ModifyUserDto = {
-        userId: req.body.userId,
+        userId: req.params.id,
         username: req.body.username,
         aboutMe: req.body.aboutMe,
         age: req.body.age,
@@ -103,11 +105,20 @@ class UserHandler {
       throw error;
     }
   };
-  public deleteUser: RequestHandler = (
-    req: Request<{}, {}, SignupDto, {}>,
-    res,
-    next
-  ) => {};
+  // 회원탈퇴
+  public deleteUser = async (
+    req: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const id = req.params.id;
+      await this.userService.deleteUser(id);
+      return res.status(200).send({ message: "회원탈퇴가 완료되었습니다." });
+    } catch (error) {
+      throw error;
+    }
+  };
 }
 
 export default UserHandler;

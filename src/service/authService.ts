@@ -5,6 +5,11 @@ class AuthService {
   public saveRefToken = async (refToken: string, userId: string) => {
     await this.authRepository.saveRefToken(refToken, userId);
   };
+
+  //
+  public logoutUser = async (userId: string) => {
+    await this.authRepository.logoutUser(userId);
+  };
 }
 
 export default AuthService;

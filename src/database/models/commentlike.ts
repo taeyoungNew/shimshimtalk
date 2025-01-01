@@ -12,6 +12,22 @@ interface CommentLikeAttributes {
 class CommentLikes extends Model implements CommentLikeAttributes {
   public userId!: string;
   public commentId!: number;
+
+  static associate() {
+    CommentLikes.belongsTo(Users, {
+      foreignKey: "userId",
+      targetKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
+    });
+
+    CommentLikes.belongsTo(Comments, {
+      foreignKey: "postId",
+      targetKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
+    });
+  }
 }
 
 CommentLikes.init(
@@ -36,16 +52,6 @@ CommentLikes.init(
     modelName: "CommentLikes",
   }
 );
-
-// CommentLikes.belongsTo(Users, {
-//   foreignKey: "userId",
-//   targetKey: "id",
-// });
-
-// CommentLikes.belongsTo(Comments, {
-//   foreignKey: "postId",
-//   targetKey: "id",
-// });
 
 export default CommentLikes;
 // const { Model } = require("sequelize");

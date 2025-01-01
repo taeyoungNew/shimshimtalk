@@ -122,6 +122,16 @@ class UserService {
       throw error;
     }
   };
+
+  // 회원탈퇴
+  public deleteUser = async (id: string) => {
+    try {
+      await this.findUserById(id);
+      await this.userRepository.deleteAccount(id);
+    } catch (error) {
+      throw error;
+    }
+  };
 }
 
 export default UserService;

@@ -134,7 +134,9 @@ class UserRepository {
   };
 
   // 회원탈퇴
-  public deleteAccount = async () => {};
+  public deleteAccount = async (id: string) => {
+    await Users.destroy({ where: { id } });
+  };
 }
 
 export default UserRepository;

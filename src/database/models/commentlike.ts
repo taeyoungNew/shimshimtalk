@@ -17,11 +17,15 @@ class CommentLikes extends Model implements CommentLikeAttributes {
     CommentLikes.belongsTo(Users, {
       foreignKey: "userId",
       targetKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
     });
 
     CommentLikes.belongsTo(Comments, {
       foreignKey: "postId",
       targetKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
     });
   }
 }

@@ -105,11 +105,20 @@ class UserHandler {
       throw error;
     }
   };
-  public deleteUser: RequestHandler = (
-    req: Request<{}, {}, SignupDto, {}>,
-    res,
-    next
-  ) => {};
+  // 회원탈퇴
+  public deleteUser = async (
+    req: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const id = req.params.id;
+      await this.userService.deleteUser(id);
+      return res.status(200).send({ message: "회원탈퇴가 완료되었습니다." });
+    } catch (error) {
+      throw error;
+    }
+  };
 }
 
 export default UserHandler;

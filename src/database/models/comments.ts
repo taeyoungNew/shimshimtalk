@@ -20,15 +20,20 @@ class Comments extends Model implements CommentsAttributes {
     Comments.belongsTo(Posts, {
       foreignKey: "postId",
       targetKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
     });
     Comments.belongsTo(Users, {
       foreignKey: "userId",
       targetKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
     });
 
     Comments.belongsToMany(CommentLikes, {
       through: "CommentLikes",
       as: "commentId",
+      onUpdate: "cascade",
       onDelete: "cascade",
     });
   }

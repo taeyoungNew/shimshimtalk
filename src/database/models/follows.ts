@@ -16,11 +16,15 @@ class Follows extends Model implements FollowsAttributes {
     Follows.belongsTo(Users, {
       foreignKey: "followerId",
       targetKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
     });
 
     Follows.belongsTo(Users, {
       foreignKey: "followingId",
       targetKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
     });
   }
 }

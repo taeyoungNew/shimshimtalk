@@ -30,23 +30,27 @@ class Users extends Model implements UsersAttributes {
     Users.belongsToMany(Users, {
       through: "Follows",
       as: "followerId",
+      onUpdate: "cascade",
       onDelete: "cascade",
     });
     Users.belongsToMany(Users, {
       through: "Follows",
       as: "followingId",
+      onUpdate: "cascade",
       onDelete: "cascade",
     });
 
     Users.belongsToMany(PostLikes, {
       through: "PostLikes",
       as: "userId",
+      onUpdate: "cascade",
       onDelete: "cascade",
     });
 
     Users.belongsToMany(CommentLikes, {
       through: "CommentLikes",
       as: "commentId",
+      onUpdate: "cascade",
       onDelete: "cascade",
     });
   }
@@ -122,18 +126,27 @@ Users.init(
 Users.hasOne(UserInfos, {
   foreignKey: "userId",
   sourceKey: "id",
+  hooks: true,
+  onUpdate: "cascade",
+  onDelete: "cascade",
 });
 
 // 게시물
 Users.hasMany(Posts, {
   foreignKey: "userId",
   sourceKey: "id",
+  hooks: true,
+  onUpdate: "cascade",
+  onDelete: "cascade",
 });
 
 // 댓글
 Users.hasMany(Comments, {
   foreignKey: "userId",
   sourceKey: "id",
+  hooks: true,
+  onUpdate: "cascade",
+  onDelete: "cascade",
 });
 
 export default Users;

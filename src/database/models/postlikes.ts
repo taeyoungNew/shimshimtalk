@@ -17,11 +17,15 @@ class PostLikes extends Model implements PostLikeAttributes {
     PostLikes.belongsTo(Users, {
       foreignKey: "userId",
       targetKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
     });
 
     PostLikes.belongsTo(Posts, {
       foreignKey: "postId",
       targetKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
     });
   }
 }

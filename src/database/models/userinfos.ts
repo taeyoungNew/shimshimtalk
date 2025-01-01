@@ -28,6 +28,8 @@ class UserInfos extends Model implements UserInfoAttributes {
     UserInfos.belongsTo(Users, {
       foreignKey: "userId",
       targetKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
     });
   }
   // public static associate() {

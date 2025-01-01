@@ -26,6 +26,7 @@ class Posts extends Model implements PostsAttributes {
       },
       targetKey: "id",
       foreignKeyConstraint: true,
+      onUpdate: "cascade",
       onDelete: "cascade",
     });
 
@@ -33,6 +34,7 @@ class Posts extends Model implements PostsAttributes {
     Posts.belongsToMany(PostLikes, {
       through: "PostLikes",
       as: "postId",
+      onUpdate: "cascade",
       onDelete: "cascade",
     });
   }
@@ -62,6 +64,9 @@ Posts.init(
 Posts.hasMany(Comments, {
   foreignKey: "postId",
   sourceKey: "id",
+  hooks: true,
+  onUpdate: "cascade",
+  onDelete: "cascade",
 });
 
 export default Posts;

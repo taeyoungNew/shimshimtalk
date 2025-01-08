@@ -17,6 +17,7 @@ interface UsersAttributes {
 }
 
 class Users extends Model implements UsersAttributes {
+  [x: string]: any;
   public id!: string;
   public email!: string;
   public password!: string;

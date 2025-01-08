@@ -31,7 +31,6 @@ export const authMiddleware = async (
     // acctoken의 유무를 확인
     //  -> 없으면 로그인하라는 에러와 함께 로그인화면으로 go
     const { authorization } = req.cookies;
-    console.log("authorization = ", authorization);
 
     const [tokenType, token] = authorization.split(" ");
     checkAuth(authorization, tokenType, token);
@@ -49,6 +48,8 @@ export const authMiddleware = async (
       // accToken이 만료되었을경우
       // 캐시에 저장된 userId를 가져온다
       const result = await userRedisClient.get("userId");
+      console.log("userRedisClient userId = ", result);
+
       const userId = result.replace(/\"/gi, "");
 
       // DB에 저장된 유저의 refToken을 가져온다.

@@ -55,6 +55,10 @@ Comments.init(
       allowNull: false,
       type: DataTypes.INTEGER,
     },
+    userNickname: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    },
     content: DataTypes.STRING,
   },
   {

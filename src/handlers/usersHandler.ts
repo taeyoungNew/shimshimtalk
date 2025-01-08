@@ -58,15 +58,14 @@ class UserHandler {
 
   // 유저의 정보가져오기
   public findUser = async (
-    req: Request<{ id: string }>,
+    req: Request<{ email: string }>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const userId: string = req.params.id;
-      console.log("userId = ", userId);
+      const userId: string = req.params.email;
 
-      const result = await this.userService.findUser(userId);
+      const result = await this.userService.findUserByEmail(userId);
       return res.status(200).json(result);
     } catch (error) {
       throw error;

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { LoginDto } from "../dtos/auth/loginDto";
+import userRedisClient from "../common/cache/userIdCache";
 import { accessToken } from "../middlewares/common/accToken";
 import { refreshToken } from "../middlewares/common/refToken";
 import userCache from "../common/cache/userIdCache";
@@ -21,13 +22,19 @@ class AuthHandler {
 
       // acc & ref token생성
       const accToken: string = accessToken(getUserInfo.id, getUserInfo.email);
-      // const refToken = await refreshToken(email);
+
       // refToken 생성
       const refToken: string = refreshToken(getUserInfo.id, getUserInfo.email);
+
       // refToken 저장
       await this.authService.saveRefToken(refToken, getUserInfo.id);
+
       // cache에 유저id저장
-      await userCache.set("userId", JSON.stringify(getUserInfo.id));
+      await userRedisClient.set("userId", JSON.stringify(getUserInfo.id));
+      await userRedisClient.set(
+        "userNickname",
+        JSON.stringify(getUserInfo.UserInfo.nickname)
+      );
 
       // accToken쿠기에 담기
       res.cookie("authorization", `Bearer ${accToken}`);

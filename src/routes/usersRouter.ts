@@ -15,7 +15,7 @@ userRouter.post("/signup", userHandler.createUser);
 userRouter.get("/", userHandler.findAllUser);
 
 // 특정회원정보가져오기
-userRouter.get("/:id", userHandler.findUser);
+userRouter.get("/:email", userHandler.findUser);
 
 // 회원정보변경하기
 userRouter.put(

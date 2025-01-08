@@ -26,6 +26,10 @@ module.exports = {
           model: "Posts",
         },
       },
+      userNickname: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
       content: {
         allowNull: false,
         type: Sequelize.STRING(200),

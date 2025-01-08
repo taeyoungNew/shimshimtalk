@@ -4,7 +4,7 @@ import {
   GetAllPostEntity,
   GetPostEntity,
   GetUserPostsEntity,
-} from "../entity/postsEntity/postEntity";
+} from "../entity/postEntity";
 import Posts from "../database/models/posts";
 import Comments from "../database/models/comments";
 import { and, Op } from "sequelize";
@@ -26,10 +26,6 @@ class PostRepository {
   // 한 게시물만 조회
 
   public getPost = async (postInfo: GetPostEntity) => {
-    console.log("postInfo = ", postInfo);
-
-    // console.log("postId = ", postId);
-
     return await Posts.findOne({
       where: {
         id: Number(postInfo),

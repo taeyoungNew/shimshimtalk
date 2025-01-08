@@ -9,15 +9,15 @@ const postHandler = new PostHandler();
 // 게시물작성
 // authenticate가 필요
 postRouter.post(
-  "/create_post",
+  "/",
   isLogoutMiddleware,
   authMiddleware,
-  postHandler.writePost
+  postHandler.createPost
 );
 
 // 게시물 수정
 postRouter.put(
-  "/modify_post/:postId",
+  "/:postId",
   isLogoutMiddleware,
   authMiddleware,
   postHandler.modifyPost

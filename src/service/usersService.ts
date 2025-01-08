@@ -51,7 +51,17 @@ class UserService {
     }
   };
 
-  // 특정회원정보
+  // 특정회원정보찾기
+  public getUserInfo = async (email: string) => {
+    try {
+      await this.findUserByEmail(email);
+      return await this.userRepository.findByEmail(email);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // id로 회원정보 찾기
   public findUser = async (id: string) => {
     try {
       await this.findUserById(id);
@@ -117,6 +127,7 @@ class UserService {
       if (!result) {
         throw new Error("존재하지않는 회원입니다.");
       }
+
       return result;
     } catch (error) {
       throw error;

@@ -1,11 +1,8 @@
 import Users from "../database/models/users";
 import UserInfos from "../database/models/userinfos";
 import { ModifyUserDto } from "../dtos/users/modifyUserDto";
-import {
-  SignupUserEntity,
-  SignupUserInfosEntity,
-} from "../entity/usersEntity/userEntity";
-import { ModifyPostEntity } from "../entity/postsEntity/postEntity";
+import { SignupUserEntity, SignupUserInfosEntity } from "../entity/userEntity";
+import { UserInfoType } from "../types/userInfoType";
 
 class UserRepository {
   // refToken취득
@@ -40,6 +37,12 @@ class UserRepository {
   public findByEmail = async (email: string) => {
     const result = await Users.findOne({
       attributes: ["id", "email", "password"],
+      include: [
+        {
+          model: UserInfos,
+          attributes: ["username", "nickname", "aboutMe", "age"],
+        },
+      ],
       where: {
         email,
       },
@@ -55,13 +58,6 @@ class UserRepository {
       attributes: ["id", "email"],
       where: { id },
     });
-    // const result = await Users.findOne({
-    //   attributes: ["id", "email"],
-    //   where: { id: id },
-    //   include: [
-    //     { model: UserInfos, attributes: ["username", "age", "aboutMe"] },
-    //   ],
-    // });
 
     return result;
   };

@@ -12,7 +12,7 @@ import PostService from "../service/postService";
 class PostHandler {
   postService = new PostService();
   // 게시물 작성
-  public writePost: RequestHandler = async (
+  public createPost: RequestHandler = async (
     req: Request<{}, {}, CreatePostDto, {}>,
     res: Response,
     next
@@ -25,8 +25,7 @@ class PostHandler {
       // title형식체크
       if (!postTitleExp(title)) throw Error("게시물제목 형식에 맞지않습니다. ");
       // content형식체크
-      if (!postContentExp(content))
-        throw Error("게시물내용 형식에 맞지않습니다. ");
+      if (!postContentExp(content)) throw Error("300자내로 적어주세요. ");
       const postPayment: CreatePostDto = {
         userId,
         title,
@@ -81,7 +80,7 @@ class PostHandler {
     next
   ) => {
     try {
-      const postId: string = req.params.id;
+      const postId = req.params.id;
       const userId = res.locals.userInfo.userId;
       const { title, content } = req.body;
       // const userId: string = req.params.id;

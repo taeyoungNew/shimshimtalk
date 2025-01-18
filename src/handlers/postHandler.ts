@@ -33,8 +33,8 @@ class PostHandler {
       };
       await this.postService.createPost(postPayment);
       res.status(200).json({ message: "게시물이 작성되었습니다." });
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
 
@@ -51,8 +51,8 @@ class PostHandler {
 
       const result = await this.postService.getAllPosts(postLastId);
       return res.status(200).json({ data: result });
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
 
@@ -68,8 +68,8 @@ class PostHandler {
 
       const result = await this.postService.getPost(postId);
       res.status(200).json({ data: result });
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
 
@@ -97,7 +97,9 @@ class PostHandler {
       };
       await this.postService.modifyPost(payment);
       res.status(200).json({ message: "해당게시물이 수정되었습니다." });
-    } catch (error) {}
+    } catch (e) {
+      next(e);
+    }
   };
 
   // user의 게시물 조회
@@ -106,12 +108,16 @@ class PostHandler {
     res: Response,
     next
   ) => {
-    const param = {
-      userId: res.locals.userInfo.userId,
-      postLastId: req.body.postLastId,
-    };
-    const result = await this.postService.getUserPosts(param);
-    res.status(200).json({ data: result });
+    try {
+      const param = {
+        userId: res.locals.userInfo.userId,
+        postLastId: req.body.postLastId,
+      };
+      const result = await this.postService.getUserPosts(param);
+      res.status(200).json({ data: result });
+    } catch (e) {
+      next(e);
+    }
   };
 
   // 게시물 삭제
@@ -129,8 +135,8 @@ class PostHandler {
 
       await this.postService.deletePost(postPayment);
       res.status(200).json({ message: "게시물이 삭제되었습니다." });
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
 }

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { LoginDto } from "../dtos/auth/loginDto";
 import userRedisClient from "../common/cache/userIdCache";
 import { accessToken } from "../middlewares/common/accToken";
@@ -11,7 +11,11 @@ import bcrypt from "bcrypt";
 class AuthHandler {
   userService = new UserService();
   authService = new AuthService();
-  public loginUser = async (req: Request<{}, {}, LoginDto>, res: Response) => {
+  public loginUser = async (
+    req: Request<{}, {}, LoginDto>,
+    res: Response,
+    next: NextFunction
+  ) => {
     const { email, password } = req.body;
 
     try {
@@ -45,12 +49,16 @@ class AuthHandler {
           email: getUserInfo.email,
         },
       });
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
 
-  public logoutUser = async (req: Request, res: Response) => {
+  public logoutUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       // const userId = res.locals;
 
@@ -60,8 +68,8 @@ class AuthHandler {
       return res.status(200).json({
         message: "로그아웃되었습니다. ",
       });
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
 

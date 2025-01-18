@@ -38,8 +38,8 @@ class CommentHandler {
 
       await this.commentService.createComment(payment);
       res.status(200).json({ message: "댓글이 작성되었습니다. " });
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
   // 댓글수정
@@ -64,8 +64,8 @@ class CommentHandler {
       await this.commentService.modifyComment(payment);
 
       res.status(200).json({ message: "해당 댓글이 수정되었습니다." });
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
 
@@ -82,8 +82,8 @@ class CommentHandler {
       };
 
       return await this.commentService.getComment(payment);
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
 
@@ -102,8 +102,8 @@ class CommentHandler {
       };
       await this.commentService.deleteComment(payment);
       res.status(200).json({ message: "해당 댓글이 삭제되었습니다." });
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
 }

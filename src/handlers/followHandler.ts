@@ -24,8 +24,8 @@ class FollowHandler {
       };
       await this.followService.following(payment);
       return res.status(200).json({ message: "팔로잉되었습니다." });
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
   // 팔로잉끊기
@@ -41,8 +41,8 @@ class FollowHandler {
       };
       await this.followService.stopFollowing(payment);
       return res.status(200).json({ message: "팔로잉을 취소했습니다." });
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
   // 자신이 팔로잉한 유저들 조회
@@ -56,8 +56,8 @@ class FollowHandler {
 
       const result = await this.followService.getFollowings(userId);
       return res.status(200).json({ data: result });
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
 
@@ -71,8 +71,8 @@ class FollowHandler {
       const userId = res.locals.userInfo.userId;
       const result = await this.followService.getFollowers(userId);
       return res.status(200).json({ data: result });
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      next(e);
     }
   };
 }

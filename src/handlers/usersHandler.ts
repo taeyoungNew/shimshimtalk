@@ -2,6 +2,7 @@ import { Response, Request, RequestHandler, NextFunction } from "express";
 import { SignupDto } from "../dtos/users/signupDto";
 import { ModifyUserDto } from "../dtos/users/modifyUserDto";
 import UserService from "../service/usersService";
+import FollowService from "../service/followService";
 import {
   emailExp,
   passwordExp,
@@ -14,6 +15,7 @@ import {
 // 会員登録
 class UserHandler {
   userService = new UserService();
+  followService = new FollowService();
   public createUser: RequestHandler = async (
     req: Request<{}, {}, SignupDto, {}>,
     res: Response,
@@ -43,6 +45,14 @@ class UserHandler {
   };
 
   // 모든 회원정보 가져오기
+  /**
+   *
+   * @param req
+   * @param res
+   * @param next
+   * @returns
+   * 프로필, 닉네임, id값만 가져오기
+   */
   public findAllUser: RequestHandler = async (
     req: Request,
     res: Response,
@@ -90,6 +100,13 @@ class UserHandler {
     }
   };
 
+  /**
+   *
+   * @param req
+   * @param res
+   * @param next
+   * @return 자신의 팔로잉 팔로워리스트 가져오기
+   */
   // 회원정보 수정하기
   public modifyUserInfo = async (
     req: Request<{ id: string }, {}, ModifyUserDto, {}>,

@@ -3,6 +3,7 @@
 import { Model, DataTypes, Association } from "sequelize";
 import connection from "../connection";
 import Users from "./users";
+import UserInfos from "./userinfos";
 
 interface FollowsAttributes {
   followingId: string;
@@ -12,16 +13,17 @@ interface FollowsAttributes {
 class Follows extends Model implements FollowsAttributes {
   public followerId!: string;
   public followingId!: string;
+
   static associate() {
     Follows.belongsTo(Users, {
-      foreignKey: "followerId",
+      foreignKey: "followingId",
       targetKey: "id",
       onUpdate: "cascade",
       onDelete: "cascade",
     });
 
     Follows.belongsTo(Users, {
-      foreignKey: "followingId",
+      foreignKey: "followerId",
       targetKey: "id",
       onUpdate: "cascade",
       onDelete: "cascade",

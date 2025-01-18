@@ -13,7 +13,7 @@ import userRedisClient from "../common/cache/userIdCache";
  * Comment handler
  */
 class CommentHandler {
-  commentService = new CommentService();
+  private commentService = new CommentService();
   // 댓글작성
   public createComent = async (
     req: Request<{ postId: string }, {}, CreateCommentDto, {}>,
@@ -51,6 +51,10 @@ class CommentHandler {
     try {
       const userId = res.locals.userInfo.userId;
       const commentId = req.params.commentId;
+      console.log(commentContentExp(req.body.newContent));
+
+      if (commentContentExp(req.body.newContent))
+        throw Error("200자내로 적어주세요.");
       const payment: ModifyCommentDto = {
         userId,
         commentId: Number(commentId),
@@ -58,6 +62,8 @@ class CommentHandler {
       };
 
       await this.commentService.modifyComment(payment);
+
+      res.status(200).json({ message: "해당 댓글이 수정되었습니다." });
     } catch (error) {
       throw error;
     }
@@ -88,7 +94,7 @@ class CommentHandler {
     next: NextFunction
   ) => {
     try {
-      const userId = res.locals.userId;
+      const userId = res.locals.userInfo.userId;
       const commentId = req.params.commentId;
       const payment: DeleteCommentDto = {
         userId,

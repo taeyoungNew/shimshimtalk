@@ -2,7 +2,8 @@ import Users from "../database/models/users";
 import UserInfos from "../database/models/userinfos";
 import { ModifyUserDto } from "../dtos/users/modifyUserDto";
 import { SignupUserEntity, SignupUserInfosEntity } from "../entity/userEntity";
-import { UserInfoType } from "../types/userInfoType";
+import Follows from "../database/models/follows";
+import sequelize from "sequelize";
 
 class UserRepository {
   // refToken취득
@@ -43,6 +44,7 @@ class UserRepository {
           attributes: ["username", "nickname", "aboutMe", "age"],
         },
       ],
+      // group: ["Users.id"],
       where: {
         email,
       },
@@ -52,12 +54,48 @@ class UserRepository {
 
   // id로 회원정보가져오기
   public findById = async (id: string) => {
-    console.log("id = ", id);
-
+    console.log("findById = ", id);
+    // 에러가 난이유는 서브쿼라의 from절에서 테이블을 찾지못했기때문
+    // migrate의 모델명으로 해야한다
     const result = await Users.findOne({
-      attributes: ["id", "email"],
+      attributes: {
+        exclude: [
+          "refToken",
+          "password",
+          "refTokenExp",
+          "createdAt",
+          "updatedAt",
+        ],
+        include: [
+          [
+            sequelize.literal(`(
+              SELECT COUNT(CASE WHEN followingId = '${id}' THEN 1 END)
+                FROM Follows
+            )`),
+            "followerCtn",
+          ],
+          [
+            sequelize.literal(`(
+              SELECT COUNT(CASE WHEN followerId = '${id}' THEN 1 END)
+                FROM Follows
+            )`),
+            "followingCtn",
+          ],
+        ],
+      },
+      include: {
+        model: UserInfos,
+        attributes: ["nickname", "aboutMe", "age"],
+      },
+      subQuery: true,
       where: { id },
     });
+
+    // sequelize.literal(`(
+    //   SELECT COUNT(CASE WHEN Follows.followerId = ${id} THEN 1 END)
+    //     FROM Follows
+    //   )`),
+    //   "followerCtn",
 
     return result;
   };
@@ -82,6 +120,7 @@ class UserRepository {
         attributes: ["username", "aboutMe", "nickname"],
       },
     });
+
     return result;
   };
 

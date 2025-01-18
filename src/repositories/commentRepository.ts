@@ -4,7 +4,7 @@ import {
   FindCommentEntity,
   FindCommentsEntity,
   DeleteCommentEntity,
-} from "../entity/commentsEntity";
+} from "../entity/commentEntity";
 import Comments from "../database/models/comments";
 import { Op } from "sequelize";
 class CommentRepository {

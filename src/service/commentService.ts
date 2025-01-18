@@ -52,6 +52,9 @@ class CommentService {
     try {
       const comment = await this.commentRepository.getComment(params);
 
+      console.log("comment.userId = ", comment.userId);
+      console.log("params.userId = ", params.userId);
+
       if (comment.userId !== params.userId)
         throw new Error("자신의 댓글이 아닙니다.");
     } catch (error) {

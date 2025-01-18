@@ -56,16 +56,34 @@ class UserHandler {
     }
   };
 
-  // 유저의 정보가져오기
-  public findUser = async (
+  // email로 유저의 정보가져오기
+  public findUserByEmail = async (
     req: Request<{ email: string }>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const userId: string = req.params.email;
+      const email: string = req.params.email;
 
-      const result = await this.userService.findUserByEmail(userId);
+      const result = await this.userService.findUserByEmail(email);
+      return res.status(200).json(result);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // id로 유저의 정보가져오기
+
+  // 유저의 정보가져오기
+  public findUserById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId: string = res.locals.userInfo.userId;
+
+      const result = await this.userService.findUserById(userId);
       return res.status(200).json(result);
     } catch (error) {
       throw error;
@@ -104,6 +122,7 @@ class UserHandler {
       throw error;
     }
   };
+
   // 회원탈퇴
   public deleteUser = async (
     req: Request<{ id: string }>,

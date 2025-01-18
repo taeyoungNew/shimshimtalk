@@ -7,6 +7,7 @@ import Posts from "./posts";
 import Comments from "./comments";
 import PostLikes from "./postlikes";
 import CommentLikes from "./commentlike";
+import Follows from "./follows";
 
 interface UsersAttributes {
   id: string;
@@ -29,14 +30,15 @@ class Users extends Model implements UsersAttributes {
   static associate() {
     // following follower
     Users.belongsToMany(Users, {
+      as: "follower",
       through: "Follows",
-      as: "followerId",
       onUpdate: "cascade",
       onDelete: "cascade",
     });
+
     Users.belongsToMany(Users, {
+      as: "following",
       through: "Follows",
-      as: "followingId",
       onUpdate: "cascade",
       onDelete: "cascade",
     });
@@ -55,32 +57,6 @@ class Users extends Model implements UsersAttributes {
       onDelete: "cascade",
     });
   }
-  // public static associate() {
-  //   // // user - userInfo
-  //   this.hasOne(UserInfos, {
-  //     foreignKey: "userId",
-  //     sourceKey: "id",
-  //   });
-
-  //   // following follower
-  //   Users.belongsToMany(Users, {
-  //     through: "Follows",
-  //     as: "followerId",
-  //     onDelete: "cascade",
-  //   });
-  //   Users.belongsToMany(Users, {
-  //     through: "Follows",
-  //     as: "followingId",
-  //     onDelete: "cascade",
-  //   });
-
-  //   // user - postLike
-  //   Users.belongsToMany(Posts, {
-  //     through: "PostLikes",
-  //     as: "userId",
-  //     onDelete: "cascade",
-  //   });
-  // }
 }
 
 Users.init(
@@ -144,6 +120,23 @@ Users.hasMany(Posts, {
 // 댓글
 Users.hasMany(Comments, {
   foreignKey: "userId",
+  sourceKey: "id",
+  hooks: true,
+  onUpdate: "cascade",
+  onDelete: "cascade",
+});
+
+//  follow
+Users.hasMany(Follows, {
+  foreignKey: "followingId",
+  sourceKey: "id",
+  hooks: true,
+  onUpdate: "cascade",
+  onDelete: "cascade",
+});
+
+Users.hasMany(Follows, {
+  foreignKey: "followerId",
   sourceKey: "id",
   hooks: true,
   onUpdate: "cascade",

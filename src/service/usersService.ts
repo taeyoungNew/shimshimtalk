@@ -108,6 +108,7 @@ class UserService {
       throw error;
     }
   };
+
   // nickname중복체크
   public checkNickname = async (nickname: string) => {
     try {
@@ -133,6 +134,14 @@ class UserService {
       throw error;
     }
   };
+
+  // private getUserPass = async (id: string) => {
+  //   try {
+  //     return await UserRepository.getUserPass(id);
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // };
 
   // 회원탈퇴
   public deleteUser = async (id: string) => {

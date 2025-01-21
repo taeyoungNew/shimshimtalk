@@ -32,16 +32,16 @@ class FollowService {
 
       await this.checkUnFollowingUser(params);
       await this.followRepository.stopFollowing(params);
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      throw e;
     }
   };
   // 자신이 팔로잉한 유저조회
   public getFollowings = async (param: GetFollowingsDto) => {
     try {
       return await this.followRepository.getFollowings(param);
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      throw e;
     }
   };
 
@@ -49,8 +49,8 @@ class FollowService {
   public getFollowers = async (param: GetFollowersDto) => {
     try {
       return await this.followRepository.getFollowers(param);
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      throw e;
     }
   };
 
@@ -63,8 +63,8 @@ class FollowService {
       if (result) {
         throw new Error("이미 팔로잉하고있습니다.");
       }
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      throw e;
     }
   };
 
@@ -78,8 +78,8 @@ class FollowService {
       if (!result) {
         throw new Error("팔로잉하고 있지 않습니다..");
       }
-    } catch (error) {
-      throw error;
+    } catch (e) {
+      throw e;
     }
   };
 

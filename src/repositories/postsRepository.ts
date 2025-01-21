@@ -7,6 +7,7 @@ import {
 } from "../entity/postEntity";
 import Posts from "../database/models/posts";
 import Comments from "../database/models/comments";
+import PostLikes from "../database/models/postlikes";
 import { and, Op } from "sequelize";
 
 class PostRepository {
@@ -87,10 +88,15 @@ class PostRepository {
 
     return await Posts.findAll({
       attributes: ["id", "title", "content", "createdAt"],
-      include: {
-        model: Comments,
-        attributes: ["id", "postId", "userId", "content", "createdAt"],
-      },
+      include: [
+        {
+          model: Comments,
+          attributes: ["id", "postId", "userId", "content", "createdAt"],
+        },
+        {
+          model: PostLikes,
+        },
+      ],
       limit: 10,
       order: [["createdAt", "desc"]],
       where,
@@ -98,9 +104,12 @@ class PostRepository {
   };
   // Post 삭제
   public deletePost = async (param: DeletePostEntity) => {
-    console.log("postId = ", param);
-
     await Posts.destroy({ where: { id: param.postId, userId: param.userId } });
+  };
+
+  // 게시물 존재유무확인
+  public existPost = async (param: number) => {
+    return await Posts.findByPk(param);
   };
 }
 

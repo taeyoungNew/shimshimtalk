@@ -24,8 +24,8 @@ class PostService {
   public getPost = async (postInfo: GetPostDto) => {
     try {
       // 그 게시물이 있는지 확인
+      await this.existPost(postInfo.postId);
       const result = await this.postRepository.getPost(postInfo);
-      if (!result) throw new Error("해당 게시물이 존재하지 않습니다.");
       return result;
     } catch (error) {
       throw error;
@@ -46,6 +46,8 @@ class PostService {
   // 게시물 수정
   public modifyPost = async (postInfo: ModifyPostDto) => {
     try {
+      // 그 게시물이 있는지 확인
+      await this.existPost(postInfo.postId);
       await this.isUserPost(postInfo);
       await this.postRepository.modifyPost(postInfo);
     } catch (error) {
@@ -64,6 +66,8 @@ class PostService {
   // 게시물 삭제
   public deletePost = async (param: DeletePostDto) => {
     try {
+      // 그 게시물이 있는지 확인
+      await this.existPost(param.postId);
       // 자신의 게시물인지 확인
       await this.isUserPost(param);
 
@@ -80,6 +84,15 @@ class PostService {
       if (post.userId !== param.userId) {
         throw new Error("자신의 게시물이 아닙니다.");
       }
+    } catch (error) {
+      throw error;
+    }
+  };
+  // 그 게시물이 있는지 확인
+  public existPost = async (param: number): Promise<void> => {
+    try {
+      const result = await this.postRepository.existPost(param);
+      if (!result) throw new Error("해당 게시물이 존재하지 않습니다.");
     } catch (error) {
       throw error;
     }

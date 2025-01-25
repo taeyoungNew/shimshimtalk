@@ -3,12 +3,20 @@ class AuthService {
   authRepository = new AuthRepository();
   // refToken저장
   public saveRefToken = async (refToken: string, userId: string) => {
-    await this.authRepository.saveRefToken(refToken, userId);
+    try {
+      await this.authRepository.saveRefToken(refToken, userId);
+    } catch (error) {
+      throw error;
+    }
   };
 
   //
   public logoutUser = async (userId: string) => {
-    await this.authRepository.logoutUser(userId);
+    try {
+      await this.authRepository.logoutUser(userId);
+    } catch (error) {
+      throw error;
+    }
   };
 }
 

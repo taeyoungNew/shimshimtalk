@@ -6,6 +6,7 @@ import {
   GetUserPostsDto,
   ModifyPostDto,
   GetPostDto,
+  IsUserPost,
 } from "../dtos/posts/PostDto";
 import { postTitleExp, postContentExp } from "../common/validators/postExp";
 import PostService from "../service/postService";
@@ -74,13 +75,15 @@ class PostHandler {
   };
 
   // 게시물 수정
-  public modifyPost: RequestHandler = async (
-    req: Request,
+  public modifyPost = async (
+    req: Request<{ postId: string }, {}, ModifyPostDto>,
     res: Response,
-    next
+    next: NextFunction
   ) => {
     try {
-      const postId = req.params.id;
+      const postId = Number(req.params.postId);
+      console.log(postId);
+
       const userId = res.locals.userInfo.userId;
       const { title, content } = req.body;
       // const userId: string = req.params.id;
@@ -89,9 +92,14 @@ class PostHandler {
       // content형식체크
       if (!postContentExp(content))
         throw Error("게시물내용 형식에 맞지않습니다. ");
+      const modifyPayment: IsUserPost = {
+        userId,
+        postId,
+      };
+      await this.postService.isUserPost(modifyPayment);
       const payment: ModifyPostDto = {
         userId,
-        postId: Number(postId),
+        postId,
         title,
         content,
       };

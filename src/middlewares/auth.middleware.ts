@@ -5,26 +5,23 @@ import { tokenType } from "../types/tokenType";
 import { accessToken } from "../middlewares/common/accToken";
 import verifyAccToken from "./common/varifyAccToken";
 import userRedisClient from "../common/cache/userIdCache";
+import AuthService from "../service/authService";
 import UserRepository from "../repositories/usersRepository";
 import userCache from "../common/cache/userIdCache";
 import verifyRefToken from "./common/varifyRefToken";
 
 /**
- *
  * @param req
  * @param res
  * @param next
+ *
  */
-
-type Authorization = {
-  tokenType: string;
-  token: string;
-};
 export const authMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const authService = new AuthService();
   // const userIdCache = new UserIdCache();
   const userRepository = new UserRepository();
   try {
@@ -32,7 +29,7 @@ export const authMiddleware = async (
     //  -> 없으면 로그인하라는 에러와 함께 로그인화면으로 go
     const { authorization } = req.cookies;
 
-    const [tokenType, token] = authorization.split(" ");
+    const [tokenType, token]: string = authorization.split(" ");
     checkAuth(authorization, tokenType, token);
 
     // acctoken이 유효한지 확인
@@ -48,7 +45,11 @@ export const authMiddleware = async (
       // accToken이 만료되었을경우
       // 캐시에 저장된 userId를 가져온다
       const result = await userRedisClient.get("userId");
-      console.log("userRedisClient userId = ", result);
+
+      if (result == null) {
+        res.clearCookie("authorization");
+        throw new Error("다시 로그인 해주십시오");
+      }
 
       const userId = result.replace(/\"/gi, "");
 
@@ -70,7 +71,7 @@ export const authMiddleware = async (
         // 리플레쉬토큰까지 만료가되었을 시 캐시의 정보도 같이 지워준다.
         await userCache.del("userId");
         // 다시 로그인하라고 에러
-        throw new Error("토큰이 만료되어 다시 로그인해주십시오.");
+        next("토큰이 만료되어 다시 로그인해주십시오.");
       } else {
         // refToken이 유효할경우 user정보를 가져와선
         // accToken을 재발급하고
@@ -102,6 +103,6 @@ export const authMiddleware = async (
     //    -> reftoken도 유효하지않으면 로그인하라는 에러와 함께 로그인화면으로 go
     // -> 유효하면 인가를 받음
   } catch (error) {
-    throw error;
+    next(error);
   }
 };

@@ -15,8 +15,6 @@ const PORT = 3001;
 //   console.log("redis is ready");
 // });
 
-console.log("index");
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.json());

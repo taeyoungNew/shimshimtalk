@@ -32,7 +32,7 @@ postRouter.get(
 );
 
 // 모든 게시물을 조회
-postRouter.get("/posts", postHandler.getAllPosts);
+postRouter.get("/all_posts", postHandler.getAllPosts);
 
 // 한 게시물만 조회
 postRouter.get("/:postId", postHandler.getPost);

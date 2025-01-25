@@ -8,6 +8,8 @@ import sequelize from "sequelize";
 class UserRepository {
   // refToken취득
   public getRefToken = async (userId: string) => {
+    console.log(userId);
+
     const result = await Users.findByPk(userId, {
       attributes: ["refToken"],
       raw: true,

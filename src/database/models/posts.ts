@@ -69,4 +69,12 @@ Posts.hasMany(Comments, {
   onDelete: "cascade",
 });
 
+Posts.hasMany(PostLikes, {
+  foreignKey: "postId",
+  sourceKey: "id",
+  hooks: true,
+  onUpdate: "cascade",
+  onDelete: "cascade",
+});
+
 export default Posts;

@@ -75,7 +75,6 @@ class AuthHandler {
 
   public validPassword = (password: string, exPassword: string) => {
     const result = bcrypt.compareSync(password, exPassword);
-
     if (!result) throw new Error("패스워드가 일치하지않습니다.");
   };
 }

@@ -51,10 +51,10 @@ class CommentHandler {
     try {
       const userId = res.locals.userInfo.userId;
       const commentId = req.params.commentId;
-      console.log(commentContentExp(req.body.newContent));
 
       if (commentContentExp(req.body.newContent))
         throw Error("200자내로 적어주세요.");
+
       const payment: ModifyCommentDto = {
         userId,
         commentId: Number(commentId),

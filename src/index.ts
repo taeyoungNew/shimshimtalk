@@ -4,6 +4,8 @@ import router from "./routes/index";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cacheConnetion from "./common/cache/index";
+import morganMiddleware from "./middlewares/morgan";
+import logger from "./config/logger";
 import { json } from "express";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 
@@ -24,12 +26,13 @@ app.use("/api", router);
 // 모든 곳에서 발생하는 에러를 catch
 app.use(errorHandler);
 app.use(cacheConnetion);
-
+app.use(morganMiddleware);
 app.all(/(.*)/, (error: Error) => {
   console.log("index = ", error.message);
   throw new Error(error.message);
 });
 
 app.listen(PORT, () => {
+  logger.info("심심톡 실행");
   console.log(`Running on Port ${PORT} 빌드안해도 ts가 바로 실행이 되는데?`);
 });

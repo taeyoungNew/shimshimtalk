@@ -10,6 +10,8 @@ import {
 } from "../dtos/posts/PostDto";
 import { postTitleExp, postContentExp } from "../common/validators/postExp";
 import PostService from "../service/postService";
+import logger from "../config/logger";
+
 class PostHandler {
   postService = new PostService();
   // 게시물 작성
@@ -19,6 +21,13 @@ class PostHandler {
     next
   ) => {
     try {
+      logger.info("", {
+        method: "post",
+        url: "api/post/",
+        layer: "Handlers",
+        className: "PostHandler",
+        functionName: "createPost",
+      });
       const userId = res.locals.userInfo.userId;
 
       const { title, content } = req.body;
@@ -46,6 +55,13 @@ class PostHandler {
     next
   ) => {
     try {
+      logger.info("", {
+        method: "get",
+        url: "api/post/all_posts",
+        layer: "Handlers",
+        className: "PostHandler",
+        functionName: "getAllPosts",
+      });
       const postLastId: GetAllPostDto = {
         postLastId: req.body.postLastId,
       };
@@ -64,6 +80,13 @@ class PostHandler {
     next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "get",
+        url: "api/post/:postId",
+        layer: "Handlers",
+        className: "PostHandler",
+        functionName: "getPost",
+      });
       const postId = req.params.postId;
       console.log(":postId = ", typeof postId);
 
@@ -81,6 +104,13 @@ class PostHandler {
     next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "put",
+        url: "api/post/:postId",
+        layer: "Handlers",
+        className: "PostHandler",
+        functionName: "modifyPost",
+      });
       const postId = Number(req.params.postId);
       console.log(postId);
 
@@ -111,14 +141,21 @@ class PostHandler {
   };
 
   // user의 게시물 조회
-  public getUserPosts: RequestHandler = async (
-    req: Request<{}, {}, GetUserPostsDto, {}>,
+  public getUserPosts = async (
+    req: Request<{ userId: string }, {}, GetUserPostsDto, {}>,
     res: Response,
-    next
+    next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "get",
+        url: "api/post/:userId",
+        layer: "Handlers",
+        className: "PostHandler",
+        functionName: "getUserPosts",
+      });
       const param = {
-        userId: res.locals.userInfo.userId,
+        userId: req.params.userId,
         postLastId: req.body.postLastId,
       };
       const result = await this.postService.getUserPosts(param);
@@ -129,16 +166,23 @@ class PostHandler {
   };
 
   // 게시물 삭제
-  public deletePost: RequestHandler = async (
-    req: Request<{}, {}, DeletePostDto, {}>,
+  public deletePost = async (
+    req: Request<{ postId: string }, {}, DeletePostDto, {}>,
     res: Response,
-    next
+    next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "delete",
+        url: "api/post/:postId",
+        layer: "Handlers",
+        className: "PostHandler",
+        functionName: "deletePost",
+      });
       const userId = res.locals.userInfo.userId;
       const postPayment: DeletePostDto = {
         userId,
-        postId: req.body.postId,
+        postId: Number(req.params.postId),
       };
 
       await this.postService.deletePost(postPayment);

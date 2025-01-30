@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import cacheConnetion from "./common/cache/index";
 import morganMiddleware from "./middlewares/morgan";
 import logger from "./config/logger";
+import morgan from "morgan";
 import { json } from "express";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 
@@ -26,9 +27,15 @@ app.use("/api", router);
 // 모든 곳에서 발생하는 에러를 catch
 app.use(errorHandler);
 app.use(cacheConnetion);
+app.use(
+  morgan("combined", {
+    skip: function (req, res) {
+      return res.statusCode < 400;
+    },
+  })
+);
 app.use(morganMiddleware);
 app.all(/(.*)/, (error: Error) => {
-  console.log("index = ", error.message);
   throw new Error(error.message);
 });
 

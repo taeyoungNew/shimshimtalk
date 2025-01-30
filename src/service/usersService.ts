@@ -1,6 +1,7 @@
 import { SignupDto } from "../dtos/users/signupDto";
 import { ModifyUserDto } from "../dtos/users/modifyUserDto";
 import UserRepository from "../repositories/usersRepository";
+import logger from "../config/logger";
 import bcrypt from "bcrypt";
 class UserService {
   userRepository = new UserRepository();
@@ -8,6 +9,11 @@ class UserService {
   // 회원가입
   public createUser = async (userInfo: SignupDto) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "UserService",
+        functionName: "createUser",
+      });
       // 중복된 이메일을 쓰는지 확인
       await this.checkUserByEmail(userInfo.email);
       // 중복된 닉네임인지 확인
@@ -44,6 +50,11 @@ class UserService {
   // 모든회원정보
   public findAllUser = async () => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "UserService",
+        functionName: "findAllUser",
+      });
       const result = await this.userRepository.findAllUser();
       return result;
     } catch (error) {
@@ -54,6 +65,11 @@ class UserService {
   // 특정회원정보찾기
   public getUserInfo = async (email: string) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "UserService",
+        functionName: "getUserInfo",
+      });
       await this.findUserByEmail(email);
       return await this.userRepository.findByEmail(email);
     } catch (error) {
@@ -64,6 +80,11 @@ class UserService {
   // id로 회원정보 찾기
   public findUser = async (id: string) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "UserService",
+        functionName: "findUser",
+      });
       await this.findUserById(id);
       const result = await this.userRepository.findById(id);
       return result;
@@ -75,6 +96,11 @@ class UserService {
   // 특정회원정보변경
   public modifyUserInfo = async (userInfo: ModifyUserDto) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "UserService",
+        functionName: "modifyUserInfo",
+      });
       await this.findUserById(userInfo.userId);
       await this.userRepository.modifyUserInfos(userInfo);
     } catch (error) {
@@ -87,6 +113,11 @@ class UserService {
   // 특정회원의 정보(id)
   public findUserById = async (userId: string) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "UserService",
+        functionName: "findUserById",
+      });
       const result = await this.userRepository.findById(userId);
 
       if (!result) {
@@ -101,6 +132,11 @@ class UserService {
   // 특정회원의 중복유무
   public checkUserByEmail = async (email: string) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "UserService",
+        functionName: "checkUserByEmail",
+      });
       const result = await this.userRepository.findByEmail(email);
       if (result) {
         throw new Error("이미 존재하는 회원입니다.");
@@ -113,6 +149,11 @@ class UserService {
   // nickname중복체크
   public checkNickname = async (nickname: string) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "UserService",
+        functionName: "checkNickname",
+      });
       const result = await this.userRepository.checkNickname(nickname);
       if (result) {
         throw new Error("이미 사용중인 닉네임입니다..");
@@ -125,6 +166,11 @@ class UserService {
   // 특정회원의 정보(email)
   public findUserByEmail = async (email: string) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "UserService",
+        functionName: "findUserByEmail",
+      });
       const result = await this.userRepository.findByEmail(email);
       if (!result) {
         throw new Error("존재하지않는 회원입니다.");
@@ -147,6 +193,11 @@ class UserService {
   // 회원탈퇴
   public deleteUser = async (id: string) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "UserService",
+        functionName: "deleteUser",
+      });
       await this.findUserById(id);
       await this.userRepository.deleteAccount(id);
     } catch (error) {

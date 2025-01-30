@@ -3,6 +3,7 @@ import { SignupDto } from "../dtos/users/signupDto";
 import { ModifyUserDto } from "../dtos/users/modifyUserDto";
 import UserService from "../service/usersService";
 import FollowService from "../service/followService";
+import logger from "../config/logger";
 import {
   emailExp,
   passwordExp,
@@ -22,6 +23,13 @@ class UserHandler {
     next
   ) => {
     try {
+      logger.info("", {
+        method: "post",
+        url: "api/user/signup",
+        layer: "Handlers",
+        className: "UserHandler",
+        functionName: "createUser",
+      });
       const { email, password, aboutMe, age, nickname, username } = req.body;
       if (!emailExp(email)) throw Error("이메일형식이 맞지 않습니다. ");
 
@@ -58,6 +66,13 @@ class UserHandler {
     next
   ) => {
     try {
+      logger.info("", {
+        method: "get",
+        url: "api/user/",
+        layer: "Handlers",
+        className: "UserHandler",
+        functionName: "findAllUser",
+      });
       const result = await this.userService.findAllUser();
       return res.status(200).json(result);
     } catch (error) {
@@ -65,13 +80,20 @@ class UserHandler {
     }
   };
 
-  // email로 유저의 정보가져오기
+  // 특정유저의 정보가져오기
   public findUserByEmail = async (
     req: Request<{ email: string }>,
     res: Response,
     next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "get",
+        url: "api/user/:email",
+        layer: "Handlers",
+        className: "UserHandler",
+        functionName: "findUserByEmail",
+      });
       const email: string = req.params.email;
 
       const result = await this.userService.findUserByEmail(email);
@@ -81,15 +103,20 @@ class UserHandler {
     }
   };
 
-  // id로 유저의 정보가져오기
-
-  // 유저의 정보가져오기
+  // 자신의 정보가져오기
   public findUserById = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "get",
+        url: "api/user/myinfo",
+        layer: "Handlers",
+        className: "UserHandler",
+        functionName: "findUserById",
+      });
       const userId: string = res.locals.userInfo.userId;
 
       const result = await this.userService.findUserById(userId);
@@ -113,8 +140,13 @@ class UserHandler {
     next: NextFunction
   ) => {
     try {
-      console.log("수정하기");
-
+      logger.info("", {
+        method: "put",
+        url: "api/user/:id",
+        layer: "Handlers",
+        className: "UserHandler",
+        functionName: "modifyUserInfo",
+      });
       const userInfo: ModifyUserDto = {
         userId: req.params.id,
         username: req.body.username,
@@ -146,6 +178,13 @@ class UserHandler {
     next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "delete",
+        url: "api/user/:id",
+        layer: "Handlers",
+        className: "UserHandler",
+        functionName: "deleteUser",
+      });
       const id = req.params.id;
       await this.userService.deleteUser(id);
       return res.status(200).send({ message: "회원탈퇴가 완료되었습니다." });

@@ -40,11 +40,7 @@ const logger = winston.createLogger({
   format: logFormat,
   transports: [
     // コンソールログ
-    new winston.transports.Console({
-      format: consoleLogFormat,
-    }),
-
-    new winston.transports.File({ filename: "simsimtalk.log" }),
+    new winston.transports.Console(),
   ],
 });
 

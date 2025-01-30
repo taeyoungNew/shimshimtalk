@@ -25,7 +25,7 @@ postRouter.put(
 
 // 유저의 게시물들을 조회
 postRouter.get(
-  "/user_posts",
+  "/:userId",
   isLogoutMiddleware,
   authMiddleware,
   postHandler.getUserPosts
@@ -39,7 +39,7 @@ postRouter.get("/:postId", postHandler.getPost);
 
 // 게시물 삭제
 postRouter.delete(
-  "/delete_post",
+  "/:postId",
   isLogoutMiddleware,
   authMiddleware,
   postHandler.deletePost

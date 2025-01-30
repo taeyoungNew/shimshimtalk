@@ -6,6 +6,7 @@ import { refreshToken } from "../middlewares/common/refToken";
 import userCache from "../common/cache/userIdCache";
 import UserService from "../service/usersService";
 import AuthService from "../service/authService";
+import logger from "../config/logger";
 import bcrypt from "bcrypt";
 
 class AuthHandler {
@@ -19,6 +20,13 @@ class AuthHandler {
     const { email, password } = req.body;
 
     try {
+      logger.info("", {
+        method: "post",
+        url: "api/auth/login",
+        layer: "Handlers",
+        className: "AuthHandler",
+        functionName: "loginUser",
+      });
       // 로그인정보로 회원유무확인
       const getUserInfo = await this.userService.findUserByEmail(email);
       // 패스워드확인
@@ -42,6 +50,12 @@ class AuthHandler {
 
       // accToken쿠기에 담기
       res.cookie("authorization", `Bearer ${accToken}`);
+      logger.info("로그인되었습니다.", {
+        status: 200,
+        user: getUserInfo.email,
+        method: "post",
+        uer: "api/auth/login",
+      });
       return res.status(200).json({
         message: "로그인되었습니다. ",
         data: {
@@ -60,11 +74,20 @@ class AuthHandler {
     next: NextFunction
   ) => {
     try {
-      // const userId = res.locals;
-
+      logger.info("", {
+        method: "post",
+        url: "api/auth/login",
+        layer: "Handlers",
+        className: "AuthHandler",
+        functionName: "logoutUser",
+      });
       await userCache.del("userId");
       res.clearCookie("authorization");
-      // await this.authService.logoutUser(userId);
+      logger.info("로그아웃되었습니다.", {
+        status: 200,
+        method: "post",
+        uer: "api/auth/logput",
+      });
       return res.status(200).json({
         message: "로그아웃되었습니다. ",
       });

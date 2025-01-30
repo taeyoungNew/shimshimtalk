@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { checkAuth } from "../middlewares/common/checkAuth";
 import { tokenType } from "../types/tokenType";
-
+import logger from "../config/logger";
 import { accessToken } from "../middlewares/common/accToken";
 import verifyAccToken from "./common/varifyAccToken";
 import userRedisClient from "../common/cache/userIdCache";
@@ -48,6 +48,7 @@ export const authMiddleware = async (
 
       if (result == null) {
         res.clearCookie("authorization");
+
         throw new Error("다시 로그인 해주십시오");
       }
 

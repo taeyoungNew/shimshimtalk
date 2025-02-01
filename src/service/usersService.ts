@@ -118,6 +118,8 @@ class UserService {
         className: "UserService",
         functionName: "findUserById",
       });
+      console.log("userId = ", userId);
+
       const result = await this.userRepository.findById(userId);
 
       if (!result) {
@@ -171,7 +173,11 @@ class UserService {
         className: "UserService",
         functionName: "findUserByEmail",
       });
+      console.log("findUserByEmail = ", email);
+
       const result = await this.userRepository.findByEmail(email);
+      // console.log("result = ", result);
+
       if (!result) {
         throw new Error("존재하지않는 회원입니다.");
       }

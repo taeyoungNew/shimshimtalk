@@ -52,7 +52,7 @@ class PostHandler {
   public getAllPosts: RequestHandler = async (
     req: Request<{}, {}, GetAllPostDto, {}>,
     res: Response,
-    next
+    next: NextFunction
   ) => {
     try {
       logger.info("", {
@@ -62,6 +62,7 @@ class PostHandler {
         className: "PostHandler",
         functionName: "getAllPosts",
       });
+
       const postLastId: GetAllPostDto = {
         postLastId: req.body.postLastId,
       };
@@ -88,7 +89,6 @@ class PostHandler {
         functionName: "getPost",
       });
       const postId = req.params.postId;
-      console.log(":postId = ", typeof postId);
 
       const result = await this.postService.getPost(postId);
       res.status(200).json({ data: result });
@@ -112,7 +112,6 @@ class PostHandler {
         functionName: "modifyPost",
       });
       const postId = Number(req.params.postId);
-      console.log(postId);
 
       const userId = res.locals.userInfo.userId;
       const { title, content } = req.body;
@@ -154,6 +153,8 @@ class PostHandler {
         className: "PostHandler",
         functionName: "getUserPosts",
       });
+      console.log("getUserPosts");
+
       const param = {
         userId: req.params.userId,
         postLastId: req.body.postLastId,

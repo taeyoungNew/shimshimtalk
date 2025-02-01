@@ -14,9 +14,6 @@ userRouter.post("/signup", userHandler.createUser);
 // 모든회원정보가져오기
 userRouter.get("/", userHandler.findAllUser);
 
-// 특정회원정보가져오기
-userRouter.get("/:email", userHandler.findUserByEmail);
-
 // 나의 회원정보 가져오기
 userRouter.get(
   "/myinfo",
@@ -24,6 +21,9 @@ userRouter.get(
   authMiddleware,
   userHandler.findUserById
 );
+
+// 특정회원정보가져오기
+userRouter.get("/:email", userHandler.findUserByEmail);
 
 // 회원정보변경하기
 userRouter.put(
@@ -35,7 +35,7 @@ userRouter.put(
 
 // 회원탈퇴
 userRouter.delete(
-  "/:id",
+  "/",
   isLogoutMiddleware,
   authMiddleware,
   userHandler.deleteUser

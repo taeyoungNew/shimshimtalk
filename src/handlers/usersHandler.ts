@@ -95,6 +95,7 @@ class UserHandler {
         functionName: "findUserByEmail",
       });
       const email: string = req.params.email;
+      console.log("findUserByEmail= ", email);
 
       const result = await this.userService.findUserByEmail(email);
       return res.status(200).json(result);
@@ -118,6 +119,7 @@ class UserHandler {
         functionName: "findUserById",
       });
       const userId: string = res.locals.userInfo.userId;
+      console.log("findUserById = ", userId);
 
       const result = await this.userService.findUserById(userId);
       return res.status(200).json(result);
@@ -185,11 +187,11 @@ class UserHandler {
         className: "UserHandler",
         functionName: "deleteUser",
       });
-      const id = req.params.id;
+      const id = res.locals.userInfo.userId;
       await this.userService.deleteUser(id);
       return res.status(200).send({ message: "회원탈퇴가 완료되었습니다." });
     } catch (error) {
-      throw error;
+      next(error);
     }
   };
 }

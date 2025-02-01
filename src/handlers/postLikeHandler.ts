@@ -4,6 +4,7 @@ import {
   PostLikeCancelDto,
   PostLikeCntDto,
 } from "../dtos/postLikeDto";
+import logger from "../config/logger";
 import { Request, Response, NextFunction } from "express";
 class PostLikeHandler {
   private postLikeService = new PostLikeService();
@@ -14,6 +15,13 @@ class PostLikeHandler {
     next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "post",
+        url: "api/postLike/:postId",
+        layer: "Handlers",
+        className: "PostLikeHandler",
+        functionName: "postLike",
+      });
       const userId = res.locals.userInfo.userId;
       const postId = Number(req.params.postId);
       const payment = {
@@ -36,6 +44,13 @@ class PostLikeHandler {
     next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "delete",
+        url: "api/postLike/:postId",
+        layer: "Handlers",
+        className: "PostLikeHandler",
+        functionName: "postLikeCancel",
+      });
       const userId = res.locals.userInfo.userId;
       const postId = Number(req.params.postId);
       const payment = {

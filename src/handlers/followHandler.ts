@@ -6,6 +6,7 @@ import {
   GetFollowingsDto,
 } from "../dtos/followDto";
 import FollowService from "../service/followService";
+import logger from "../config/logger";
 
 class FollowHandler {
   private followService = new FollowService();
@@ -16,8 +17,13 @@ class FollowHandler {
     next: NextFunction
   ) => {
     try {
-      console.log("팔로잉하기");
-
+      logger.info("", {
+        method: "post",
+        url: "api/follow/:followingId",
+        layer: "Handlers",
+        className: "FollowHandler",
+        functionName: "following",
+      });
       const payment: FollowingDto = {
         userId: res.locals.userInfo.userId,
         followingId: req.params.followingId,
@@ -35,6 +41,13 @@ class FollowHandler {
     next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "post",
+        url: "api/follow/:followingId",
+        layer: "Handlers",
+        className: "FollowHandler",
+        functionName: "stopFollowing",
+      });
       const payment: FollowingDto = {
         userId: res.locals.userInfo.userId,
         followingId: req.params.followingId,
@@ -52,8 +65,14 @@ class FollowHandler {
     next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "get",
+        url: "api/follow/myfollowins",
+        layer: "Handlers",
+        className: "FollowHandler",
+        functionName: "getFollowings",
+      });
       const userId = res.locals.userInfo.userId;
-
       const result = await this.followService.getFollowings(userId);
       return res.status(200).json({ data: result });
     } catch (e) {
@@ -68,6 +87,13 @@ class FollowHandler {
     next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "get",
+        url: "api/follow/myfollews",
+        layer: "Handlers",
+        className: "FollowHandler",
+        functionName: "getFollowers",
+      });
       const userId = res.locals.userInfo.userId;
       const result = await this.followService.getFollowers(userId);
       return res.status(200).json({ data: result });

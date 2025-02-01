@@ -15,6 +15,8 @@ module.exports = {
       userId: {
         allowNull: false,
         type: Sequelize.UUID,
+        onUpdate: "cascade",
+        onDelete: "cascade",
         references: {
           key: "id",
           model: "Users",
@@ -23,6 +25,8 @@ module.exports = {
       commentId: {
         allowNull: false,
         type: Sequelize.INTEGER,
+        onUpdate: "cascade",
+        onDelete: "cascade",
         references: {
           key: "id",
           model: "Comments",

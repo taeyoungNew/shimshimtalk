@@ -4,7 +4,7 @@ import {
   GetFollowersDto,
   GetFollowingsDto,
 } from "../dtos/followDto";
-
+import logger from "../config/logger";
 import FollowRepository from "../repositories/followRepository";
 import UserService from "./usersService";
 
@@ -14,6 +14,11 @@ class FollowService {
   // 팔로잉하기
   public following = async (params: FollowingDto) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "FollowService",
+        functionName: "following",
+      });
       // 팔로잉하려는 유저가 존재하는지
       await this.userService.findUserById(params.followingId);
 
@@ -27,6 +32,11 @@ class FollowService {
   // 팔로잉끊기
   public stopFollowing = async (params: StopFollowingDto) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "FollowService",
+        functionName: "stopFollowing",
+      });
       // 팔로잉하려는 유저가 존재하는지
       await this.userService.findUserById(params.followingId);
 
@@ -39,6 +49,11 @@ class FollowService {
   // 자신이 팔로잉한 유저조회
   public getFollowings = async (param: GetFollowingsDto) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "FollowService",
+        functionName: "getFollowings",
+      });
       return await this.followRepository.getFollowings(param);
     } catch (e) {
       throw e;
@@ -48,6 +63,11 @@ class FollowService {
   // 자신의 팔로워조회
   public getFollowers = async (param: GetFollowersDto) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "FollowService",
+        functionName: "getFollowers",
+      });
       return await this.followRepository.getFollowers(param);
     } catch (e) {
       throw e;
@@ -59,6 +79,11 @@ class FollowService {
     followingId: FollowingDto
   ): Promise<void> => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "FollowService",
+        functionName: "checkFollowingUser",
+      });
       const result = await this.followRepository.getFollowing(followingId);
       if (result) {
         throw new Error("이미 팔로잉하고있습니다.");
@@ -74,6 +99,11 @@ class FollowService {
     followingId: FollowingDto
   ): Promise<void> => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "FollowService",
+        functionName: "checkUnFollowingUser",
+      });
       const result = await this.followRepository.getFollowing(followingId);
       if (!result) {
         throw new Error("팔로잉하고 있지 않습니다..");

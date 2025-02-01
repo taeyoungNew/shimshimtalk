@@ -13,12 +13,12 @@ export interface ModifyCommentEntity {
 }
 
 // 해당댓글조회
-export interface FindCommentEntity {
+export interface GetCommentEntity {
   commentId: number;
 }
 
 // 해당게시물의 댓글들 조회
-export interface FindCommentsEntity {
+export interface GetCommentsEntity {
   postId: number;
   commentLastId: number;
 }

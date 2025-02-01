@@ -40,6 +40,5 @@ app.all(/(.*)/, (error: Error) => {
 });
 
 app.listen(PORT, () => {
-  logger.info("심심톡 실행");
-  console.log(`Running on Port ${PORT} 빌드안해도 ts가 바로 실행이 되는데?`);
+  logger.info("심심톡 실행 PORT: ${PORT}");
 });

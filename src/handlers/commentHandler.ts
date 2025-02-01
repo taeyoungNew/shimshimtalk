@@ -8,6 +8,7 @@ import {
 } from "../dtos/comments/commentDto";
 import { commentContentExp } from "../common/validators/commentExp";
 import userRedisClient from "../common/cache/userIdCache";
+import logger from "../config/logger";
 
 /**
  * Comment handler
@@ -21,7 +22,13 @@ class CommentHandler {
     next: NextFunction
   ) => {
     try {
-      console.log("댓글달기");
+      logger.info("", {
+        method: "post",
+        url: "api/comment/:postId",
+        layer: "Handlers",
+        className: "CommentHandler",
+        functionName: "createComent",
+      });
 
       // 유저의 id가져오기
       const userId = res.locals.userInfo.userId;
@@ -49,6 +56,13 @@ class CommentHandler {
     next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "put",
+        url: "api/comment/:commentId",
+        layer: "Handlers",
+        className: "CommentHandler",
+        functionName: "modifyComment",
+      });
       const userId = res.locals.userInfo.userId;
       const commentId = req.params.commentId;
 
@@ -76,12 +90,19 @@ class CommentHandler {
     next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "get",
+        url: "api/comment/:commentId",
+        layer: "Handlers",
+        className: "CommentHandler",
+        functionName: "getComment",
+      });
       const commentId = req.params.commentId;
       const payment: GetCommentDto = {
         commentId,
       };
-
-      return await this.commentService.getComment(payment);
+      const result = await this.commentService.getComment(payment);
+      return res.status(200).json({ data: result });
     } catch (e) {
       next(e);
     }
@@ -94,6 +115,13 @@ class CommentHandler {
     next: NextFunction
   ) => {
     try {
+      logger.info("", {
+        method: "delete",
+        url: "api/comment/:commentId",
+        layer: "Handlers",
+        className: "CommentHandler",
+        functionName: "deleteComment",
+      });
       const userId = res.locals.userInfo.userId;
       const commentId = req.params.commentId;
       const payment: DeleteCommentDto = {

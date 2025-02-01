@@ -25,14 +25,14 @@ postRouter.put(
 
 // 유저의 게시물들을 조회
 postRouter.get(
-  "/:userId",
+  "/user_posts/:userId",
   isLogoutMiddleware,
   authMiddleware,
   postHandler.getUserPosts
 );
 
 // 모든 게시물을 조회
-postRouter.get("/all_posts", postHandler.getAllPosts);
+postRouter.get("/", postHandler.getAllPosts);
 
 // 한 게시물만 조회
 postRouter.get("/:postId", postHandler.getPost);

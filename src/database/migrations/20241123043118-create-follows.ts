@@ -15,6 +15,8 @@ module.exports = {
       followerId: {
         allowNull: false,
         type: Sequelize.UUID,
+        onUpdate: "cascade",
+        onDelete: "cascade",
         references: {
           key: "id",
           model: "Users",
@@ -23,6 +25,8 @@ module.exports = {
       followingId: {
         allowNull: false,
         type: Sequelize.UUID,
+        onUpdate: "cascade",
+        onDelete: "cascade",
         references: {
           key: "id",
           model: "Users",

@@ -2,27 +2,25 @@
 import { Model, DataTypes, Association } from "sequelize";
 import connection from "../connection";
 import Users from "./users";
-import Comments from "./comments";
 
-interface CommentLikeAttributes {
-  userId: string;
-  commentId: number;
+interface BlockUserAttributes {
+  blockerId: string;
+  blockedId: string;
 }
 
-class CommentLikes extends Model implements CommentLikeAttributes {
-  public userId!: string;
-  public commentId!: number;
+class BlockUsers extends Model implements BlockUserAttributes {
+  public blockerId!: string;
+  public blockedId!: string;
 
   static associate() {
-    CommentLikes.belongsTo(Users, {
-      foreignKey: "userId",
+    BlockUsers.belongsTo(Users, {
+      foreignKey: "blocker",
       targetKey: "id",
       onUpdate: "cascade",
       onDelete: "cascade",
     });
-
-    CommentLikes.belongsTo(Comments, {
-      foreignKey: "postId",
+    BlockUsers.belongsTo(Users, {
+      foreignKey: "blocked",
       targetKey: "id",
       onUpdate: "cascade",
       onDelete: "cascade",
@@ -30,7 +28,7 @@ class CommentLikes extends Model implements CommentLikeAttributes {
   }
 }
 
-CommentLikes.init(
+BlockUsers.init(
   {
     id: {
       allowNull: false,
@@ -38,19 +36,19 @@ CommentLikes.init(
       primaryKey: true,
       type: DataTypes.NUMBER,
     },
-    userId: {
+    blockerId: {
       allowNull: false,
       type: DataTypes.UUID,
     },
-    commentId: {
+    blockedId: {
       allowNull: false,
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
     },
   },
   {
     sequelize: connection,
-    modelName: "CommentLikes",
+    modelName: "BlockUsers",
   }
 );
 
-export default CommentLikes;
+export default BlockUsers;

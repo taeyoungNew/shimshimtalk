@@ -112,15 +112,6 @@ class FollowService {
       throw e;
     }
   };
-
-  // // 상대방이 있는 유저인지 확인
-  // public checkFollowingUser = async (followingId: string) => {
-  //   try {
-  //     await this.userService.findUserById(followingId);
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // };
 }
 
 export default FollowService;

@@ -102,7 +102,7 @@ class CommentService {
         functionName: "existComment",
       });
       const result = await this.commentRepository.existComment(param);
-      if (!result) throw new Error("해당 댓글이 존재하지 않습니다.");
+      if (!result) throw new Error("해당 게시물이 존재하지 않습니다.");
     } catch (error) {
       throw error;
     }

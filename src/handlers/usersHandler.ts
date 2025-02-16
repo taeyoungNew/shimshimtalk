@@ -13,14 +13,21 @@ import {
   username,
 } from "../common/validators/userExp";
 
-// 会員登録
 class UserHandler {
   userService = new UserService();
   followService = new FollowService();
-  public createUser: RequestHandler = async (
+  /**
+   * 회원가입
+   *
+   * @param req
+   * @param res
+   * @param next
+   * @returns
+   */
+  public createUser = async (
     req: Request<{}, {}, SignupDto, {}>,
     res: Response,
-    next
+    next: NextFunction
   ) => {
     try {
       logger.info("", {
@@ -51,14 +58,15 @@ class UserHandler {
     }
   };
 
-  // 모든 회원정보 가져오기
   /**
+   * 모든 회원정보리스트
    *
    * @param req
    * @param res
    * @param next
-   * @returns
-   * 프로필, 닉네임, id값만 가져오기
+   * @returns 프로필, 닉네임, id
+   *
+   *
    */
   public findAllUser: RequestHandler = async (
     req: Request,
@@ -95,7 +103,6 @@ class UserHandler {
         functionName: "findUserByEmail",
       });
       const email: string = req.params.email;
-      console.log("findUserByEmail= ", email);
 
       const result = await this.userService.findUserByEmail(email);
       return res.status(200).json(result);
@@ -119,7 +126,6 @@ class UserHandler {
         functionName: "findUserById",
       });
       const userId: string = res.locals.userInfo.userId;
-      console.log("findUserById = ", userId);
 
       const result = await this.userService.findUserById(userId);
       return res.status(200).json(result);

@@ -1,6 +1,5 @@
 import { Router } from "express";
 import AuthHandler from "../handlers/authHandler";
-import { authMiddleware } from "../middlewares/auth.middleware";
 import { isLogoutMiddleware } from "../middlewares/isLogout.middleware";
 import { isLoginMiddleware } from "../middlewares/isLogin.middleware";
 

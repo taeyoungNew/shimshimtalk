@@ -8,6 +8,7 @@ import Comments from "./comments";
 import PostLikes from "./postlikes";
 import CommentLikes from "./commentlike";
 import Follows from "./follows";
+import BlockUsers from "./blockuser";
 
 interface UsersAttributes {
   id: string;
@@ -39,6 +40,20 @@ class Users extends Model implements UsersAttributes {
     Users.belongsToMany(Users, {
       as: "following",
       through: "Follows",
+      onUpdate: "cascade",
+      onDelete: "cascade",
+    });
+
+    Users.belongsToMany(BlockUsers, {
+      as: "blocker",
+      through: "BlockUsers",
+      onUpdate: "cascade",
+      onDelete: "cascade",
+    });
+
+    Users.belongsToMany(BlockUsers, {
+      as: "blocked",
+      through: "BlockUsers",
       onUpdate: "cascade",
       onDelete: "cascade",
     });

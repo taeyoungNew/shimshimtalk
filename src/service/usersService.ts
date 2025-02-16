@@ -4,9 +4,14 @@ import UserRepository from "../repositories/usersRepository";
 import logger from "../config/logger";
 import bcrypt from "bcrypt";
 class UserService {
-  userRepository = new UserRepository();
+  private userRepository = new UserRepository();
 
-  // 회원가입
+  /**
+   *
+   * @param userInfo
+   *
+   * 회원가입
+   */
   public createUser = async (userInfo: SignupDto) => {
     try {
       logger.info("", {
@@ -47,7 +52,13 @@ class UserService {
     }
   };
 
-  // 모든회원정보
+  //
+  /**
+   *
+   * @returns 모든회원정보들
+   *
+   * 모든회원정보가져오기
+   */
   public findAllUser = async () => {
     try {
       logger.info("", {
@@ -62,7 +73,13 @@ class UserService {
     }
   };
 
-  // 특정회원정보찾기
+  /**
+   *
+   * @param email
+   * @returns 유저의 정보
+   *
+   * email로 특정회원정보찾기
+   */
   public getUserInfo = async (email: string) => {
     try {
       logger.info("", {
@@ -77,7 +94,6 @@ class UserService {
     }
   };
 
-  // id로 회원정보 찾기
   public findUser = async (id: string) => {
     try {
       logger.info("", {
@@ -93,7 +109,12 @@ class UserService {
     }
   };
 
-  // 특정회원정보변경
+  /**
+   *
+   * @param userInfo
+   *
+   * 회원정보변경
+   */
   public modifyUserInfo = async (userInfo: ModifyUserDto) => {
     try {
       logger.info("", {
@@ -110,7 +131,13 @@ class UserService {
 
   //
 
-  // 특정회원의 정보(id)
+  /**
+   *
+   * @param userId
+   * @returns 유저의 정보
+   *
+   * 특정회원의 정보(id)
+   */
   public findUserById = async (userId: string) => {
     try {
       logger.info("", {
@@ -118,7 +145,6 @@ class UserService {
         className: "UserService",
         functionName: "findUserById",
       });
-      console.log("userId = ", userId);
 
       const result = await this.userRepository.findById(userId);
 
@@ -131,7 +157,12 @@ class UserService {
     }
   };
 
-  // 특정회원의 중복유무
+  /**
+   *
+   * @param email
+   *
+   * 특정회원의 중복유무
+   */
   public checkUserByEmail = async (email: string) => {
     try {
       logger.info("", {
@@ -148,7 +179,12 @@ class UserService {
     }
   };
 
-  // nickname중복체크
+  /**
+   *
+   * @param nickname
+   *
+   * 닉네임중복체크
+   */
   public checkNickname = async (nickname: string) => {
     try {
       logger.info("", {
@@ -165,7 +201,14 @@ class UserService {
     }
   };
 
-  // 특정회원의 정보(email)
+  /**
+   * * 회원의 email로 회원정보가져오기
+   * @param email
+   * @returns 회원정보
+   *
+   *
+  
+   */
   public findUserByEmail = async (email: string) => {
     try {
       logger.info("", {
@@ -187,16 +230,12 @@ class UserService {
       throw error;
     }
   };
-
-  // private getUserPass = async (id: string) => {
-  //   try {
-  //     return await UserRepository.getUserPass(id);
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // };
-
-  // 회원탈퇴
+  /**
+   *
+   * @param id
+   *
+   * 회원탈퇴
+   */
   public deleteUser = async (id: string) => {
     try {
       logger.info("", {
@@ -213,5 +252,3 @@ class UserService {
 }
 
 export default UserService;
-
-// export function userSignupService(userInfo: SignupDto) {}

@@ -1,5 +1,5 @@
-import { SignupDto } from "../dtos/users/signupDto";
-import { ModifyUserDto } from "../dtos/users/modifyUserDto";
+import { SignupDto } from "../dtos/signupDto";
+import { ModifyUserDto } from "../dtos/modifyUserDto";
 import UserRepository from "../repositories/usersRepository";
 import logger from "../config/logger";
 import bcrypt from "bcrypt";

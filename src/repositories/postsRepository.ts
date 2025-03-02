@@ -11,7 +11,7 @@ import Comments from "../database/models/comments";
 import logger from "../config/logger";
 import { and, Op, where } from "sequelize";
 import sequelize from "sequelize";
-import { GetPostDto } from "../dtos/posts/PostDto";
+import { GetPostDto } from "../dtos/PostDto";
 
 class PostRepository {
   public findPostById = async (postId: GetPostEntity) => {

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { LoginDto } from "../dtos/auth/loginDto";
+import { LoginDto } from "../dtos/loginDto";
 import userRedisClient from "../common/cache/userIdCache";
 import { accessToken } from "../middlewares/common/accToken";
 import { refreshToken } from "../middlewares/common/refToken";

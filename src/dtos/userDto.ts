@@ -12,3 +12,7 @@ export interface ModifyUserDto {
   aboutMe: string;
   age: number;
 }
+
+export interface GetBlockedUsersDto {
+  blockedUserIds: string[];
+}

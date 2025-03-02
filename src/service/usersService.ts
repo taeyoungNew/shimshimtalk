@@ -3,6 +3,7 @@ import { ModifyUserDto } from "../dtos/modifyUserDto";
 import UserRepository from "../repositories/usersRepository";
 import logger from "../config/logger";
 import bcrypt from "bcrypt";
+import { GetBlockedUsersDto } from "../dtos/userDto";
 class UserService {
   private userRepository = new UserRepository();
 
@@ -73,6 +74,26 @@ class UserService {
     }
   };
 
+  /**
+   * 자신의 정보가져오기
+   *
+   * @param myId: string
+   * @returns id, email, follower, folloing, blockedUsers, info
+   */
+  public findMyInfos = async (myId: string) => {
+    try {
+      logger.info("", {
+        layer: "Service",
+        className: "UserService",
+        functionName: "findMyInfos",
+      });
+
+      const result = await this.userRepository.findMyInfos(myId);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  };
   /**
    *
    * @param email
@@ -216,7 +237,6 @@ class UserService {
         className: "UserService",
         functionName: "findUserByEmail",
       });
-      console.log("findUserByEmail = ", email);
 
       const result = await this.userRepository.findByEmail(email);
       // console.log("result = ", result);
@@ -245,6 +265,21 @@ class UserService {
       });
       await this.findUserById(id);
       await this.userRepository.deleteAccount(id);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  /**
+   * 차단한 유저리스트 불러오기
+   *
+   * @param blockedUserIds[]
+   *  @return blockedUserId, nickname
+   */
+
+  public getBlockedUsers = async (param: GetBlockedUsersDto) => {
+    try {
+      return await this.userRepository.getBlockedUsers(param);
     } catch (error) {
       throw error;
     }

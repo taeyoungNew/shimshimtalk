@@ -9,3 +9,14 @@ export interface SignupUserInfosEntity {
   aboutMe: string;
   age: number;
 }
+
+export interface ModifyUserEntity {
+  userId: string;
+  username: string;
+  aboutMe: string;
+  age: number;
+}
+
+export interface GetBlockedUsersEntity {
+  blockedUserIds: string[];
+}

@@ -14,13 +14,13 @@ class BlockUsers extends Model implements BlockUserAttributes {
 
   static associate() {
     BlockUsers.belongsTo(Users, {
-      foreignKey: "blocker",
+      foreignKey: "blockerId",
       targetKey: "id",
       onUpdate: "cascade",
       onDelete: "cascade",
     });
     BlockUsers.belongsTo(Users, {
-      foreignKey: "blocked",
+      foreignKey: "blockedId",
       targetKey: "id",
       onUpdate: "cascade",
       onDelete: "cascade",
@@ -50,5 +50,20 @@ BlockUsers.init(
     modelName: "BlockUsers",
   }
 );
+
+// BlockUsers.hasMany(Users, {
+//   foreignKey: "blockerId",
+//   sourceKey: "id",
+//   hooks: true,
+//   onUpdate: "cascade",
+//   onDelete: "cascade",
+// });
+// BlockUsers.hasMany(Users, {
+//   foreignKey: "blockedId",
+//   sourceKey: "id",
+//   hooks: true,
+//   onUpdate: "cascade",
+//   onDelete: "cascade",
+// });
 
 export default BlockUsers;

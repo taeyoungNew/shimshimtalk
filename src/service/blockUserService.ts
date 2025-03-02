@@ -50,19 +50,19 @@ class BlockUserService {
   /**
    * 차단한 유저리스트 불러오기
    */
-  public blockUserList = async (blockUserListPayment: BlockUserListDto) => {
-    try {
-      logger.info("", {
-        layer: "Service",
-        className: "BlockUserService",
-        functionName: "blockUserList",
-      });
+  // public blockUserList = async (blockUserListPayment: BlockUserListDto) => {
+  //   try {
+  //     logger.info("", {
+  //       layer: "Service",
+  //       className: "BlockUserService",
+  //       functionName: "blockUserList",
+  //     });
 
-      return await this.blockUserRepository.blockUserList(blockUserListPayment);
-    } catch (error) {
-      throw error;
-    }
-  };
+  //     return await this.blockUserRepository.blockUserList(blockUserListPayment);
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // };
 }
 
 export default BlockUserService;

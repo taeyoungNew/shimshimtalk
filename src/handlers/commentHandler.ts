@@ -5,7 +5,7 @@ import {
   DeleteCommentDto,
   GetCommentDto,
   ModifyCommentDto,
-} from "../dtos/comments/commentDto";
+} from "../dtos/commentDto";
 import { commentContentExp } from "../common/validators/commentExp";
 import userRedisClient from "../common/cache/userIdCache";
 import logger from "../config/logger";

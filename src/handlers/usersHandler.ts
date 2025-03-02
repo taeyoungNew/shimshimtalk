@@ -1,9 +1,8 @@
 import { Response, Request, RequestHandler, NextFunction } from "express";
-import { SignupDto } from "../dtos/users/signupDto";
-import { ModifyUserDto } from "../dtos/users/modifyUserDto";
 import UserService from "../service/usersService";
 import FollowService from "../service/followService";
 import logger from "../config/logger";
+import { SignupDto, ModifyUserDto } from "../dtos/userDto";
 import {
   emailExp,
   passwordExp,

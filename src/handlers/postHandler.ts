@@ -7,7 +7,7 @@ import {
   ModifyPostDto,
   GetPostDto,
   IsUserPost,
-} from "../dtos/posts/PostDto";
+} from "../dtos/PostDto";
 import { postTitleExp, postContentExp } from "../common/validators/postExp";
 import PostService from "../service/postService";
 import logger from "../config/logger";

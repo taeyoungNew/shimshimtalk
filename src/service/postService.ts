@@ -8,7 +8,7 @@ import {
   GetUserPostsDto,
   IsUserPost,
   ModifyPostDto,
-} from "../dtos/posts/PostDto";
+} from "../dtos/PostDto";
 import logger from "../config/logger";
 class PostService {
   postRepository = new PostRepository();

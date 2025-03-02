@@ -5,8 +5,8 @@ import {
   GetCommentDto,
   IsUserCommentDto,
   ModifyCommentDto,
-} from "../dtos/comments/commentDto";
-import { GetPostDto } from "../dtos/posts/PostDto";
+} from "../dtos/commentDto";
+import { GetPostDto } from "../dtos/PostDto";
 import PostService from "./postService";
 import logger from "../config/logger";
 class CommentService {

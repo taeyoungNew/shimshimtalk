@@ -1,6 +1,6 @@
 import Users from "../database/models/users";
 import UserInfos from "../database/models/userinfos";
-import { ModifyUserDto } from "../dtos/users/modifyUserDto";
+import { ModifyUserDto } from "../dtos/modifyUserDto";
 import { SignupUserEntity, SignupUserInfosEntity } from "../entity/userEntity";
 import logger from "../config/logger";
 import sequelize from "sequelize";

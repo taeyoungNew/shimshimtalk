@@ -19,7 +19,15 @@ userRouter.get(
   "/myinfo",
   isLogoutMiddleware,
   authMiddleware,
-  userHandler.findUserById
+  userHandler.findMyInfos
+);
+
+// 차단한 유저의 리스트 가져오기
+userRouter.get(
+  "/get-blockedusers-list",
+  isLogoutMiddleware,
+  authMiddleware,
+  userHandler.getBlockedUsers
 );
 
 // 특정회원정보가져오기

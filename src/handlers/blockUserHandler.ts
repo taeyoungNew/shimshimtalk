@@ -62,28 +62,28 @@ class BlockUserHandler {
     }
   };
 
-  public blockUserList = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      logger.info("", {
-        layer: "Handler",
-        className: "BlockUserHandler",
-        functionName: "unBlockUser",
-      });
-      const userId = res.locals.userInfo.userId;
-      const blockUserListPayment: BlockUserListDto = {
-        userId,
-      };
-      const blockedUserList =
-        await this.blockUserService.blockUserList(blockUserListPayment);
-      return res.status(200).json({ datas: blockedUserList });
-    } catch (error) {
-      next(error);
-    }
-  };
+  // public blockUserList = async (
+  //   req: Request,
+  //   res: Response,
+  //   next: NextFunction
+  // ) => {
+  //   try {
+  //     logger.info("", {
+  //       layer: "Handler",
+  //       className: "BlockUserHandler",
+  //       functionName: "unBlockUser",
+  //     });
+  //     const userId = res.locals.userInfo.userId;
+  //     const blockUserListPayment: BlockUserListDto = {
+  //       userId,
+  //     };
+  //     const blockedUserList =
+  //       await this.blockUserService.blockUserList(blockUserListPayment);
+  //     return res.status(200).json({ datas: blockedUserList });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
 }
 
 export default BlockUserHandler;

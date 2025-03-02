@@ -45,14 +45,14 @@ class Users extends Model implements UsersAttributes {
     });
 
     Users.belongsToMany(BlockUsers, {
-      as: "blocker",
+      as: "blockerId",
       through: "BlockUsers",
       onUpdate: "cascade",
       onDelete: "cascade",
     });
 
     Users.belongsToMany(BlockUsers, {
-      as: "blocked",
+      as: "blockedId",
       through: "BlockUsers",
       onUpdate: "cascade",
       onDelete: "cascade",
@@ -152,6 +152,22 @@ Users.hasMany(Follows, {
 
 Users.hasMany(Follows, {
   foreignKey: "followerId",
+  sourceKey: "id",
+  hooks: true,
+  onUpdate: "cascade",
+  onDelete: "cascade",
+});
+
+Users.hasMany(BlockUsers, {
+  foreignKey: "blockerId",
+  sourceKey: "id",
+  hooks: true,
+  onUpdate: "cascade",
+  onDelete: "cascade",
+});
+
+Users.hasMany(BlockUsers, {
+  foreignKey: "blockedId",
   sourceKey: "id",
   hooks: true,
   onUpdate: "cascade",

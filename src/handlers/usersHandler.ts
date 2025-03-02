@@ -2,7 +2,7 @@ import { Response, Request, RequestHandler, NextFunction } from "express";
 import UserService from "../service/usersService";
 import FollowService from "../service/followService";
 import logger from "../config/logger";
-import { SignupDto, ModifyUserDto } from "../dtos/userDto";
+import { SignupDto, ModifyUserDto, GetBlockedUsersDto } from "../dtos/userDto";
 import {
   emailExp,
   passwordExp,
@@ -67,10 +67,10 @@ class UserHandler {
    *
    *
    */
-  public findAllUser: RequestHandler = async (
+  public findAllUser = async (
     req: Request,
     res: Response,
-    next
+    next: NextFunction
   ) => {
     try {
       logger.info("", {
@@ -83,7 +83,39 @@ class UserHandler {
       const result = await this.userService.findAllUser();
       return res.status(200).json(result);
     } catch (error) {
-      throw error;
+      next(error);
+    }
+  };
+  /**
+   * 자신의 정보가져오기
+   *
+   * @param req
+   * @param res
+   * @param next
+   * @returns id, email, follower, folloing, blockedUsers, info
+   *
+   *
+   */
+  public findMyInfos = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      logger.info("", {
+        method: "get",
+        url: "api/user/:email",
+        layer: "Handlers",
+        className: "UserHandler",
+        functionName: "findMyInfos",
+      });
+      const myId: string = res.locals.userInfo.userId;
+      console.log("myId =", myId);
+
+      const result = await this.userService.findMyInfos(myId);
+      return res.status(200).json({ data: result });
+    } catch (error) {
+      next(error);
     }
   };
 
@@ -106,7 +138,7 @@ class UserHandler {
       const result = await this.userService.findUserByEmail(email);
       return res.status(200).json(result);
     } catch (error) {
-      throw error;
+      next(error);
     }
   };
 
@@ -129,7 +161,7 @@ class UserHandler {
       const result = await this.userService.findUserById(userId);
       return res.status(200).json(result);
     } catch (error) {
-      throw error;
+      next(error);
     }
   };
 
@@ -155,7 +187,7 @@ class UserHandler {
         functionName: "modifyUserInfo",
       });
       const userInfo: ModifyUserDto = {
-        userId: req.params.id,
+        userId: res.locals.userInfo.userId,
         username: req.body.username,
         aboutMe: req.body.aboutMe,
         age: req.body.age,
@@ -174,13 +206,13 @@ class UserHandler {
       await this.userService.modifyUserInfo(userInfo);
       return res.status(200).send("유저정보가 변경되었습니다. ");
     } catch (error) {
-      throw error;
+      next(error);
     }
   };
 
   // 회원탈퇴
   public deleteUser = async (
-    req: Request<{ id: string }>,
+    req: Request,
     res: Response,
     next: NextFunction
   ) => {
@@ -195,6 +227,31 @@ class UserHandler {
       const id = res.locals.userInfo.userId;
       await this.userService.deleteUser(id);
       return res.status(200).send({ message: "회원탈퇴가 완료되었습니다." });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getBlockedUsers = async (
+    req: Request<{}, {}, GetBlockedUsersDto, {}>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      logger.info("", {
+        method: "delete",
+        url: "api/user/get-blockedusers-list",
+        layer: "Handlers",
+        className: "UserHandler",
+        functionName: "getBlockedUsers",
+      });
+
+      const params: GetBlockedUsersDto = {
+        blockedUserIds: req.body.blockedUserIds,
+      };
+      const result = await this.userService.getBlockedUsers(params);
+      console.log(result);
+      return res.status(200).json({ datas: result });
     } catch (error) {
       next(error);
     }

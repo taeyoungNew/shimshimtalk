@@ -12,6 +12,14 @@ import bcrypt from "bcrypt";
 class AuthHandler {
   userService = new UserService();
   authService = new AuthService();
+  /**
+   * ログインAPI
+   *
+   * @param req email & pw
+   * @param res
+   * @param next
+   * @returns accToken refToken
+   */
   public loginUser = async (
     req: Request<{}, {}, LoginDto>,
     res: Response,
@@ -49,7 +57,10 @@ class AuthHandler {
       );
 
       // accToken쿠기에 담기
-      res.cookie("authorization", `Bearer ${accToken}`);
+      res.cookie("authorization", `Bearer ${accToken}`, {
+        sameSite: "strict",
+        httpOnly: true,
+      });
       logger.info("로그인되었습니다.", {
         status: 200,
         user: getUserInfo.email,
@@ -67,7 +78,14 @@ class AuthHandler {
       next(e);
     }
   };
-
+  /**
+   * ログアウAPI
+   *
+   * @param req
+   * @param res
+   * @param next
+   * @returns
+   */
   public logoutUser = async (
     req: Request,
     res: Response,
@@ -96,6 +114,37 @@ class AuthHandler {
     }
   };
 
+  public authMe = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      logger.info("", {
+        method: "post",
+        url: "api/auth/auth-me",
+        layer: "Handlers",
+        className: "AuthHandler",
+        functionName: "authMe",
+      });
+      const { authorization } = req.cookies;
+      console.log(authorization);
+      if (authorization === undefined || authorization === null)
+        return res.status(401).json({
+          isLogin: false,
+        });
+
+      return res.status(200).json({
+        isLogin: true,
+      });
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  /**
+   * PW確認モジュール
+   *
+   * @param password 入力パスワード
+   * @param exPassword DB上のパスワード
+   *
+   */
   public validPassword = (password: string, exPassword: string) => {
     const result = bcrypt.compareSync(password, exPassword);
     if (!result) throw new Error("패스워드가 일치하지않습니다.");

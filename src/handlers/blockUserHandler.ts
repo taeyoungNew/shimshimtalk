@@ -6,8 +6,20 @@ import {
   UnBlockUserDto,
 } from "../dtos/blockUserDto";
 import logger from "../config/logger";
+/**
+ * ブロッククラス
+ * 
+ */
 class BlockUserHandler {
   private blockUserService = new BlockUserService();
+  /**
+   * ユーザブロックAPI
+   * 
+   * @param req ブロック対象のID
+   * @param res 自分のID
+   * @param next 
+   * @returns 
+   */
   public blockUser = async (
     req: Request<{ blockedId: string }, {}, {}, {}>,
     res: Response,

@@ -26,11 +26,15 @@ export const authMiddleware = async (
       layer: "middleware",
       functionName: "authMiddleware",
     });
+    const { authorization } = req.cookies;
+    if (authorization == undefined) throw new Error("로그인 해주십시오");
+
     // acctoken의 유무를 확인
     //  -> 없으면 로그인하라는 에러와 함께 로그인화면으로 go
-    const { authorization } = req.cookies;
+    let tokenType, token;
 
-    const [tokenType, token]: string = authorization.split(" ");
+    [tokenType, token] = authorization.split(" ");
+    console.log("tokenType, token = ", tokenType, token);
     checkAuth(authorization, tokenType, token);
 
     // acctoken이 유효한지 확인
@@ -50,7 +54,6 @@ export const authMiddleware = async (
       // accToken이 만료되었을경우
       // 캐시에 저장된 userId를 가져온다
       const result = await userRedisClient.get("userId");
-      console.log("cache result", result);
 
       if (result == null) {
         logger.warn("redis의 userId가 null", {
@@ -117,7 +120,7 @@ export const authMiddleware = async (
         next();
       }
     }
-    //    -> reftoken도 유효하지않으면 로그인하라는 에러와 함께 로그인화면으로 go
+    // -> reftoken도 유효하지않으면 로그인하라는 에러와 함께 로그인화면으로 go
     // -> 유효하면 인가를 받음
   } catch (error) {
     next(error);

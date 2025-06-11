@@ -10,14 +10,16 @@ export const isLoginMiddleware = (
   next: NextFunction
 ) => {
   try {
+    console.log("isLoginMiddleware = ", req.cookies.authorization);
     if (req.cookies.authorization !== undefined) {
-      logger.error("현재로그인상태입니다.", {
+      logger.error("현재 로그인상태입니다.", {
         method: "post",
         url: "/api/auth",
         status: 402,
       });
       throw new Error("현재 로그인상태입니다. ");
     }
+
     next();
   } catch (error) {
     throw error;

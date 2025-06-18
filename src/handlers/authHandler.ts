@@ -51,6 +51,7 @@ class AuthHandler {
 
       // cache에 유저id저장
       await userRedisClient.set("userId", JSON.stringify(getUserInfo.id));
+      await userRedisClient.set("email", JSON.stringify(getUserInfo.email));
       await userRedisClient.set(
         "userNickname",
         JSON.stringify(getUserInfo.UserInfo.nickname)
@@ -72,6 +73,7 @@ class AuthHandler {
         data: {
           id: getUserInfo.id,
           email: getUserInfo.email,
+          nickname: getUserInfo.UserInfo.nickname,
         },
       });
     } catch (e) {
@@ -124,14 +126,15 @@ class AuthHandler {
         functionName: "authMe",
       });
       const { authorization } = req.cookies;
-      console.log(authorization);
       if (authorization === undefined || authorization === null)
         return res.status(401).json({
           isLogin: false,
         });
-
       return res.status(200).json({
         isLogin: true,
+        id: await userRedisClient.get("userId"),
+        email: await userRedisClient.get("email"),
+        nickname: await userRedisClient.get("userNickname"),
       });
     } catch (e) {
       next(e);

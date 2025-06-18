@@ -39,9 +39,10 @@ class UserHandler {
       const { email, password, aboutMe, age, nickname, username } = req.body;
       if (!emailExp(email)) throw Error("이메일형식이 맞지 않습니다. ");
 
-      if (!passwordExp(password)) next("패스워드형식이 맞지 않습니다.");
+      if (!passwordExp(password)) throw Error("패스워드형식이 맞지 않습니다.");
 
       if (!nicknameExp(nickname)) throw new Error("닉네임형식에 맞지않습니다.");
+
       const signupInfo: SignupDto = {
         email,
         password,

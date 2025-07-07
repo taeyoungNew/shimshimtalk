@@ -27,14 +27,17 @@ export const authMiddleware = async (
       functionName: "authMiddleware",
     });
     const { authorization } = req.cookies;
-    if (authorization == undefined) throw new Error("로그인 해주십시오");
+
+    // authMe인지 다른 API인지 확인
+    const path = req.path;
+
+    if (authorization == undefined) throw new Error("토큰이 없습니다.");
 
     // acctoken의 유무를 확인
     //  -> 없으면 로그인하라는 에러와 함께 로그인화면으로 go
     let tokenType, token;
 
     [tokenType, token] = authorization.split(" ");
-    console.log("tokenType, token = ", tokenType, token);
     checkAuth(authorization, tokenType, token);
 
     // acctoken이 유효한지 확인

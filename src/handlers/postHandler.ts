@@ -68,7 +68,7 @@ class PostHandler {
       };
 
       const result = await this.postService.getAllPosts(postLastId);
-      return res.status(200).json({ data: result });
+      return res.status(200).json({ posts: result });
     } catch (e) {
       next(e);
     }

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { LoginDto } from "../dtos/loginDto";
-import userRedisClient from "../common/cache/userIdCache";
+// import userRedisClient from "../common/cache/userIdCache";
 import { accessToken } from "../middlewares/common/accToken";
 import { refreshToken } from "../middlewares/common/refToken";
 import userCache from "../common/cache/userIdCache";
@@ -50,12 +50,13 @@ class AuthHandler {
       await this.authService.saveRefToken(refToken, getUserInfo.id);
 
       // cache에 유저id저장
-      await userRedisClient.set("userId", JSON.stringify(getUserInfo.id));
-      await userRedisClient.set("email", JSON.stringify(getUserInfo.email));
-      await userRedisClient.set(
+      await userCache.set("userId", JSON.stringify(getUserInfo.id));
+      await userCache.set("email", JSON.stringify(getUserInfo.email));
+      await userCache.set(
         "userNickname",
         JSON.stringify(getUserInfo.UserInfo.nickname)
       );
+      console.log("redis- userId = ", await userCache.get("userId"));
 
       // accToken쿠기에 담기
       res.cookie("authorization", `Bearer ${accToken}`, {
@@ -132,9 +133,9 @@ class AuthHandler {
         });
       return res.status(200).json({
         isLogin: true,
-        id: await userRedisClient.get("userId"),
-        email: await userRedisClient.get("email"),
-        nickname: await userRedisClient.get("userNickname"),
+        id: await userCache.get("userId"),
+        email: await userCache.get("email"),
+        nickname: await userCache.get("userNickname"),
       });
     } catch (e) {
       next(e);

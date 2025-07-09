@@ -16,11 +16,6 @@ const app = express();
 const PORT = 3001;
 dotenv.config();
 
-// userRedisClient.connect().catch(console.error);
-// userRedisClient.on("ready", () => {
-//   console.log("redis is ready");
-// });
-
 app.use(cors({ origin: process.env.FRONT_CORS, credentials: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());

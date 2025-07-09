@@ -11,6 +11,7 @@ import {
 import { postTitleExp, postContentExp } from "../common/validators/postExp";
 import PostService from "../service/postService";
 import logger from "../config/logger";
+import postCache from "../common/cacheLocal/postCache";
 
 class PostHandler {
   postService = new PostService();
@@ -67,7 +68,35 @@ class PostHandler {
         postLastId: req.body.postLastId,
       };
 
-      const result = await this.postService.getAllPosts(postLastId);
+      const size = await postCache.sendCommand(["LLEN", "posts:list"]);
+
+      let result;
+      if (size === 0) {
+        result = await this.postService.getAllPosts(postLastId);
+
+        const postIds = result.map((el) => el.id);
+
+        console.log("postIds = ", postIds);
+        // await postCache.rpush("posts:list", ...[postIds]);
+
+        await postCache.sendCommand(["RPUSH", "posts:list", ...[postIds]]);
+
+        // await redisClient.lPush("posts:list", "id1", "id2");
+
+        // for (let idx = 0; idx < result.length; idx++) {
+        //   postCache.set(
+        //     `${result[idx].dataValues.id}`,
+        //     JSON.stringify({
+        //       userId: result[idx].dataValues.userId,
+        //       userNickname: result[idx].dataValues.userNickname,
+        //       title: result[idx].dataValues.title,
+        //       content: result[idx].dataValues.content,
+        //       Comments: result[idx].dataValues.Comments,
+        //     })
+        //   );
+        // }
+      } else {
+      }
       return res.status(200).json({ posts: result });
     } catch (e) {
       next(e);

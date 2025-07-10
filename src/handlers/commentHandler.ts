@@ -7,7 +7,7 @@ import {
   ModifyCommentDto,
 } from "../dtos/commentDto";
 import { commentContentExp } from "../common/validators/commentExp";
-import userRedisClient from "../common/cache/userIdCache";
+import { userCache } from "../common/cache/userIdCache";
 import logger from "../config/logger";
 
 /**
@@ -40,7 +40,7 @@ class CommentHandler {
         userId,
         postId: Number(postId),
         content: req.body.content,
-        userNickname: await userRedisClient.get("userNickname"),
+        userNickname: await userCache.get("userNickname"),
       };
 
       await this.commentService.createComment(payment);

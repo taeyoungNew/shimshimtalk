@@ -4,9 +4,9 @@ import { tokenType } from "../types/tokenType";
 import logger from "../config/logger";
 import { accessToken } from "../middlewares/common/accToken";
 import verifyAccToken from "./common/varifyAccToken";
-import userRedisClient from "../common/cache/userIdCache";
+// import userRedisClient from "../common/cache/userIdCache";
 import UserRepository from "../repositories/usersRepository";
-import userCache from "../common/cache/userIdCache";
+import { userCache } from "../common/cache/userIdCache";
 import verifyRefToken from "./common/varifyRefToken";
 
 /**
@@ -56,7 +56,7 @@ export const authMiddleware = async (
       });
       // accToken이 만료되었을경우
       // 캐시에 저장된 userId를 가져온다
-      const result = await userRedisClient.get("userId");
+      const result = await userCache.get("userId");
 
       if (result == null) {
         logger.warn("redis의 userId가 null", {

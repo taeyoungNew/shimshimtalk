@@ -11,7 +11,8 @@ import {
 import { postTitleExp, postContentExp } from "../common/validators/postExp";
 import PostService from "../service/postService";
 import logger from "../config/logger";
-import postCache from "../common/cacheLocal/postCache";
+import { postCache } from "../common/cacheLocal/postCache";
+import Posts from "../database/models/posts";
 
 class PostHandler {
   postService = new PostService();
@@ -70,34 +71,40 @@ class PostHandler {
 
       const size = await postCache.sendCommand(["LLEN", "posts:list"]);
 
-      let result;
+      let result: Posts[] = [];
+
       if (size === 0) {
         result = await this.postService.getAllPosts(postLastId);
-
         const postIds = result.map((el) => el.id);
+        await postCache.rPush("posts:list", postIds.map(String));
 
-        console.log("postIds = ", postIds);
-        // await postCache.rpush("posts:list", ...[postIds]);
+        for (let idx = 0; idx < result.length; idx++) {
+          postCache.set(
+            `post:${result[idx].dataValues.id}`,
+            JSON.stringify({
+              postId: result[idx].dataValues.postId,
+              userId: result[idx].dataValues.userId,
+              title: result[idx].dataValues.title,
+              content: result[idx].dataValues.content,
+              userNickname: result[idx].dataValues.userNickname,
+              likeCnt: result[idx].dataValues.likeCnt,
+              commentCnt: result[idx].dataValues.commentCnt,
+              Comments: result[idx].dataValues.Comments,
+            })
+          );
+        }
 
-        await postCache.sendCommand(["RPUSH", "posts:list", ...[postIds]]);
-
-        // await redisClient.lPush("posts:list", "id1", "id2");
-
-        // for (let idx = 0; idx < result.length; idx++) {
-        //   postCache.set(
-        //     `${result[idx].dataValues.id}`,
-        //     JSON.stringify({
-        //       userId: result[idx].dataValues.userId,
-        //       userNickname: result[idx].dataValues.userNickname,
-        //       title: result[idx].dataValues.title,
-        //       content: result[idx].dataValues.content,
-        //       Comments: result[idx].dataValues.Comments,
-        //     })
-        //   );
-        // }
+        return res.status(200).json({ posts: result });
       } else {
+        const ids = await postCache.lRange("posts:list", 0, -1);
+        const postJsons = await Promise.all(
+          ids.map((id: string) => postCache.get(`post:${id}`))
+        );
+
+        const posts = postJsons.map((json) => JSON.parse(json));
+
+        return res.status(200).json({ posts: posts });
       }
-      return res.status(200).json({ posts: result });
     } catch (e) {
       next(e);
     }

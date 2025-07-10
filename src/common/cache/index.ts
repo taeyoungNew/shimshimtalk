@@ -1,6 +1,6 @@
-import userIdCache from "./userIdCache";
+import { userCache } from "./userIdCache";
 const connetCache = async () => {
-  userIdCache;
+  userCache;
 };
 
 export default connetCache;

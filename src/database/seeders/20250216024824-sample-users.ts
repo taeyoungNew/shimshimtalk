@@ -17,16 +17,22 @@ module.exports = {
       {
         id: "1234",
         email: "seedEmail1@test.com",
-        password: 1234,
+        password:
+          "$2b$10$XnNy8WYA2/JXQQEKZX9VmOEH71x/pXbjqZEhOCEcRtiXyPsSmuZdS",
+        refToken: "",
+        refTokenExp: "2025-01-25",
         createdAt: "2025-01-23",
         updatedAt: "2025-01-23",
       },
       {
         id: "1235",
         email: "seedEmail2@test.com",
-        password: 1234,
-        createdAt: "2025-01-23",
-        updatedAt: "2025-01-23",
+        password:
+          "$2b$10$XnNy8WYA2/JXQQEKZX9VmOEH71x/pXbjqZEhOCEcRtiXyPsSmuZdS",
+        refToken: "",
+        refTokenExp: "2025-01-24",
+        createdAt: "2025-01-25",
+        updatedAt: "2025-01-25",
       },
     ]);
   },

@@ -33,7 +33,6 @@ class PostHandler {
       const userId = res.locals.userInfo.userId;
 
       const { title, content } = req.body;
-      // const userId: string = req.params.id;
       // title형식체크
       if (!postTitleExp(title)) throw Error("게시물제목 형식에 맞지않습니다. ");
       // content형식체크
@@ -73,28 +72,31 @@ class PostHandler {
 
       let result: Posts[] = [];
 
+      // 첫랜더링
       if (size === 0) {
         result = await this.postService.getAllPosts(postLastId);
         const postIds = result.map((el) => el.id);
-        await postCache.rPush("posts:list", postIds.map(String));
-
-        for (let idx = 0; idx < result.length; idx++) {
-          postCache.set(
-            `post:${result[idx].dataValues.id}`,
-            JSON.stringify({
-              postId: result[idx].dataValues.postId,
-              userId: result[idx].dataValues.userId,
-              title: result[idx].dataValues.title,
-              content: result[idx].dataValues.content,
-              userNickname: result[idx].dataValues.userNickname,
-              likeCnt: result[idx].dataValues.likeCnt,
-              commentCnt: result[idx].dataValues.commentCnt,
-              Comments: result[idx].dataValues.Comments,
-            })
-          );
+        let postResult;
+        if (result.length != 0) {
+          await postCache.rPush("posts:list", postIds.map(String));
+          for (let idx = 0; idx < result.length; idx++) {
+            postCache.set(
+              `post:${result[idx].dataValues.id}`,
+              JSON.stringify({
+                postId: result[idx].dataValues.postId,
+                userId: result[idx].dataValues.userId,
+                title: result[idx].dataValues.title,
+                content: result[idx].dataValues.content,
+                userNickname: result[idx].dataValues.userNickname,
+                likeCnt: result[idx].dataValues.likeCnt,
+                commentCnt: result[idx].dataValues.commentCnt,
+                Comments: result[idx].dataValues.Comments,
+              })
+            );
+          }
+          postResult = result.splice(0, 5);
         }
-
-        return res.status(200).json({ posts: result });
+        return res.status(200).json({ posts: postResult });
       } else {
         const ids = await postCache.lRange("posts:list", 0, -1);
         const postJsons = await Promise.all(

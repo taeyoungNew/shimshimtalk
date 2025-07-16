@@ -134,20 +134,22 @@ class PostRepository {
     });
   };
   // Post 모두 불러오기
-  public getAllPosts = async (param: GetAllPostEntity) => {
+  public getAllPosts = async () => {
     logger.info("", {
       layer: "Repository",
       className: "PostRepository",
       functionName: "getAllPosts",
     });
-    let where = {};
-    param.postLastId != null
-      ? (where = {
-          id: {
-            [Op.lt]: param.postLastId,
-          },
-        })
-      : "";
+    // let where = {};
+    // console.log("getAllPosts = ", param.postLastId);
+
+    // param.postLastId != null
+    //   ? (where = {
+    //       id: {
+    //         [Op.lt]: param.postLastId,
+    //       },
+    //     })
+    //   : "";
 
     return await Posts.findAll({
       attributes: {
@@ -183,7 +185,7 @@ class PostRepository {
       limit: 10,
       order: [["createdAt", "desc"]],
       subQuery: false,
-      where,
+      // where,
     });
   };
   // Post 삭제

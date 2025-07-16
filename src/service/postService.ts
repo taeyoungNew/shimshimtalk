@@ -77,14 +77,14 @@ class PostService {
     }
   };
   // 게시물 모두조회
-  public getAllPosts = async (param: GetAllPostDto) => {
+  public getAllPosts = async () => {
     try {
       logger.info("", {
         layer: "Service",
         className: "PostService",
         functionName: "getAllPosts",
       });
-      return await this.postRepository.getAllPosts(param);
+      return await this.postRepository.getAllPosts();
     } catch (error) {
       throw error;
     }

@@ -51,7 +51,7 @@ class PostHandler {
 
   // 게시물 모두조회
   public getAllPosts: RequestHandler = async (
-    req: Request<{}, {}, GetAllPostDto, {}>,
+    req: Request,
     res: Response,
     next: NextFunction
   ) => {
@@ -63,18 +63,19 @@ class PostHandler {
         className: "PostHandler",
         functionName: "getAllPosts",
       });
+      const postLastId = Number(req.query.postLastId);
+      // const postLastId: GetAllPostDto = {
+      //   postLastId: Number(req.query.postLastId),
+      // };
 
-      const postLastId: GetAllPostDto = {
-        postLastId: req.body.postLastId,
-      };
+      // console.log("postLastId = ", postLastId.postLastId);
 
       const size = await postCache.sendCommand(["LLEN", "posts:list"]);
 
       let result: Posts[] = [];
-
       // 첫랜더링
       if (size === 0) {
-        result = await this.postService.getAllPosts(postLastId);
+        result = await this.postService.getAllPosts();
         const postIds = result.map((el) => el.id);
         let postResult;
         if (result.length != 0) {
@@ -83,7 +84,7 @@ class PostHandler {
             postCache.set(
               `post:${result[idx].dataValues.id}`,
               JSON.stringify({
-                postId: result[idx].dataValues.postId,
+                id: result[idx].dataValues.id,
                 userId: result[idx].dataValues.userId,
                 title: result[idx].dataValues.title,
                 content: result[idx].dataValues.content,
@@ -94,14 +95,25 @@ class PostHandler {
               })
             );
           }
+
           postResult = result.splice(0, 5);
         }
         return res.status(200).json({ posts: postResult });
       } else {
+        // 두번째랜더링
         const ids = await postCache.lRange("posts:list", 0, -1);
+        const lastPostIdx = ids.findIndex((id: number) => {
+          return Number(id) === postLastId;
+        });
+
         const postJsons = await Promise.all(
-          ids.map((id: string) => postCache.get(`post:${id}`))
+          ids.map((id: string, idx: number) => {
+            if (lastPostIdx > idx) {
+              return postCache.get(`post:${id}`);
+            }
+          })
         );
+        console.log(postJsons);
 
         const posts = postJsons.map((json) => JSON.parse(json));
 
@@ -191,7 +203,6 @@ class PostHandler {
         className: "PostHandler",
         functionName: "getUserPosts",
       });
-      console.log("getUserPosts");
 
       const param = {
         userId: req.params.userId,

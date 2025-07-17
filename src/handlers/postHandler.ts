@@ -64,11 +64,6 @@ class PostHandler {
         functionName: "getAllPosts",
       });
       const postLastId = Number(req.query.postLastId);
-      // const postLastId: GetAllPostDto = {
-      //   postLastId: Number(req.query.postLastId),
-      // };
-
-      // console.log("postLastId = ", postLastId.postLastId);
 
       const size = await postCache.sendCommand(["LLEN", "posts:list"]);
 
@@ -92,7 +87,8 @@ class PostHandler {
                 likeCnt: result[idx].dataValues.likeCnt,
                 commentCnt: result[idx].dataValues.commentCnt,
                 Comments: result[idx].dataValues.Comments,
-              })
+              }),
+              { EX: 600 }
             );
           }
 
@@ -101,21 +97,17 @@ class PostHandler {
         return res.status(200).json({ posts: postResult });
       } else {
         // 두번째랜더링
-        const ids = await postCache.lRange("posts:list", 0, -1);
+        const ids: [] = await postCache.lRange("posts:list", 0, -1);
+
         const lastPostIdx = ids.findIndex((id: number) => {
           return Number(id) === postLastId;
         });
-
+        const targetIds = ids.slice(lastPostIdx + 1, lastPostIdx + 6);
         const postJsons = await Promise.all(
-          ids.map((id: string, idx: number) => {
-            if (lastPostIdx > idx) {
-              return postCache.get(`post:${id}`);
-            }
-          })
+          targetIds.map((id: string) => postCache.get(`post:${id}`))
         );
-        console.log(postJsons);
 
-        const posts = postJsons.map((json) => JSON.parse(json));
+        const posts = postJsons.map((post) => JSON.parse(post));
 
         return res.status(200).json({ posts: posts });
       }

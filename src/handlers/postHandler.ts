@@ -72,9 +72,9 @@ class PostHandler {
       if (size === 0) {
         result = await this.postService.getAllPosts();
         const postIds = result.map((el) => el.id);
-        let postResult;
+        let posts;
         if (result.length != 0) {
-          await postCache.rPush("posts:list", postIds.map(String));
+          await postCache.rPush("posts:list", postIds.map(String), { EX: 300 });
           for (let idx = 0; idx < result.length; idx++) {
             postCache.set(
               `post:${result[idx].dataValues.id}`,
@@ -91,10 +91,10 @@ class PostHandler {
               { EX: 600 }
             );
           }
-
-          postResult = result.splice(0, 5);
+          posts = result.splice(0, 5);
+          const isLast = posts.length < 5 ? true : false;
+          return res.status(200).json({ posts, isLast });
         }
-        return res.status(200).json({ posts: postResult });
       } else {
         // 두번째랜더링
         const ids: [] = await postCache.lRange("posts:list", 0, -1);
@@ -108,8 +108,8 @@ class PostHandler {
         );
 
         const posts = postJsons.map((post) => JSON.parse(post));
-
-        return res.status(200).json({ posts: posts });
+        const isLast = posts.length < 5 ? true : false;
+        return res.status(200).json({ posts, isLast });
       }
     } catch (e) {
       next(e);

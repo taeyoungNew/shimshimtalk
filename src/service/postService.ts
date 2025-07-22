@@ -1,5 +1,6 @@
 import PostRepository from "../repositories/postsRepository";
 import UserService from "./usersService";
+
 import {
   CreatePostDto,
   DeletePostDto,
@@ -21,7 +22,11 @@ class PostService {
         className: "PostService",
         functionName: "createPost",
       });
-      await this.postRepository.createPost(postInfo);
+      const newPost = await this.postRepository.createPost(postInfo);
+      const newPostId: GetPostDto = {
+        postId: newPost.id,
+      };
+      return await this.getPost(newPostId);
     } catch (error) {
       throw error;
     }

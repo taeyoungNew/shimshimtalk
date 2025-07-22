@@ -8,12 +8,13 @@ import {
   GetPostDto,
   IsUserPost,
 } from "../dtos/PostDto";
+import dotenv from "dotenv";
 import { postTitleExp, postContentExp } from "../common/validators/postExp";
 import PostService from "../service/postService";
 import logger from "../config/logger";
 import { postCache } from "../common/cacheLocal/postCache";
 import Posts from "../database/models/posts";
-
+dotenv.config();
 class PostHandler {
   postService = new PostService();
   // 게시물 작성
@@ -42,8 +43,32 @@ class PostHandler {
         title,
         content,
       };
-      await this.postService.createPost(postPayment);
-      res.status(200).json({ message: "게시물이 작성되었습니다." });
+
+      const newPost = await this.postService.createPost(postPayment);
+
+      // posts:list와 post의 TTL을 조회
+      const postListTTL = await postCache.ttl("posts:list");
+
+      await postCache.rPush("posts:list", String(newPost.id));
+      await postCache.expire("posts:list", postListTTL);
+      await postCache.set(
+        `post:${newPost.id}`,
+        JSON.stringify({
+          id: String(newPost.dataValues.id),
+          userId: newPost.dataValues.userId,
+          title: newPost.dataValues.title,
+          content: newPost.dataValues.content,
+          userNickname: newPost.dataValues.userNickname,
+          likeCnt: newPost.dataValues.likeCnt,
+          commentCnt: newPost.dataValues.commentCnt,
+          Comments: newPost.dataValues.Comments,
+        }),
+        { EX: postListTTL }
+      );
+
+      res
+        .status(200)
+        .json({ message: "게시물이 작성되었습니다.", data: newPost });
     } catch (e) {
       next(e);
     }
@@ -68,13 +93,16 @@ class PostHandler {
       const size = await postCache.sendCommand(["LLEN", "posts:list"]);
 
       let result: Posts[] = [];
+      console.log("size = ", size);
+
       // 첫랜더링
       if (size === 0) {
         result = await this.postService.getAllPosts();
         const postIds = result.map((el) => el.id);
         let posts;
         if (result.length != 0) {
-          await postCache.rPush("posts:list", postIds.map(String), { EX: 300 });
+          await postCache.rPush("posts:list", postIds.map(String));
+          await postCache.expire("posts:list", 600);
           for (let idx = 0; idx < result.length; idx++) {
             postCache.set(
               `post:${result[idx].dataValues.id}`,

@@ -9,9 +9,8 @@ import {
 import Posts from "../database/models/posts";
 import Comments from "../database/models/comments";
 import logger from "../config/logger";
-import { and, Op, where } from "sequelize";
+import { Op } from "sequelize";
 import sequelize from "sequelize";
-import { GetPostDto } from "../dtos/PostDto";
 
 class PostRepository {
   public findPostById = async (postId: GetPostEntity) => {
@@ -31,7 +30,7 @@ class PostRepository {
       className: "PostRepository",
       functionName: "createPost",
     });
-    await Posts.create({
+    return await Posts.create({
       userId: postInfo.userId,
       title: postInfo.title,
       content: postInfo.content,
@@ -51,13 +50,34 @@ class PostRepository {
       id = params;
     }
     return await Posts.findOne({
+      attributes: {
+        exclude: ["Posts.id"],
+        include: [
+          [
+            sequelize.literal(`(
+              select userinfo.nickname
+                FROM Users AS users
+           LEFT JOIN UserInfos AS userinfo
+                  ON users.id = userinfo.userId
+               WHERE users.id = Posts.userId
+            )`),
+            "userNickname",
+          ],
+          [
+            sequelize.literal(`(
+              SELECT COUNT(*)
+                FROM PostLikes AS postLike
+               WHERE postLike.postId = Posts.id
+            )`),
+            "likeCnt",
+          ],
+        ],
+      },
       include: {
         model: Comments,
         attributes: ["id", "postId", "userId", "content", "createdAt"],
       },
-      where: {
-        id,
-      },
+      where: { id },
     });
   };
 
@@ -182,7 +202,7 @@ class PostRepository {
         },
       ],
       group: ["Posts.id", "Comments.id"],
-      limit: 10,
+      // limit: 10,
       order: [["createdAt", "desc"]],
       subQuery: false,
       // where,

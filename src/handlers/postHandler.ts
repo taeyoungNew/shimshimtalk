@@ -93,7 +93,6 @@ class PostHandler {
       const size = await postCache.sendCommand(["LLEN", "posts:list"]);
 
       let result: Posts[] = [];
-      console.log("size = ", size);
 
       // 첫랜더링
       if (size === 0) {

@@ -49,7 +49,7 @@ class PostHandler {
       // posts:list와 post의 TTL을 조회
       const postListTTL = await postCache.ttl("posts:list");
 
-      await postCache.rPush("posts:list", String(newPost.id));
+      await postCache.lPush("posts:list", String(newPost.id));
       await postCache.expire("posts:list", postListTTL);
       await postCache.set(
         `post:${newPost.id}`,

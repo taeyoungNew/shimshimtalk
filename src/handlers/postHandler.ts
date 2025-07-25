@@ -88,47 +88,32 @@ class PostHandler {
         className: "PostHandler",
         functionName: "getAllPosts",
       });
+      console.log("req.query = ", req.query);
+
       const postLastId = Number(req.query.postLastId);
 
-      const size = await postCache.sendCommand(["LLEN", "posts:list"]);
+      const ids: [] = await postCache.lRange("posts:list", 0, -1);
 
       let result: Posts[] = [];
 
       // 첫랜더링
-      if (size === 0) {
+      if (ids.length === 0) {
         result = await this.postService.getAllPosts();
-        const postIds = result.map((el) => el.id);
+        console.log("result.length = ", result.length);
+        this.cachePosts(result);
         let posts;
         if (result.length != 0) {
-          await postCache.rPush("posts:list", postIds.map(String));
-          await postCache.expire("posts:list", 600);
-          for (let idx = 0; idx < result.length; idx++) {
-            postCache.set(
-              `post:${result[idx].dataValues.id}`,
-              JSON.stringify({
-                id: result[idx].dataValues.id,
-                userId: result[idx].dataValues.userId,
-                title: result[idx].dataValues.title,
-                content: result[idx].dataValues.content,
-                userNickname: result[idx].dataValues.userNickname,
-                likeCnt: result[idx].dataValues.likeCnt,
-                commentCnt: result[idx].dataValues.commentCnt,
-                Comments: result[idx].dataValues.Comments,
-              }),
-              { EX: 600 }
-            );
-          }
           posts = result.splice(0, 5);
           const isLast = posts.length < 5 ? true : false;
           return res.status(200).json({ posts, isLast });
         }
       } else {
         // 두번째랜더링
-        const ids: [] = await postCache.lRange("posts:list", 0, -1);
-
         const lastPostIdx = ids.findIndex((id: number) => {
-          return Number(id) === postLastId;
+          return id === Number(postLastId);
         });
+        console.log("lastPostIdx = ", lastPostIdx);
+
         const targetIds = ids.slice(lastPostIdx + 1, lastPostIdx + 6);
         const postJsons = await Promise.all(
           targetIds.map((id: string) => postCache.get(`post:${id}`))
@@ -158,8 +143,46 @@ class PostHandler {
         functionName: "getPost",
       });
       const postId = req.params.postId;
+      const ids: [] = await postCache.lRange("posts:list", 0, -1);
 
-      const result = await this.postService.getPost(postId);
+      // 그전에 레디스에 데이터들이 있는지 확인
+      if (ids.length === 0) {
+        const result = await this.postService.getAllPosts();
+
+        this.cachePosts(result);
+      }
+      // 레디스에서 확인
+
+      const checkPostId = ids.find((id) => id === postId);
+
+      let result;
+      // 레디스에 해당 게시물이 있으면 반환
+      if (checkPostId) {
+        console.log(`post:${checkPostId}`);
+
+        const postStr = await postCache.get(`post:${checkPostId}`);
+        console.log("postStr = ", postStr);
+
+        result = JSON.stringify(postStr);
+      } else {
+        result = await this.postService.getPost(postId);
+        postCache.set(`post:list${postId}`);
+        postCache.set(
+          `post:${result.dataValues.id}`,
+          JSON.stringify({
+            id: result.dataValues.id,
+            userId: result.dataValues.userId,
+            title: result.dataValues.title,
+            content: result.dataValues.content,
+            userNickname: result.dataValues.userNickname,
+            likeCnt: result.dataValues.likeCnt,
+            commentCnt: result.dataValues.commentCnt,
+            Comments: result.dataValues.Comments,
+          }),
+          { EX: 600 }
+        );
+      }
+      // 레디스에 없으면 DB에서 가져오고 redis에도 저장
       res.status(200).json({ data: result });
     } catch (e) {
       next(e);
@@ -258,6 +281,36 @@ class PostHandler {
       res.status(200).json({ message: "게시물이 삭제되었습니다." });
     } catch (e) {
       next(e);
+    }
+  };
+
+  // 게시물데이터를 다시 캐싱하기
+  private cachePosts = async (result: Posts[]) => {
+    const ids = result.map((el) => el.id);
+    console.log("cachePosts = ", result.length);
+
+    // const postIds = result.map((el) => el.id);
+    await postCache.rPush("posts:list", ids.map(String));
+    await postCache.expire("posts:list", 600);
+
+    console.log("cachePosts = ", result.length);
+    for (let idx = 0; idx < result.length; idx++) {
+      console.log("idx = ", idx);
+
+      await postCache.set(
+        `post:${result[idx].dataValues.id}`,
+        JSON.stringify({
+          id: result[idx].dataValues.id,
+          userId: result[idx].dataValues.userId,
+          title: result[idx].dataValues.title,
+          content: result[idx].dataValues.content,
+          userNickname: result[idx].dataValues.userNickname,
+          likeCnt: result[idx].dataValues.likeCnt,
+          commentCnt: result[idx].dataValues.commentCnt,
+          Comments: result[idx].dataValues.Comments,
+        }),
+        { EX: 600 }
+      );
     }
   };
 }

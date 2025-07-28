@@ -1,5 +1,6 @@
 import PostRepository from "../repositories/postsRepository";
 import UserService from "./usersService";
+
 import {
   CreatePostDto,
   DeletePostDto,
@@ -21,7 +22,11 @@ class PostService {
         className: "PostService",
         functionName: "createPost",
       });
-      await this.postRepository.createPost(postInfo);
+      const newPost = await this.postRepository.createPost(postInfo);
+      const newPostId: GetPostDto = {
+        postId: newPost.id,
+      };
+      return await this.getPost(newPostId);
     } catch (error) {
       throw error;
     }
@@ -77,14 +82,14 @@ class PostService {
     }
   };
   // 게시물 모두조회
-  public getAllPosts = async (param: GetAllPostDto) => {
+  public getAllPosts = async () => {
     try {
       logger.info("", {
         layer: "Service",
         className: "PostService",
         functionName: "getAllPosts",
       });
-      return await this.postRepository.getAllPosts(param);
+      return await this.postRepository.getAllPosts();
     } catch (error) {
       throw error;
     }

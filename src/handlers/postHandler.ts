@@ -8,10 +8,13 @@ import {
   GetPostDto,
   IsUserPost,
 } from "../dtos/PostDto";
+import dotenv from "dotenv";
 import { postTitleExp, postContentExp } from "../common/validators/postExp";
 import PostService from "../service/postService";
 import logger from "../config/logger";
-
+import { postCache } from "../common/cacheLocal/postCache";
+import Posts from "../database/models/posts";
+dotenv.config();
 class PostHandler {
   postService = new PostService();
   // 게시물 작성
@@ -31,7 +34,6 @@ class PostHandler {
       const userId = res.locals.userInfo.userId;
 
       const { title, content } = req.body;
-      // const userId: string = req.params.id;
       // title형식체크
       if (!postTitleExp(title)) throw Error("게시물제목 형식에 맞지않습니다. ");
       // content형식체크
@@ -41,8 +43,32 @@ class PostHandler {
         title,
         content,
       };
-      await this.postService.createPost(postPayment);
-      res.status(200).json({ message: "게시물이 작성되었습니다." });
+
+      const newPost = await this.postService.createPost(postPayment);
+
+      // posts:list와 post의 TTL을 조회
+      const postListTTL = await postCache.ttl("posts:list");
+
+      await postCache.lPush("posts:list", String(newPost.id));
+      await postCache.expire("posts:list", postListTTL);
+      await postCache.set(
+        `post:${newPost.id}`,
+        JSON.stringify({
+          id: String(newPost.dataValues.id),
+          userId: newPost.dataValues.userId,
+          title: newPost.dataValues.title,
+          content: newPost.dataValues.content,
+          userNickname: newPost.dataValues.userNickname,
+          likeCnt: newPost.dataValues.likeCnt,
+          commentCnt: newPost.dataValues.commentCnt,
+          Comments: newPost.dataValues.Comments,
+        }),
+        { EX: postListTTL }
+      );
+
+      res
+        .status(200)
+        .json({ message: "게시물이 작성되었습니다.", data: newPost });
     } catch (e) {
       next(e);
     }
@@ -50,7 +76,7 @@ class PostHandler {
 
   // 게시물 모두조회
   public getAllPosts: RequestHandler = async (
-    req: Request<{}, {}, GetAllPostDto, {}>,
+    req: Request,
     res: Response,
     next: NextFunction
   ) => {
@@ -62,13 +88,41 @@ class PostHandler {
         className: "PostHandler",
         functionName: "getAllPosts",
       });
+      console.log("req.query = ", req.query);
 
-      const postLastId: GetAllPostDto = {
-        postLastId: req.body.postLastId,
-      };
+      const postLastId = Number(req.query.postLastId);
 
-      const result = await this.postService.getAllPosts(postLastId);
-      return res.status(200).json({ data: result });
+      const ids: [] = await postCache.lRange("posts:list", 0, -1);
+
+      let result: Posts[] = [];
+
+      // 첫랜더링
+      if (ids.length === 0) {
+        result = await this.postService.getAllPosts();
+
+        await this.cachePosts(result);
+        let posts;
+        if (result.length != 0) {
+          posts = result.splice(0, 5);
+          const isLast = posts.length < 5 ? true : false;
+          return res.status(200).json({ posts, isLast });
+        }
+      } else {
+        // 두번째랜더링
+        const lastPostIdx = ids.findIndex((id: number) => {
+          return id === Number(postLastId);
+        });
+
+        const targetIds = ids.slice(lastPostIdx + 1, lastPostIdx + 6);
+
+        const postJsons = await Promise.all(
+          targetIds.map((id: string) => postCache.get(`post:${id}`))
+        );
+
+        const posts = postJsons.map((post) => JSON.parse(post));
+        const isLast = posts.length < 5 ? true : false;
+        return res.status(200).json({ posts, isLast });
+      }
     } catch (e) {
       next(e);
     }
@@ -89,8 +143,44 @@ class PostHandler {
         functionName: "getPost",
       });
       const postId = req.params.postId;
+      const ids: [] = await postCache.lRange("posts:list", 0, -1);
 
-      const result = await this.postService.getPost(postId);
+      // 그전에 레디스에 데이터들이 있는지 확인
+      if (ids.length === 0) {
+        const result = await this.postService.getAllPosts();
+
+        await this.cachePosts(result);
+      }
+      // 레디스에서 확인
+
+      const checkPostId = ids.find((id) => id === postId);
+
+      let result;
+      // 레디스에 해당 게시물이 있으면 반환
+      if (checkPostId) {
+        const postStr = await postCache.get(`post:${checkPostId}`);
+        console.log(typeof postStr);
+
+        result = JSON.parse(postStr);
+      } else {
+        result = await this.postService.getPost(postId);
+        postCache.set(`post:list${postId}`);
+        postCache.set(
+          `post:${result.dataValues.id}`,
+          JSON.stringify({
+            id: result.dataValues.id,
+            userId: result.dataValues.userId,
+            title: result.dataValues.title,
+            content: result.dataValues.content,
+            userNickname: result.dataValues.userNickname,
+            likeCnt: result.dataValues.likeCnt,
+            commentCnt: result.dataValues.commentCnt,
+            Comments: result.dataValues.Comments,
+          }),
+          { EX: 600 }
+        );
+      }
+      // 레디스에 없으면 DB에서 가져오고 redis에도 저장
       res.status(200).json({ data: result });
     } catch (e) {
       next(e);
@@ -153,7 +243,6 @@ class PostHandler {
         className: "PostHandler",
         functionName: "getUserPosts",
       });
-      console.log("getUserPosts");
 
       const param = {
         userId: req.params.userId,
@@ -190,6 +279,31 @@ class PostHandler {
       res.status(200).json({ message: "게시물이 삭제되었습니다." });
     } catch (e) {
       next(e);
+    }
+  };
+
+  // 게시물데이터를 다시 캐싱하기
+  private cachePosts = async (result: Posts[]) => {
+    const ids = result.map((el) => el.id);
+
+    await postCache.rPush("posts:list", ids.map(String));
+    await postCache.expire("posts:list", 600);
+
+    for (let idx = 0; idx < result.length; idx++) {
+      await postCache.set(
+        `post:${result[idx].dataValues.id}`,
+        JSON.stringify({
+          id: result[idx].dataValues.id,
+          userId: result[idx].dataValues.userId,
+          title: result[idx].dataValues.title,
+          content: result[idx].dataValues.content,
+          userNickname: result[idx].dataValues.userNickname,
+          likeCnt: result[idx].dataValues.likeCnt,
+          commentCnt: result[idx].dataValues.commentCnt,
+          Comments: result[idx].dataValues.Comments,
+        }),
+        { EX: 600 }
+      );
     }
   };
 }

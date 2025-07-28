@@ -4,9 +4,9 @@ import { tokenType } from "../types/tokenType";
 import logger from "../config/logger";
 import { accessToken } from "../middlewares/common/accToken";
 import verifyAccToken from "./common/varifyAccToken";
-import userRedisClient from "../common/cache/userIdCache";
+// import userRedisClient from "../common/cache/userIdCache";
 import UserRepository from "../repositories/usersRepository";
-import userCache from "../common/cache/userIdCache";
+import { userCache } from "../common/cache/userIdCache";
 import verifyRefToken from "./common/varifyRefToken";
 
 /**
@@ -26,11 +26,18 @@ export const authMiddleware = async (
       layer: "middleware",
       functionName: "authMiddleware",
     });
-    // acctoken의 유무를 확인
-    //  -> 없으면 로그인하라는 에러와 함께 로그인화면으로 go
     const { authorization } = req.cookies;
 
-    const [tokenType, token]: string = authorization.split(" ");
+    // authMe인지 다른 API인지 확인
+    const path = req.path;
+
+    if (authorization == undefined) throw new Error("토큰이 없습니다.");
+
+    // acctoken의 유무를 확인
+    //  -> 없으면 로그인하라는 에러와 함께 로그인화면으로 go
+    let tokenType, token;
+
+    [tokenType, token] = authorization.split(" ");
     checkAuth(authorization, tokenType, token);
 
     // acctoken이 유효한지 확인
@@ -49,8 +56,7 @@ export const authMiddleware = async (
       });
       // accToken이 만료되었을경우
       // 캐시에 저장된 userId를 가져온다
-      const result = await userRedisClient.get("userId");
-      console.log("cache result", result);
+      const result = await userCache.get("userId");
 
       if (result == null) {
         logger.warn("redis의 userId가 null", {
@@ -117,7 +123,7 @@ export const authMiddleware = async (
         next();
       }
     }
-    //    -> reftoken도 유효하지않으면 로그인하라는 에러와 함께 로그인화면으로 go
+    // -> reftoken도 유효하지않으면 로그인하라는 에러와 함께 로그인화면으로 go
     // -> 유효하면 인가를 받음
   } catch (error) {
     next(error);

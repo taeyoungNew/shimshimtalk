@@ -99,8 +99,8 @@ class PostHandler {
       // 첫랜더링
       if (ids.length === 0) {
         result = await this.postService.getAllPosts();
-        console.log("result.length = ", result.length);
-        this.cachePosts(result);
+
+        await this.cachePosts(result);
         let posts;
         if (result.length != 0) {
           posts = result.splice(0, 5);
@@ -112,9 +112,9 @@ class PostHandler {
         const lastPostIdx = ids.findIndex((id: number) => {
           return id === Number(postLastId);
         });
-        console.log("lastPostIdx = ", lastPostIdx);
 
         const targetIds = ids.slice(lastPostIdx + 1, lastPostIdx + 6);
+
         const postJsons = await Promise.all(
           targetIds.map((id: string) => postCache.get(`post:${id}`))
         );
@@ -149,7 +149,7 @@ class PostHandler {
       if (ids.length === 0) {
         const result = await this.postService.getAllPosts();
 
-        this.cachePosts(result);
+        await this.cachePosts(result);
       }
       // 레디스에서 확인
 
@@ -158,12 +158,10 @@ class PostHandler {
       let result;
       // 레디스에 해당 게시물이 있으면 반환
       if (checkPostId) {
-        console.log(`post:${checkPostId}`);
-
         const postStr = await postCache.get(`post:${checkPostId}`);
-        console.log("postStr = ", postStr);
+        console.log(typeof postStr);
 
-        result = JSON.stringify(postStr);
+        result = JSON.parse(postStr);
       } else {
         result = await this.postService.getPost(postId);
         postCache.set(`post:list${postId}`);
@@ -287,16 +285,11 @@ class PostHandler {
   // 게시물데이터를 다시 캐싱하기
   private cachePosts = async (result: Posts[]) => {
     const ids = result.map((el) => el.id);
-    console.log("cachePosts = ", result.length);
 
-    // const postIds = result.map((el) => el.id);
     await postCache.rPush("posts:list", ids.map(String));
     await postCache.expire("posts:list", 600);
 
-    console.log("cachePosts = ", result.length);
     for (let idx = 0; idx < result.length; idx++) {
-      console.log("idx = ", idx);
-
       await postCache.set(
         `post:${result[idx].dataValues.id}`,
         JSON.stringify({

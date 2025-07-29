@@ -135,14 +135,17 @@ class AuthHandler {
           isLogin: false,
         });
 
-      const getUserLogiInfo = JSON.parse(await userCache.get(`token:${token}`));
+      const getUserLoginInfo = JSON.parse(
+        await userCache.get(`token:${token}`)
+      );
+      console.log("getUserLoginInfo = ", getUserLoginInfo);
 
       return res.status(200).json({
         isLogin: true,
         user: {
-          id: getUserLogiInfo.userId,
-          email: getUserLogiInfo.email,
-          nickname: getUserLogiInfo.userNickname,
+          id: getUserLoginInfo.id,
+          email: getUserLoginInfo.email,
+          nickname: getUserLoginInfo.userNickname,
         },
       });
     } catch (e) {

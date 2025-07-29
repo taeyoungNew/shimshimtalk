@@ -123,7 +123,6 @@ class PostService {
         functionName: "isUserPost",
       });
       const post = await this.postRepository.getPost(param);
-      console.log(post);
 
       if (post.userId !== param.userId) {
         throw new Error("자신의 게시물이 아닙니다.");

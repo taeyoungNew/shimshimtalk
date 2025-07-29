@@ -221,9 +221,22 @@ class PostHandler {
         title,
         content,
       };
+
+      // DB데이터를 우선으로 수정
       await this.postService.modifyPost(payment);
 
-      res.status(200).json({ message: "해당게시물이 수정되었습니다." });
+      // 캐싱정보가져오기
+      const post = await postCache.get(`post:${postId}`);
+      const postParse = await JSON.parse(post);
+
+      postParse.title = title;
+      postParse.content = content;
+
+      await postCache.set(`post:${postId}`, JSON.stringify(postParse));
+
+      res
+        .status(200)
+        .json({ message: "해당게시물이 수정되었습니다.", data: postParse });
     } catch (e) {
       next(e);
     }

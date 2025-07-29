@@ -198,11 +198,13 @@ class PostHandler {
         className: "PostHandler",
         functionName: "modifyPost",
       });
+      // 수정대상게시물의 id
       const postId = Number(req.params.postId);
 
+      // 현재로그인한 유저의 id
       const userId = res.locals.userInfo.userId;
       const { title, content } = req.body;
-      // const userId: string = req.params.id;
+
       // title형식체크
       if (!postTitleExp(title)) throw Error("게시물제목 형식에 맞지않습니다. ");
       // content형식체크
@@ -220,6 +222,7 @@ class PostHandler {
         content,
       };
       await this.postService.modifyPost(payment);
+
       res.status(200).json({ message: "해당게시물이 수정되었습니다." });
     } catch (e) {
       next(e);
@@ -254,7 +257,7 @@ class PostHandler {
 
   // 게시물 삭제
   public deletePost = async (
-    req: Request<{ postId: string }, {}, DeletePostDto, {}>,
+    req: Request<{ postId: string }, {}, {}, {}>,
     res: Response,
     next: NextFunction
   ) => {
@@ -267,12 +270,34 @@ class PostHandler {
         functionName: "deletePost",
       });
       const userId = res.locals.userInfo.userId;
+      const postId = req.params.postId;
       const postPayment: DeletePostDto = {
         userId,
-        postId: Number(req.params.postId),
+        postId: Number(postId),
       };
 
+      // 먼저 DB에 있는 게시물데이터삭제
       await this.postService.deletePost(postPayment);
+      // 성공시
+      // 레디스에 캐싱된 해당게시물의 정보도 삭제하기
+      const cacheIds = await postCache.lRange("posts:list", 0, -1);
+      const postListTTL = await postCache.ttl("posts:list");
+
+      const ids = await cacheIds.map((el: string) => JSON.parse(el));
+
+      const filterIds = await ids.filter((el: number) => {
+        return el.toString() !== postId;
+      });
+      await postCache.del("posts:list");
+      await postCache.del(`post:${postId}`);
+
+      await postCache.rPush(
+        "posts:list",
+        filterIds.map((el: string) => JSON.stringify(el))
+      );
+
+      await postCache.expire("posts:list", postListTTL);
+
       res.status(200).json({ message: "게시물이 삭제되었습니다." });
     } catch (e) {
       next(e);

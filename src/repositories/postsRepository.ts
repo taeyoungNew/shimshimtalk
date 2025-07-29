@@ -160,17 +160,6 @@ class PostRepository {
       className: "PostRepository",
       functionName: "getAllPosts",
     });
-    // let where = {};
-    // console.log("getAllPosts = ", param.postLastId);
-
-    // param.postLastId != null
-    //   ? (where = {
-    //       id: {
-    //         [Op.lt]: param.postLastId,
-    //       },
-    //     })
-    //   : "";
-
     return await Posts.findAll({
       attributes: {
         exclude: ["Posts.id"],
@@ -193,6 +182,14 @@ class PostRepository {
             )`),
             "likeCnt",
           ],
+          [
+            sequelize.literal(`(
+              SELECT COUNT(*)
+                FROM Comments AS comments
+               WHERE comments.postId = Posts.id
+              )`),
+            "commentCnt",
+          ],
         ],
       },
       include: [
@@ -202,10 +199,8 @@ class PostRepository {
         },
       ],
       group: ["Posts.id", "Comments.id"],
-      // limit: 10,
       order: [["createdAt", "desc"]],
       subQuery: false,
-      // where,
     });
   };
   // Post 삭제

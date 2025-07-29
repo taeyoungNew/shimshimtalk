@@ -88,7 +88,6 @@ class PostHandler {
         className: "PostHandler",
         functionName: "getAllPosts",
       });
-      console.log("req.query = ", req.query);
 
       const postLastId = Number(req.query.postLastId);
 
@@ -109,10 +108,9 @@ class PostHandler {
         }
       } else {
         // 두번째랜더링
-        const lastPostIdx = ids.findIndex((id: number) => {
-          return id === Number(postLastId);
+        const lastPostIdx = ids.findIndex((id) => {
+          return Number(id) === Number(postLastId);
         });
-
         const targetIds = ids.slice(lastPostIdx + 1, lastPostIdx + 6);
 
         const postJsons = await Promise.all(
@@ -159,7 +157,6 @@ class PostHandler {
       // 레디스에 해당 게시물이 있으면 반환
       if (checkPostId) {
         const postStr = await postCache.get(`post:${checkPostId}`);
-        console.log(typeof postStr);
 
         result = JSON.parse(postStr);
       } else {

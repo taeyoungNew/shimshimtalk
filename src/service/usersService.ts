@@ -239,7 +239,6 @@ class UserService {
       });
 
       const result = await this.userRepository.findByEmail(email);
-      // console.log("result = ", result);
 
       if (!result) {
         throw new Error("존재하지않는 회원입니다.");

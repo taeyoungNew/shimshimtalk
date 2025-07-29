@@ -49,14 +49,14 @@ class AuthHandler {
       // refToken 저장
       await this.authService.saveRefToken(refToken, getUserInfo.id);
 
+      const loginUserInfo = {
+        id: getUserInfo.id,
+        email: getUserInfo.email,
+        userNickname: getUserInfo.UserInfo.nickname,
+      };
+
       // cache에 유저id저장
-      await userCache.set("userId", JSON.stringify(getUserInfo.id));
-      await userCache.set("email", JSON.stringify(getUserInfo.email));
-      await userCache.set(
-        "userNickname",
-        JSON.stringify(getUserInfo.UserInfo.nickname)
-      );
-      console.log("redis- userId = ", await userCache.get("userId"));
+      await userCache.set(`token:${accToken}`, JSON.stringify(loginUserInfo));
 
       // accToken쿠기에 담기
       res.cookie("authorization", `Bearer ${accToken}`, {
@@ -102,7 +102,9 @@ class AuthHandler {
         className: "AuthHandler",
         functionName: "logoutUser",
       });
-      await userCache.del("userId");
+      const { authorization } = req.cookies;
+      const [tokenType, token] = authorization.split(" ");
+      await userCache.del(`token:${token}`);
       res.clearCookie("authorization");
       logger.info("로그아웃되었습니다.", {
         status: 200,
@@ -127,15 +129,24 @@ class AuthHandler {
         functionName: "authMe",
       });
       const { authorization } = req.cookies;
+      const [tokenType, token] = authorization.split(" ");
       if (authorization === undefined || authorization === null)
         return res.status(401).json({
           isLogin: false,
         });
+
+      const getUserLoginInfo = JSON.parse(
+        await userCache.get(`token:${token}`)
+      );
+      console.log("getUserLoginInfo = ", getUserLoginInfo);
+
       return res.status(200).json({
         isLogin: true,
-        id: await userCache.get("userId"),
-        email: await userCache.get("email"),
-        nickname: await userCache.get("userNickname"),
+        user: {
+          id: getUserLoginInfo.id,
+          email: getUserLoginInfo.email,
+          nickname: getUserLoginInfo.userNickname,
+        },
       });
     } catch (e) {
       next(e);

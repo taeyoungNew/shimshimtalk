@@ -2,7 +2,6 @@ import { Response, Request, RequestHandler, NextFunction } from "express";
 import {
   CreatePostDto,
   DeletePostDto,
-  GetAllPostDto,
   GetUserPostsDto,
   ModifyPostDto,
   GetPostDto,

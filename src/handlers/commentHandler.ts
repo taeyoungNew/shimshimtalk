@@ -9,6 +9,7 @@ import {
 import { commentContentExp } from "../common/validators/commentExp";
 import { userCache } from "../common/cache/userIdCache";
 import logger from "../config/logger";
+import { postCache } from "../common/cacheLocal/postCache";
 
 /**
  * Comment handler
@@ -17,7 +18,7 @@ class CommentHandler {
   private commentService = new CommentService();
   // 댓글작성
   public createComent = async (
-    req: Request<{ postId: string }, {}, CreateCommentDto, {}>,
+    req: Request<{ postId: string }, {}, { comment: string }, {}>,
     res: Response,
     next: NextFunction
   ) => {
@@ -33,18 +34,39 @@ class CommentHandler {
       // 유저의 id가져오기
       const userId = res.locals.userInfo.userId;
       const postId = req.params.postId;
-      if (!commentContentExp(req.body.content))
+      const { authorization } = req.cookies;
+      const [tokenType, token] = authorization.split(" ");
+      const getUserLoginInfo = JSON.parse(
+        await userCache.get(`token:${token}`)
+      );
+
+      if (!commentContentExp(req.body.comment))
         throw Error("200자내로 적어주세요.");
       // 댓글의 형식검사
       const payment: CreateCommentDto = {
         userId,
         postId: Number(postId),
-        content: req.body.content,
-        userNickname: await userCache.get("userNickname"),
+        content: req.body.comment,
+        userNickname: getUserLoginInfo.userNickname,
       };
 
-      await this.commentService.createComment(payment);
-      res.status(200).json({ message: "댓글이 작성되었습니다. " });
+      const result = await this.commentService.createComment(payment);
+      const plainComment = result.get({ plain: true });
+
+      // 레디스의 해당 게시물의 댓글에도 추가
+      const post = await postCache.get(`post:${postId}`);
+
+      const postParse = await JSON.parse(post);
+      await postParse.Comments.push(plainComment);
+      const postListTTL = await postCache.ttl("posts:list");
+
+      await postCache.set(`post:${postId}`, JSON.stringify(postParse), {
+        expire: postListTTL,
+      });
+
+      res
+        .status(200)
+        .json({ message: "댓글이 작성되었습니다. ", plainComment });
     } catch (e) {
       next(e);
     }

@@ -138,7 +138,6 @@ class AuthHandler {
       const getUserLoginInfo = JSON.parse(
         await userCache.get(`token:${token}`)
       );
-      console.log("getUserLoginInfo = ", getUserLoginInfo);
 
       return res.status(200).json({
         isLogin: true,

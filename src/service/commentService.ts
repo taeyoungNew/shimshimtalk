@@ -22,7 +22,7 @@ class CommentService {
       });
       // 게시물이 있는지 확인
       await this.postService.existPost(params);
-      await this.commentRepository.createComment(params);
+      return await this.commentRepository.createComment(params);
     } catch (error) {
       throw error;
     }

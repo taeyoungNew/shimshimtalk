@@ -16,7 +16,7 @@ class CommentRepository {
       className: "CommentRepository",
       functionName: "createComment",
     });
-    await Comments.create({
+    return await Comments.create({
       userId: commentPayment.userId,
       postId: commentPayment.postId,
       content: commentPayment.content,

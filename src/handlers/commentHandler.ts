@@ -87,19 +87,41 @@ class CommentHandler {
       });
       const userId = res.locals.userInfo.userId;
       const commentId = req.params.commentId;
-
-      if (commentContentExp(req.body.newContent))
+      const postId = req.body.postId;
+      if (!commentContentExp(req.body.comment))
         throw Error("200자내로 적어주세요.");
 
       const payment: ModifyCommentDto = {
         userId,
+        postId: req.body.postId,
         commentId: Number(commentId),
-        newContent: req.body.newContent,
+        comment: req.body.comment,
       };
 
       await this.commentService.modifyComment(payment);
 
-      res.status(200).json({ message: "해당 댓글이 수정되었습니다." });
+      const post = await postCache.get(`post:${postId}`);
+      const postParse = await JSON.parse(post);
+      const postTtl = await postCache.ttl(`post:${postId}`);
+      let returnComment;
+      for (let idx = 0; idx < postParse.Comments.length; idx++) {
+        if (postParse.Comments[idx].id === Number(commentId)) {
+          postParse.Comments[idx].content = req.body.comment;
+          returnComment = postParse.Comments[idx];
+          break;
+        }
+      }
+
+      await postCache.set(`post:${postId}`, JSON.stringify(postParse), {
+        EX: postTtl,
+      });
+
+      res.status(200).json({
+        message: "해당 댓글이 수정되었습니다.",
+        data: {
+          comment: returnComment,
+        },
+      });
     } catch (e) {
       next(e);
     }

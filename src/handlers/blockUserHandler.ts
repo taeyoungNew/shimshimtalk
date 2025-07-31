@@ -8,17 +8,17 @@ import {
 import logger from "../config/logger";
 /**
  * ブロッククラス
- * 
+ *
  */
 class BlockUserHandler {
   private blockUserService = new BlockUserService();
   /**
    * ユーザブロックAPI
-   * 
+   *
    * @param req ブロック対象のID
    * @param res 自分のID
-   * @param next 
-   * @returns 
+   * @param next
+   * @returns
    */
   public blockUser = async (
     req: Request<{ blockedId: string }, {}, {}, {}>,
@@ -36,7 +36,6 @@ class BlockUserHandler {
         blockedId: req.params.blockedId,
         blockerId: userId,
       };
-      console.log(req.params.blockedId, userId);
 
       await this.blockUserService.blockUser(blockUserPayment);
 
@@ -62,7 +61,6 @@ class BlockUserHandler {
         blockedId: req.params.unblockedId,
         blockerId: userId,
       };
-      console.log(req.params.unblockedId);
 
       await this.blockUserService.blockUser(unBlockUserPayment);
 

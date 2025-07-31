@@ -9,8 +9,9 @@ export interface CreateCommentDto {
 // 댓글수정
 export interface ModifyCommentDto {
   userId: string;
+  postId: number;
   commentId: number;
-  newContent: string;
+  comment: string;
 }
 
 // 해당댓글조회

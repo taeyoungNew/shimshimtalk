@@ -9,7 +9,7 @@ export interface CreateCommentEntity {
 // 댓글수정
 export interface ModifyCommentEntity {
   commentId: number;
-  newContent: string;
+  comment: string;
 }
 
 // 해당댓글조회

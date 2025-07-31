@@ -141,6 +141,8 @@ class CommentHandler {
         className: "CommentHandler",
         functionName: "getComment",
       });
+      console.log("뭐임 ㅅㅂ");
+
       const commentId = req.params.commentId;
       const payment: GetCommentDto = {
         commentId,
@@ -154,10 +156,17 @@ class CommentHandler {
 
   // 댓글삭제하기
   public deleteComment = async (
-    req: Request<{ commentId: string }, {}, DeleteCommentDto>,
+    req: Request<{ commentId: string; postId: string }, {}, DeleteCommentDto>,
     res: Response,
     next: NextFunction
   ) => {
+    logger.info("", {
+      method: "delete",
+      url: "api/comment/:commentId",
+      layer: "Handlers",
+      className: "CommentHandler",
+      functionName: "deleteComment",
+    });
     try {
       logger.info("", {
         method: "delete",
@@ -168,11 +177,21 @@ class CommentHandler {
       });
       const userId = res.locals.userInfo.userId;
       const commentId = req.params.commentId;
+      const postId = req.query.postId;
+
       const payment: DeleteCommentDto = {
         userId,
         commentId: Number(commentId),
+        postId: Number(postId),
       };
+      console.log("payment = ", payment);
+
       await this.commentService.deleteComment(payment);
+
+      const post = await postCache.get(`post:${postId}`);
+      const postParse = await JSON.parse(post);
+      console.log(postParse);
+
       res.status(200).json({ message: "해당 댓글이 삭제되었습니다." });
     } catch (e) {
       next(e);

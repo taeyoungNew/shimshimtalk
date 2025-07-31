@@ -11,6 +11,7 @@ import PostService from "./postService";
 import logger from "../config/logger";
 class CommentService {
   private postService = new PostService();
+
   private commentRepository = new CommentRepository();
   // 댓글작성
   public createComment = async (params: CreateCommentDto) => {
@@ -37,6 +38,10 @@ class CommentService {
       });
       // 자신의 댓글인지 확인
       await this.isUserComment(params);
+      // 댓글이 달린 게시물이 있는지 확인
+      const postId: GetPostDto = params;
+      await this.postService.existPost(postId);
+      // 해당 댓글이 있는지 확인
       await this.existComment(params);
       await this.commentRepository.modifyComment(params);
     } catch (error) {
@@ -102,7 +107,7 @@ class CommentService {
         functionName: "existComment",
       });
       const result = await this.commentRepository.existComment(param);
-      if (!result) throw new Error("해당 게시물이 존재하지 않습니다.");
+      if (!result) throw new Error("해당 댓글이 존재하지 않습니다.");
     } catch (error) {
       throw error;
     }

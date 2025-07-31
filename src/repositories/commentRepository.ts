@@ -30,9 +30,10 @@ class CommentRepository {
       className: "CommentRepository",
       functionName: "modifyComment",
     });
+
     await Comments.update(
       {
-        content: commentPayment.newContent,
+        content: commentPayment.comment,
       },
       {
         where: {

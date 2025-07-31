@@ -111,7 +111,6 @@ class UserHandler {
         functionName: "findMyInfos",
       });
       const myId: string = res.locals.userInfo.userId;
-      console.log("myId =", myId);
 
       const result = await this.userService.findMyInfos(myId);
       return res.status(200).json({ data: result });
@@ -251,7 +250,6 @@ class UserHandler {
         blockedUserIds: req.body.blockedUserIds,
       };
       const result = await this.userService.getBlockedUsers(params);
-      console.log(result);
       return res.status(200).json({ datas: result });
     } catch (error) {
       next(error);

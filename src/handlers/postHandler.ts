@@ -160,7 +160,7 @@ class PostHandler {
         result = JSON.parse(postStr);
       } else {
         result = await this.postService.getPost(postId);
-        postCache.set(`post:list${postId}`);
+
         postCache.set(
           `post:${result.dataValues.id}`,
           JSON.stringify({
@@ -224,14 +224,22 @@ class PostHandler {
       // DB데이터를 우선으로 수정
       await this.postService.modifyPost(payment);
 
+      // read-through적용
       // 캐싱정보가져오기
+      let postParse;
       const post = await postCache.get(`post:${postId}`);
-      const postParse = await JSON.parse(post);
+      if (post) {
+        postParse = await JSON.parse(post);
+        postParse.title = title;
+        postParse.content = content;
+        await postCache.set(`post:${postId}`, JSON.stringify(postParse));
 
-      postParse.title = title;
-      postParse.content = content;
-
-      await postCache.set(`post:${postId}`, JSON.stringify(postParse));
+        // redis에 해당 게시물의 데이터가 없을경우
+      } else {
+        const post: GetPostDto = payment;
+        const result = await this.postService.getPost(post);
+        this.cachePost(result);
+      }
 
       res
         .status(200)
@@ -290,25 +298,33 @@ class PostHandler {
 
       // 먼저 DB에 있는 게시물데이터삭제
       await this.postService.deletePost(postPayment);
-      // 성공시
-      // 레디스에 캐싱된 해당게시물의 정보도 삭제하기
-      const cacheIds = await postCache.lRange("posts:list", 0, -1);
-      const postListTTL = await postCache.ttl("posts:list");
 
-      const ids = await cacheIds.map((el: string) => JSON.parse(el));
+      // 먼저 posts:list가 있는지 확인
+      const ids: string[] = await postCache.lRange("posts:list", 0, -1);
 
-      const filterIds = await ids.filter((el: number) => {
-        return el.toString() !== postId;
-      });
-      await postCache.del("posts:list");
-      await postCache.del(`post:${postId}`);
+      if (ids.length === 0) {
+        const result = await this.postService.getAllPosts();
 
-      await postCache.rPush(
-        "posts:list",
-        filterIds.map((el: string) => JSON.stringify(el))
-      );
-
-      await postCache.expire("posts:list", postListTTL);
+        await this.cachePosts(result);
+      } else {
+        // 해당 삭제할 게시물의 id값을 없앤 posts:list로 덮어쓰기
+        const cacheIds = await postCache.lRange("posts:list", 0, -1);
+        const postListTTL = await postCache.ttl("posts:list");
+        const ids = cacheIds.map((el: string) => JSON.parse(el));
+        const filterIds = ids.filter((el: number) => {
+          return el.toString() !== postId;
+        });
+        await postCache.del("posts:list");
+        await postCache.rPush(
+          "posts:list",
+          filterIds.map((el: string) => JSON.stringify(el))
+        );
+        await postCache.expire("posts:list", postListTTL);
+        const checkPostCache = await postCache.get(`post:${postId}`);
+        if (checkPostCache) {
+          await postCache.del(`post:${postId}`);
+        }
+      }
 
       res.status(200).json({ message: "게시물이 삭제되었습니다." });
     } catch (e) {
@@ -316,7 +332,7 @@ class PostHandler {
     }
   };
 
-  // 게시물데이터를 다시 캐싱하기
+  // 게시물데이터들을 다시 캐싱하기
   private cachePosts = async (result: Posts[]) => {
     const ids = result.map((el) => el.id);
 
@@ -339,6 +355,23 @@ class PostHandler {
         { EX: 600 }
       );
     }
+  };
+
+  private cachePost = async (post: Posts) => {
+    await postCache.set(
+      `post:${post.dataValues.postId}`,
+      JSON.stringify({
+        id: post.dataValues.id,
+        userId: post.dataValues.userId,
+        title: post.dataValues.title,
+        content: post.dataValues.content,
+        userNickname: post.dataValues.userNickname,
+        likeCnt: post.dataValues.likeCnt,
+        commentCnt: post.dataValues.commentCnt,
+        Comments: post.dataValues.Comments,
+      }),
+      { EX: 600 }
+    );
   };
 }
 

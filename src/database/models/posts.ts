@@ -13,6 +13,7 @@ interface PostsAttributes {
 }
 
 class Posts extends Model implements PostsAttributes {
+  [x: string]: any;
   id: number;
   public userId!: string;
   public title!: string;

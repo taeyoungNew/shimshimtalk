@@ -10,12 +10,22 @@ import { commentContentExp } from "../common/validators/commentExp";
 import { userCache } from "../common/cache/userIdCache";
 import logger from "../config/logger";
 import { postCache } from "../common/cacheLocal/postCache";
+import PostService from "../service/postService";
+import { GetPostDto } from "../dtos/PostDto";
+
+interface Comment {
+  id: number;
+  userId: string;
+  userNickname: string;
+  content: string;
+}
 
 /**
  * Comment handler
  */
 class CommentHandler {
   private commentService = new CommentService();
+  private postService = new PostService();
   // 댓글작성
   public createComent = async (
     req: Request<{ postId: string }, {}, { comment: string }, {}>,
@@ -56,13 +66,22 @@ class CommentHandler {
       // 레디스의 해당 게시물의 댓글에도 추가
       const post = await postCache.get(`post:${postId}`);
 
-      const postParse = await JSON.parse(post);
-      await postParse.Comments.push(plainComment);
-      const postListTTL = await postCache.ttl("posts:list");
-
-      await postCache.set(`post:${postId}`, JSON.stringify(postParse), {
-        expire: postListTTL,
-      });
+      // 해당 댓글이 달린 게시물이 redis에 있는지 확인
+      if (!post) {
+        const postPayMent: GetPostDto = payment;
+        const getPost = await this.postService.getPost(postPayMent);
+        getPost.Comments.push(plainComment);
+        await postCache.set(`post:${postId}`, JSON.stringify(getPost), {
+          EX: 600,
+        });
+      } else {
+        const postParse = await JSON.parse(post);
+        await postParse.Comments.push(plainComment);
+        const postListTTL = await postCache.ttl("posts:list");
+        await postCache.set(`post:${postId}`, JSON.stringify(postParse), {
+          expire: postListTTL,
+        });
+      }
 
       res
         .status(200)
@@ -101,20 +120,27 @@ class CommentHandler {
       await this.commentService.modifyComment(payment);
 
       const post = await postCache.get(`post:${postId}`);
-      const postParse = await JSON.parse(post);
-      const postTtl = await postCache.ttl(`post:${postId}`);
       let returnComment;
-      for (let idx = 0; idx < postParse.Comments.length; idx++) {
-        if (postParse.Comments[idx].id === Number(commentId)) {
-          postParse.Comments[idx].content = req.body.comment;
-          returnComment = postParse.Comments[idx];
-          break;
+      if (post) {
+        const postParse = await JSON.parse(post);
+        const postTTL = await postCache.ttl(`posts:list`);
+        for (let idx = 0; idx < postParse.Comments.length; idx++) {
+          if (postParse.Comments[idx].id === Number(commentId)) {
+            postParse.Comments[idx].content = req.body.comment;
+            returnComment = postParse.Comments[idx];
+            break;
+          }
         }
+        await postCache.set(`post:${postId}`, JSON.stringify(postParse), {
+          EX: postTTL,
+        });
+      } else {
+        const postId: GetPostDto = payment;
+        const getPost = await this.postService.getPost(postId);
+        await postCache.set(`post:${postId}`, JSON.stringify(getPost), {
+          EX: 600,
+        });
       }
-
-      await postCache.set(`post:${postId}`, JSON.stringify(postParse), {
-        EX: postTtl,
-      });
 
       res.status(200).json({
         message: "해당 댓글이 수정되었습니다.",
@@ -141,7 +167,6 @@ class CommentHandler {
         className: "CommentHandler",
         functionName: "getComment",
       });
-      console.log("뭐임 ㅅㅂ");
 
       const commentId = req.params.commentId;
       const payment: GetCommentDto = {
@@ -184,13 +209,26 @@ class CommentHandler {
         commentId: Number(commentId),
         postId: Number(postId),
       };
-      console.log("payment = ", payment);
 
       await this.commentService.deleteComment(payment);
 
       const post = await postCache.get(`post:${postId}`);
-      const postParse = await JSON.parse(post);
-      console.log(postParse);
+      if (post) {
+        const postTtl = await postCache.ttl(`posts:list`);
+        const postParse = await JSON.parse(post);
+        postParse.Comments = postParse.Comments.filter(
+          (el: Comment) => el.id != Number(commentId)
+        );
+        await postCache.set(`post:${postId}`, JSON.stringify(postParse), {
+          EX: postTtl,
+        });
+      } else {
+        const postId: GetPostDto = payment;
+        const getPost = await this.postService.getPost(postId);
+        await postCache.set(`post:${postId}`, JSON.stringify(getPost), {
+          EX: 600,
+        });
+      }
 
       res.status(200).json({ message: "해당 댓글이 삭제되었습니다." });
     } catch (e) {

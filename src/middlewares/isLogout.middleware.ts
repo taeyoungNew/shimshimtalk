@@ -16,7 +16,7 @@ export const isLogoutMiddleware = (
       functionName: "isLogoutMiddleware",
     });
     if (req.cookies.authorization === undefined)
-      throw new Error("현재 로그인한 상태가 아닙니다. ");
+      throw new Error("현재 로그인한 상태가 아닙니다.");
     next();
   } catch (error) {
     throw error;

@@ -1,5 +1,6 @@
 import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import logger from "../config/logger";
+import { AppError } from "../errors/AppError";
 export const errorHandler: ErrorRequestHandler = (
   error: Error,
   req: Request,
@@ -7,6 +8,15 @@ export const errorHandler: ErrorRequestHandler = (
   next: NextFunction
 ) => {
   logger.error(`${error.message}`);
-  console.log("에러 메세지 = ", error.message);
-  return res.status(400).json({ message: error.message });
+  if (error instanceof AppError) {
+    return res.status(error.statusCode).json({
+      status: "error",
+      message: error.message,
+      ...(error.data && { data: error.data }),
+    });
+  }
+
+  return res
+    .status(500)
+    .json({ status: "error", message: "Internal Server Error" });
 };

@@ -8,6 +8,7 @@ import verifyAccToken from "./common/varifyAccToken";
 import UserRepository from "../repositories/usersRepository";
 import { userCache } from "../common/cache/userIdCache";
 import verifyRefToken from "./common/varifyRefToken";
+import { JwtError } from "../errors/JwtError";
 
 /**
  * @param req

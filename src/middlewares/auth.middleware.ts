@@ -6,7 +6,7 @@ import { accessToken } from "../middlewares/common/accToken";
 import verifyAccToken from "./common/varifyAccToken";
 // import userRedisClient from "../common/cache/userIdCache";
 import UserRepository from "../repositories/usersRepository";
-import { userCache } from "../common/cache/userIdCache";
+import { userCache } from "../common/cacheLocal/userIdCache";
 import verifyRefToken from "./common/varifyRefToken";
 
 /**

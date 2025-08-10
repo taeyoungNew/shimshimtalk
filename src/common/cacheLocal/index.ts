@@ -1,6 +1,8 @@
-import postCache from "./postCache";
+import { postCache } from "./postCache";
+import { userCache } from "./userIdCache";
 
 const connetCache = async () => {
+  userCache;
   postCache;
 };
 

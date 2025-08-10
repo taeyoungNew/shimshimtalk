@@ -3,7 +3,7 @@ import { LoginDto } from "../dtos/loginDto";
 // import userRedisClient from "../common/cache/userIdCache";
 import { accessToken } from "../middlewares/common/accToken";
 import { refreshToken } from "../middlewares/common/refToken";
-import { userCache } from "../common/cache/userIdCache";
+import { userCache } from "../common/cacheLocal/userIdCache";
 import UserService from "../service/usersService";
 import AuthService from "../service/authService";
 import logger from "../config/logger";

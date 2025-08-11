@@ -7,7 +7,7 @@ import {
   ModifyCommentDto,
 } from "../dtos/commentDto";
 import { commentContentExp } from "../common/validators/commentExp";
-import { userCache } from "../common/cache/userIdCache";
+import { userCache } from "../common/cacheLocal/userIdCache";
 import logger from "../config/logger";
 import { postCache } from "../common/cacheLocal/postCache";
 import PostService from "../service/postService";

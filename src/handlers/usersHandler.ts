@@ -1,4 +1,4 @@
-import { Response, Request, RequestHandler, NextFunction } from "express";
+import { Response, Request, NextFunction } from "express";
 import UserService from "../service/usersService";
 import FollowService from "../service/followService";
 import logger from "../config/logger";

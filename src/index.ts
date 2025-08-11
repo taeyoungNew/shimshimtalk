@@ -3,7 +3,7 @@ import express, { NextFunction, Request, Response } from "express";
 import router from "./routes/index";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import cacheConnetion from "./common/cache/index";
+import cacheConnetion from "./common/cacheLocal/index";
 import morganMiddleware from "./middlewares/morgan";
 import logger from "./config/logger";
 import morgan from "morgan";

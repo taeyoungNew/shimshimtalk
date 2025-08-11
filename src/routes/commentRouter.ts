@@ -21,10 +21,6 @@ commentRouter.put(
   authMiddleware,
   commentHandler.modifyComment
 );
-
-// 하나의 댓글조회
-commentRouter.get("/:commentId", commentHandler.getComment);
-
 // 댓글삭제
 commentRouter.delete(
   "/:commentId",
@@ -32,5 +28,8 @@ commentRouter.delete(
   authMiddleware,
   commentHandler.deleteComment
 );
+
+// 하나의 댓글조회
+commentRouter.get("/:commentId", commentHandler.getComment);
 
 export default commentRouter;

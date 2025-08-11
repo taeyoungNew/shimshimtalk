@@ -28,6 +28,7 @@ export interface GetCommentsDto {
 // 댓글삭제
 export interface DeleteCommentDto {
   userId: string;
+  postId: number;
   commentId: number;
 }
 

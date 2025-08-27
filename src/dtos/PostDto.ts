@@ -1,13 +1,11 @@
 export interface CreatePostDto {
   userId: string;
-  title: string;
   content: string;
 }
 
 export interface ModifyPostDto {
   userId: string;
   postId: number;
-  title: string;
   content: string;
 }
 

@@ -1,13 +1,11 @@
 export interface CreatePostEntity {
   userId: string;
-  title: string;
   content: string;
 }
 
 export interface ModifyPostEntity {
   userId: string;
   postId: number;
-  title: string;
   content: string;
 }
 

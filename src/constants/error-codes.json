@@ -1,0 +1,55 @@
+{
+  "AUTH": {
+    "INVALID_CREDENTIALS": {
+      "code": "AUTH_INVALID_CREDENTIALS",
+      "status": 401
+    },
+    "USER_NOT_FOUND": { "code": "AUTH_USER_NOT_FOUND", "status": 404 },
+    "USER_ALREADY_EXISTS": {
+      "code": "AUTH_USER_ALREADY_EXISTS",
+      "status": 409
+    },
+    "TOKEN_MISSING": { "code": "AUTH_TOKEN_MISSING", "status": 401 },
+    "TOKEN_INVALID": { "code": "AUTH_TOKEN_INVALID", "status": 401 },
+    "TOKEN_EXPIRED": { "code": "AUTH_TOKEN_EXPIRED", "status": 401 },
+    "UNAUTHORIZED": { "code": "AUTH_UNAUTHORIZED", "status": 403 },
+    "EMAIL_INVALID": { "code": "AUTH_EMAIL_INVALID", "status": 400 },
+    "PASSWORD_INVALID": { "code": "AUTH_PASSWORD_INVALID", "status": 400 }
+  },
+  "USER": {
+    "NICKNAME_ALREADY_EXISTS": {
+      "code": "NICKNAME_ALREADY_EXISTS",
+      "status": 401
+    },
+    "NOT_FOUND": { "code": "USER_NOT_FOUND", "status": 404 },
+    "NICKNAME_INVALID": { "code": "USER_NICKNAME_INVALID", "status": 400 },
+    "VALIDATION_ERROR": { "code": "USER_VALIDATION_ERROR", "status": 400 },
+    "UPDATE_FAILED": { "code": "USER_UPDATE_FAILED", "status": 500 },
+    "DELETE_FAILED": { "code": "USER_DELETE_FAILED", "status": 500 },
+    "FORBIDDEN": { "code": "USER_FORBIDDEN", "status": 403 }
+  },
+  "POST": {
+    "NOT_FOUND": { "code": "POST_NOT_FOUND", "status": 404 },
+    "FORBIDDEN": { "code": "POST_FORBIDDEN", "status": 403 },
+    "VALIDATION_ERROR": { "code": "POST_VALIDATION_ERROR", "status": 400 },
+    "CREATE_FAILED": { "code": "POST_CREATE_FAILED", "status": 500 },
+    "UPDATE_FAILED": { "code": "POST_UPDATE_FAILED", "status": 500 },
+    "DELETE_FAILED": { "code": "POST_DELETE_FAILED", "status": 500 }
+  },
+  "COMMENT": {
+    "NOT_FOUND": { "code": "COMMENT_NOT_FOUND", "status": 404 },
+    "FORBIDDEN": { "code": "COMMENT_FORBIDDEN", "status": 403 },
+    "VALIDATION_ERROR": { "code": "COMMENT_VALIDATION_ERROR", "status": 400 },
+    "CREATE_FAILED": { "code": "COMMENT_CREATE_FAILED", "status": 500 },
+    "UPDATE_FAILED": { "code": "COMMENT_UPDATE_FAILED", "status": 500 },
+    "DELETE_FAILED": { "code": "COMMENT_DELETE_FAILED", "status": 500 }
+  },
+  "COMMON": {
+    "BAD_REQUEST": { "code": "COMMON_BAD_REQUEST", "status": 400 },
+    "INTERNAL_ERROR": { "code": "COMMON_INTERNAL_ERROR", "status": 500 },
+    "DB_ERROR": { "code": "COMMON_DB_ERROR", "status": 500 },
+    "VALIDATION_ERROR": { "code": "COMMON_VALIDATION_ERROR", "status": 400 },
+    "NOT_FOUND": { "code": "COMMON_NOT_FOUND", "status": 404 },
+    "FORBIDDEN": { "code": "COMMON_FORBIDDEN", "status": 403 }
+  }
+}

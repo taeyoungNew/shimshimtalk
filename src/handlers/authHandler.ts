@@ -8,6 +8,9 @@ import UserService from "../service/usersService";
 import AuthService from "../service/authService";
 import logger from "../config/logger";
 import bcrypt from "bcrypt";
+import { CustomError } from "../errors/customError";
+import errorCodes from "../constants/error-codes.json";
+import { error } from "console";
 
 class AuthHandler {
   userService = new UserService();
@@ -161,7 +164,12 @@ class AuthHandler {
    */
   public validPassword = (password: string, exPassword: string) => {
     const result = bcrypt.compareSync(password, exPassword);
-    if (!result) throw new Error("패스워드가 일치하지않습니다.");
+    if (!result)
+      throw new CustomError(
+        errorCodes.AUTH.PASSWORD_INVALID.status,
+        errorCodes.AUTH.PASSWORD_INVALID.code,
+        "패스워드가 일치하지않습니다."
+      );
   };
 }
 

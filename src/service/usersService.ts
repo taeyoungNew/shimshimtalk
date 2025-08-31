@@ -4,6 +4,8 @@ import UserRepository from "../repositories/usersRepository";
 import logger from "../config/logger";
 import bcrypt from "bcrypt";
 import { GetBlockedUsersDto } from "../dtos/userDto";
+import { CustomError } from "../errors/customError";
+import errorCodes from "../constants/error-codes.json";
 class UserService {
   private userRepository = new UserRepository();
 
@@ -170,7 +172,11 @@ class UserService {
       const result = await this.userRepository.findById(userId);
 
       if (!result) {
-        throw new Error("존재하지않는 회원입니다.");
+        throw new CustomError(
+          errorCodes.AUTH.USER_NOT_FOUND.status,
+          errorCodes.AUTH.USER_NOT_FOUND.code,
+          "존재하지않는 회원입니다."
+        );
       }
       return result;
     } catch (error) {
@@ -193,7 +199,11 @@ class UserService {
       });
       const result = await this.userRepository.findByEmail(email);
       if (result) {
-        throw new Error("이미 존재하는 회원입니다.");
+        throw new CustomError(
+          errorCodes.AUTH.USER_ALREADY_EXISTS.status,
+          errorCodes.AUTH.USER_ALREADY_EXISTS.code,
+          "이미 존재하는 회원입니다. "
+        );
       }
     } catch (error) {
       throw error;
@@ -215,7 +225,11 @@ class UserService {
       });
       const result = await this.userRepository.checkNickname(nickname);
       if (result) {
-        throw new Error("이미 사용중인 닉네임입니다..");
+        throw new CustomError(
+          errorCodes.USER.NICKNAME_ALREADY_EXISTS.status,
+          errorCodes.USER.NICKNAME_ALREADY_EXISTS.code,
+          "이미 사용중인 닉네임입니다.."
+        );
       }
     } catch (error) {
       throw error;
@@ -241,7 +255,11 @@ class UserService {
       const result = await this.userRepository.findByEmail(email);
 
       if (!result) {
-        throw new Error("존재하지않는 회원입니다.");
+        throw new CustomError(
+          errorCodes.AUTH.USER_NOT_FOUND.status,
+          errorCodes.AUTH.USER_NOT_FOUND.code,
+          "존재하지않는 회원입니다."
+        );
       }
 
       return result;

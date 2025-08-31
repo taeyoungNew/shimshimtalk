@@ -32,7 +32,6 @@ class PostRepository {
     });
     return await Posts.create({
       userId: postInfo.userId,
-      title: postInfo.title,
       content: postInfo.content,
     });
   };
@@ -90,7 +89,6 @@ class PostRepository {
     });
     await Posts.update(
       {
-        title: postInfo.title,
         content: postInfo.content,
       },
       {

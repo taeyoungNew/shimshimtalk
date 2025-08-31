@@ -54,7 +54,7 @@ Posts.init(
       allowNull: false,
       type: DataTypes.UUID,
     },
-    title: { type: DataTypes.STRING, allowNull: false },
+    // title: { type: DataTypes.STRING, allowNull: false },
     content: { allowNull: false, type: DataTypes.STRING },
   },
   {

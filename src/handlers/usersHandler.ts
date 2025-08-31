@@ -11,6 +11,8 @@ import {
   ageExp,
   username,
 } from "../common/validators/userExp";
+import errorCodes from "../constants/error-codes.json";
+import { CustomError } from "../errors/customError";
 
 class UserHandler {
   userService = new UserService();
@@ -37,11 +39,26 @@ class UserHandler {
         functionName: "createUser",
       });
       const { email, password, aboutMe, age, nickname, username } = req.body;
-      if (!emailExp(email)) throw Error("이메일형식이 맞지 않습니다. ");
+      if (!emailExp(email))
+        throw new CustomError(
+          errorCodes.AUTH.EMAIL_INVALID.status,
+          errorCodes.AUTH.EMAIL_INVALID.code,
+          "이메일형식이 맞지 않습니다. "
+        );
 
-      if (!passwordExp(password)) throw Error("패스워드형식이 맞지 않습니다.");
+      if (!passwordExp(password))
+        throw new CustomError(
+          errorCodes.AUTH.PASSWORD_INVALID.status,
+          errorCodes.AUTH.PASSWORD_INVALID.code,
+          "패스워드형식이 맞지 않습니다. "
+        );
 
-      if (!nicknameExp(nickname)) throw new Error("닉네임형식에 맞지않습니다.");
+      if (!nicknameExp(nickname))
+        throw new CustomError(
+          errorCodes.USER.NICKNAME_INVALID.status,
+          errorCodes.USER.NICKNAME_INVALID.code,
+          "닉네임형식에 맞지않습니다."
+        );
 
       const signupInfo: SignupDto = {
         email,
@@ -52,7 +69,7 @@ class UserHandler {
         username,
       };
       await this.userService.createUser(signupInfo);
-      return res.status(200).send("회원가입완료");
+      return res.status(200).json({ message: "회원가입이 완료되었습니다. " });
     } catch (e) {
       next(e);
     }

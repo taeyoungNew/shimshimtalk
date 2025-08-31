@@ -24,7 +24,6 @@ app.use(json());
 app.use("/api", router);
 
 // 모든 곳에서 발생하는 에러를 catch
-app.use(errorHandler);
 app.use(cacheConnetion);
 app.use(
   morgan("combined", {
@@ -34,10 +33,13 @@ app.use(
   })
 );
 app.use(morganMiddleware);
-app.all(/(.*)/, (error: Error) => {
-  throw new Error(error.message);
-});
 
+app.all(/(.*)/, (req, res) => {
+  res
+    .status(404)
+    .json({ errorCode: "COMMON_NOT_FOUND", message: "잘못된 경로입니다. " });
+});
+app.use(errorHandler);
 app.listen(PORT, () => {
   logger.info("심심톡 실행 PORT: ${PORT}");
 });

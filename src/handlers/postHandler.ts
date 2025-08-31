@@ -32,14 +32,13 @@ class PostHandler {
       });
       const userId = res.locals.userInfo.userId;
 
-      const { title, content } = req.body;
+      const { content } = req.body;
+
       // title형식체크
-      if (!postTitleExp(title)) throw Error("게시물제목 형식에 맞지않습니다. ");
       // content형식체크
-      if (!postContentExp(content)) throw Error("300자내로 적어주세요. ");
+      if (!postContentExp(content)) throw Error("500자내로 적어주세요. ");
       const postPayment: CreatePostDto = {
         userId,
-        title,
         content,
       };
 
@@ -55,7 +54,6 @@ class PostHandler {
         JSON.stringify({
           id: String(newPost.dataValues.id),
           userId: newPost.dataValues.userId,
-          title: newPost.dataValues.title,
           content: newPost.dataValues.content,
           userNickname: newPost.dataValues.userNickname,
           likeCnt: newPost.dataValues.likeCnt,
@@ -166,7 +164,7 @@ class PostHandler {
           JSON.stringify({
             id: result.dataValues.id,
             userId: result.dataValues.userId,
-            title: result.dataValues.title,
+
             content: result.dataValues.content,
             userNickname: result.dataValues.userNickname,
             likeCnt: result.dataValues.likeCnt,
@@ -202,10 +200,8 @@ class PostHandler {
 
       // 현재로그인한 유저의 id
       const userId = res.locals.userInfo.userId;
-      const { title, content } = req.body;
+      const { content } = req.body;
 
-      // title형식체크
-      if (!postTitleExp(title)) throw Error("게시물제목 형식에 맞지않습니다. ");
       // content형식체크
       if (!postContentExp(content))
         throw Error("게시물내용 형식에 맞지않습니다. ");
@@ -217,7 +213,6 @@ class PostHandler {
       const payment: ModifyPostDto = {
         userId,
         postId,
-        title,
         content,
       };
 
@@ -230,7 +225,6 @@ class PostHandler {
       const post = await postCache.get(`post:${postId}`);
       if (post) {
         postParse = await JSON.parse(post);
-        postParse.title = title;
         postParse.content = content;
         await postCache.set(`post:${postId}`, JSON.stringify(postParse));
 
@@ -345,7 +339,6 @@ class PostHandler {
         JSON.stringify({
           id: result[idx].dataValues.id,
           userId: result[idx].dataValues.userId,
-          title: result[idx].dataValues.title,
           content: result[idx].dataValues.content,
           userNickname: result[idx].dataValues.userNickname,
           likeCnt: result[idx].dataValues.likeCnt,
@@ -363,7 +356,6 @@ class PostHandler {
       JSON.stringify({
         id: post.dataValues.id,
         userId: post.dataValues.userId,
-        title: post.dataValues.title,
         content: post.dataValues.content,
         userNickname: post.dataValues.userNickname,
         likeCnt: post.dataValues.likeCnt,

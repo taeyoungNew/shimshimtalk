@@ -30,7 +30,7 @@ module.exports = {
         type: Sequelize.STRING(30),
       },
       aboutMe: {
-        type: Sequelize.STRING(100),
+        type: Sequelize.STRING(500),
       },
       age: {
         type: Sequelize.INTEGER({

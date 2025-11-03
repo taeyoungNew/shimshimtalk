@@ -14,7 +14,7 @@ export interface GetPostDto {
 }
 
 export interface GetAllPostDto {
-  postLastId: number;
+  userId: string | null;
 }
 
 export interface GetUserPostsDto {

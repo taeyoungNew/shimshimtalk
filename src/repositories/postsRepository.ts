@@ -106,6 +106,7 @@ class PostRepository {
       className: "PostRepository",
       functionName: "getUserPosts",
     });
+
     let where = {};
     param.postLastId != null
       ? (where = {
@@ -117,6 +118,20 @@ class PostRepository {
       : (where = {
           userId: param.userId,
         });
+
+    // const isLikedLiteral = param
+    //   ? sequelize.literal(`(
+    //           SELECT CASE
+    //             WHEN COUNT(*) > 0
+    //             THEN true
+    //             ELSE false
+    //              END
+    //             FROM PostLikes AS postLikes
+    //            WHERE postLikes.postId = Posts.id
+    //              AND postLikes.userId = '${param}'
+    //           )`)
+    //   : sequelize.literal(`0`);
+
     return await Posts.findAll({
       attributes: {
         exclude: ["Posts.id"],
@@ -139,6 +154,7 @@ class PostRepository {
             )`),
             "likeCnt",
           ],
+          // [isLikedLiteral, "isLiked"],
         ],
       },
       include: {
@@ -147,7 +163,7 @@ class PostRepository {
       },
       group: ["Posts.id"],
       where,
-      limit: 10,
+      limit: 50,
       order: [["createdAt", "desc"]],
     });
   };
@@ -158,6 +174,8 @@ class PostRepository {
       className: "PostRepository",
       functionName: "getAllPosts",
     });
+    console.log("getAllPosts");
+
     return await Posts.findAll({
       attributes: {
         exclude: ["Posts.id"],

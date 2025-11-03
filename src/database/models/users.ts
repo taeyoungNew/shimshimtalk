@@ -30,19 +30,19 @@ class Users extends Model implements UsersAttributes {
 
   static associate() {
     // following follower
-    Users.belongsToMany(Users, {
-      as: "follower",
-      through: "Follows",
-      onUpdate: "cascade",
-      onDelete: "cascade",
-    });
+    // Users.belongsToMany(Users, {
+    //   as: "follower",
+    //   through: "Follows",
+    //   onUpdate: "cascade",
+    //   onDelete: "cascade",
+    // });
 
-    Users.belongsToMany(Users, {
-      as: "following",
-      through: "Follows",
-      onUpdate: "cascade",
-      onDelete: "cascade",
-    });
+    // Users.belongsToMany(Users, {
+    //   as: "following",
+    //   through: "Follows",
+    //   onUpdate: "cascade",
+    //   onDelete: "cascade",
+    // });
 
     Users.belongsToMany(BlockUsers, {
       as: "blockerId",
@@ -54,13 +54,6 @@ class Users extends Model implements UsersAttributes {
     Users.belongsToMany(BlockUsers, {
       as: "blockedId",
       through: "BlockUsers",
-      onUpdate: "cascade",
-      onDelete: "cascade",
-    });
-
-    Users.belongsToMany(PostLikes, {
-      through: "PostLikes",
-      as: "userId",
       onUpdate: "cascade",
       onDelete: "cascade",
     });
@@ -125,6 +118,15 @@ Users.hasOne(UserInfos, {
 
 // 게시물
 Users.hasMany(Posts, {
+  foreignKey: "userId",
+  sourceKey: "id",
+  hooks: true,
+  onUpdate: "cascade",
+  onDelete: "cascade",
+});
+
+// 게시물좋아요
+Users.hasMany(PostLikes, {
   foreignKey: "userId",
   sourceKey: "id",
   hooks: true,

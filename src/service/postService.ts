@@ -11,9 +11,29 @@ import {
   ModifyPostDto,
 } from "../dtos/PostDto";
 import logger from "../config/logger";
+import PostLikeRepository from "../repositories/postLikeRepository";
+import { GetIsLikedPostIdsDto } from "../dtos/postLikeDto";
 class PostService {
+  postLikeRepository = new PostLikeRepository();
   postRepository = new PostRepository();
   userService = new UserService();
+
+  // 자신이 좋아요를 누른 게시물의 id와 isLiked의 리스트 구하기
+  public getIsLikedPostIds = async (param: GetIsLikedPostIdsDto) => {
+    try {
+      logger.info("", {
+        layer: "Service",
+        className: "PostService",
+        functionName: "getIsLikedPostIds",
+      });
+      const isLikedPostIds =
+        await this.postLikeRepository.getIsLikedPostIds(param);
+      return isLikedPostIds;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   // 게시물작성
   public createPost = async (postInfo: CreatePostDto) => {
     try {
@@ -82,14 +102,19 @@ class PostService {
     }
   };
   // 게시물 모두조회
-  public getAllPosts = async () => {
+  public getAllPosts = async (userId: GetAllPostDto) => {
     try {
       logger.info("", {
         layer: "Service",
         className: "PostService",
         functionName: "getAllPosts",
       });
-      return await this.postRepository.getAllPosts();
+      let result = await this.postRepository.getAllPosts();
+      result = result.map((el) => {
+        el.dataValues.isLiked = el.dataValues.isLiked === 0 ? false : true;
+        return el;
+      });
+      return result;
     } catch (error) {
       throw error;
     }

@@ -11,3 +11,7 @@ export interface PostLikeCancelDto {
 export interface PostLikeCntDto {
   userId: string;
 }
+
+export interface GetIsLikedPostIdsDto {
+  userId: string;
+}

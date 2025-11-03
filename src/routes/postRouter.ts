@@ -1,7 +1,8 @@
 import { Router } from "express";
-import PostHandler from "../handlers/postHandler";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { isLogoutMiddleware } from "../middlewares/isLogout.middleware";
+import { optionalAuthMiddleware } from "../middlewares/optional.auth.middleware";
+import PostHandler from "../handlers/postHandler";
 
 const postRouter = Router();
 const postHandler = new PostHandler();
@@ -25,17 +26,17 @@ postRouter.put(
 
 // 유저의 게시물들을 조회
 postRouter.get(
-  "/user_posts/:userId",
+  "/user_posts",
   isLogoutMiddleware,
   authMiddleware,
   postHandler.getUserPosts
 );
 
 // 모든 게시물을 조회
-postRouter.get("/", postHandler.getAllPosts);
+postRouter.get("/", optionalAuthMiddleware, postHandler.getAllPosts);
 
 // 한 게시물만 조회
-postRouter.get("/:postId", postHandler.getPost);
+postRouter.get("/:postId", optionalAuthMiddleware, postHandler.getPost);
 
 // 게시물 삭제
 postRouter.delete(

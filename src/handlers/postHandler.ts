@@ -14,8 +14,10 @@ import logger from "../config/logger";
 import { postCache } from "../common/cacheLocal/postCache";
 import Posts from "../database/models/posts";
 dotenv.config();
+
 class PostHandler {
   postService = new PostService();
+  
   // 게시물 작성
   public createPost: RequestHandler = async (
     req: Request<{}, {}, CreatePostDto, {}>,
@@ -43,25 +45,34 @@ class PostHandler {
       };
 
       const newPost = await this.postService.createPost(postPayment);
-
+      
       // posts:list와 post의 TTL을 조회
       const postListTTL = await postCache.ttl("posts:list");
 
-      await postCache.lPush("posts:list", String(newPost.id));
-      await postCache.expire("posts:list", postListTTL);
-      await postCache.set(
-        `post:${newPost.id}`,
-        JSON.stringify({
-          id: String(newPost.dataValues.id),
-          userId: newPost.dataValues.userId,
-          content: newPost.dataValues.content,
-          userNickname: newPost.dataValues.userNickname,
-          likeCnt: newPost.dataValues.likeCnt,
-          commentCnt: newPost.dataValues.commentCnt,
-          Comments: newPost.dataValues.Comments,
-        }),
-        { EX: postListTTL }
-      );
+      // 첫게시물때 
+      if(postListTTL === -2) {
+        let posts: Posts[] = [];
+        posts.push(newPost)
+        await this.cachePosts(posts);
+      } else {
+        await postCache.lPush("posts:list", String(newPost.id));
+        await postCache.expire("posts:list", postListTTL);
+        
+        await postCache.set(
+          `post:${newPost.id}`,
+          JSON.stringify({
+            id: String(newPost.dataValues.id),
+            userId: newPost.dataValues.userId,
+            content: newPost.dataValues.content,
+            userNickname: newPost.dataValues.userNickname,
+            likeCnt: newPost.dataValues.likeCnt,
+            commentCnt: newPost.dataValues.commentCnt,
+            Comments: newPost.dataValues.Comments,
+          }),
+          { EX: postListTTL }
+        );
+      }
+      
 
       res
         .status(200)
@@ -95,7 +106,6 @@ class PostHandler {
       // 첫랜더링
       if (ids.length === 0) {
         result = await this.postService.getAllPosts();
-
         await this.cachePosts(result);
         let posts;
         if (result.length != 0) {

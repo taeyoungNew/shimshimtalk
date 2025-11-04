@@ -6,6 +6,8 @@ import {
 import PostLikeRepository from "../repositories/postLikeRepository";
 import PostService from "./postService";
 import logger from "../config/logger";
+import { CustomError } from "../errors/customError";
+import errorCodes from "../constants/error-codes.json";
 class PostLikeService {
   private postLikeRepository = new PostLikeRepository();
   private postService = new PostService();
@@ -63,7 +65,13 @@ class PostLikeService {
         functionName: "checkPostLike",
       });
       const result = await this.postLikeRepository.existPostLike(params);
-      if (result) throw new Error("이미 좋아요를 누른 게시물입니다.");
+      if (result) {
+        throw new CustomError(
+          errorCodes.AUTH.USER_ALREADY_EXISTS.status,
+          errorCodes.AUTH.USER_ALREADY_EXISTS.code,
+          "이미 좋아요를 누른 게시물입니다."
+        );
+      }
     } catch (error) {
       throw error;
     }
@@ -78,7 +86,14 @@ class PostLikeService {
         functionName: "checkPostLikeCencle",
       });
       const result = await this.postLikeRepository.existPostLike(params);
-      if (!result) throw new Error("이미 좋아요를 취소한 게시물입니다.");
+      if (result) {
+        throw new CustomError(
+          errorCodes.AUTH.USER_ALREADY_EXISTS.status,
+          errorCodes.AUTH.USER_ALREADY_EXISTS.code,
+          "이미 좋아요를 취소한 게시물입니다."
+        );
+      }
+      
     } catch (error) {
       throw error;
     }

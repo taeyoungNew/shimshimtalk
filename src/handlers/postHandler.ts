@@ -42,32 +42,49 @@ class PostHandler {
         userId,
         content,
       };
-
+      console.log(postPayment);
+      
       const newPost = await this.postService.createPost(postPayment);
-
+      
       // posts:list와 post의 TTL을 조회
       const postListTTL = await postCache.ttl("posts:list");
-
-      await postCache.lPush("posts:list", String(newPost.id));
-      const cacheUserPostIds = await userPostsCache.lRange(
-        `userPosts:${userId}:List`,
-        0,
-        -1
-      );
-
-      if (cacheUserPostIds.length !== 0) {
-        const userPostListTTL = await userPostsCache.ttl(
-          `userPosts:${userId}:List`
-        );
-        await userPostsCache.lPush(
+      
+      if(postListTTL !== -2) {
+        await postCache.lPush("posts:list", String(newPost.id));
+        const cacheUserPostIds = await userPostsCache.lRange(
           `userPosts:${userId}:List`,
-          String(newPost.id)
+          0,
+          -1
         );
-        await userPostsCache.expire(
-          `userPosts:${userId}:List`,
-          userPostListTTL
-        );
-        await userPostsCache.set(
+
+        if (cacheUserPostIds.length !== 0) {
+          const userPostListTTL = await userPostsCache.ttl(
+            `userPosts:${userId}:List`
+          );
+          await userPostsCache.lPush(
+            `userPosts:${userId}:List`,
+            String(newPost.id)
+          );
+          await userPostsCache.expire(
+            `userPosts:${userId}:List`,
+            userPostListTTL
+          );
+          await userPostsCache.set(
+            `post:${newPost.id}`,
+            JSON.stringify({
+              id: String(newPost.dataValues.id),
+              userId: newPost.dataValues.userId,
+              content: newPost.dataValues.content,
+              userNickname: newPost.dataValues.userNickname,
+              likeCnt: newPost.dataValues.likeCnt,
+              commentCnt: newPost.dataValues.commentCnt,
+              Comments: newPost.dataValues.Comments,
+            }),
+            { EX: userPostListTTL }
+          );
+        }
+        await postCache.expire("posts:list", postListTTL);
+        await postCache.set(
           `post:${newPost.id}`,
           JSON.stringify({
             id: String(newPost.dataValues.id),
@@ -78,24 +95,15 @@ class PostHandler {
             commentCnt: newPost.dataValues.commentCnt,
             Comments: newPost.dataValues.Comments,
           }),
-          { EX: userPostListTTL }
+          { EX: postListTTL }
         );
+      } else {
+        
+        const postList: Posts[] = []
+        postList.push(newPost)
+        this.cachePosts(postList)
+        this.cacheUserPosts(postList, userId)
       }
-      await postCache.expire("posts:list", postListTTL);
-      await postCache.set(
-        `post:${newPost.id}`,
-        JSON.stringify({
-          id: String(newPost.dataValues.id),
-          userId: newPost.dataValues.userId,
-          content: newPost.dataValues.content,
-          userNickname: newPost.dataValues.userNickname,
-          likeCnt: newPost.dataValues.likeCnt,
-          commentCnt: newPost.dataValues.commentCnt,
-          Comments: newPost.dataValues.Comments,
-        }),
-        { EX: postListTTL }
-      );
-
       res
         .status(200)
         .json({ message: "게시물이 작성되었습니다.", data: newPost });
@@ -179,7 +187,8 @@ class PostHandler {
         functionName: "getPost",
       });
       const userId = res.locals.userInfo?.userId;
-      const postId: GetPostDto = { postId: Number(req.params.postId) };
+      const postId = Number(req.params.postId)
+      const payload: GetPostDto = { postId: Number(req.params.postId), userId };
       const ids: [] = await postCache.lRange("posts:list", 0, -1);
 
       // 그전에 레디스에 데이터들이 있는지 확인
@@ -199,7 +208,9 @@ class PostHandler {
 
         result = JSON.parse(postStr);
       } else {
-        result = await this.postService.getPost(postId);
+        result = await this.postService.getPost(payload);
+        
+        result.dataValues.isLiked = result.dataValues.isLiked === 0 ? false : true
 
         postCache.set(
           `post:${result.dataValues.id}`,

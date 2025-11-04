@@ -10,6 +10,7 @@ export interface ModifyPostEntity {
 }
 
 export interface GetPostEntity {
+  userId?: string
   postId: number;
 }
 

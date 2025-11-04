@@ -86,7 +86,8 @@ class PostLikeService {
         functionName: "checkPostLikeCencle",
       });
       const result = await this.postLikeRepository.existPostLike(params);
-      if (result) {
+      
+      if (!result) {
         throw new CustomError(
           errorCodes.AUTH.USER_ALREADY_EXISTS.status,
           errorCodes.AUTH.USER_ALREADY_EXISTS.code,

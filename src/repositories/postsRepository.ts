@@ -48,6 +48,18 @@ class PostRepository {
     } else {
       id = params;
     }
+    const isLikedLiteral = params.userId
+  ? sequelize.literal(`(
+          SELECT CASE
+            WHEN COUNT(*) > 0
+            THEN true
+            ELSE false
+              END
+            FROM PostLikes AS postLikes
+            WHERE postLikes.postId = Posts.id
+              AND postLikes.userId = '${params.userId}'
+          )`)
+  : sequelize.literal(`0`);
     return await Posts.findOne({
       attributes: {
         exclude: ["Posts.id"],
@@ -70,6 +82,7 @@ class PostRepository {
             )`),
             "likeCnt",
           ],
+          [isLikedLiteral, "isLiked"],
         ],
       },
       include: {
@@ -119,19 +132,6 @@ class PostRepository {
           userId: param.userId,
         });
 
-    // const isLikedLiteral = param
-    //   ? sequelize.literal(`(
-    //           SELECT CASE
-    //             WHEN COUNT(*) > 0
-    //             THEN true
-    //             ELSE false
-    //              END
-    //             FROM PostLikes AS postLikes
-    //            WHERE postLikes.postId = Posts.id
-    //              AND postLikes.userId = '${param}'
-    //           )`)
-    //   : sequelize.literal(`0`);
-
     return await Posts.findAll({
       attributes: {
         exclude: ["Posts.id"],
@@ -154,7 +154,7 @@ class PostRepository {
             )`),
             "likeCnt",
           ],
-          // [isLikedLiteral, "isLiked"],
+
         ],
       },
       include: {
@@ -174,7 +174,6 @@ class PostRepository {
       className: "PostRepository",
       functionName: "getAllPosts",
     });
-    console.log("getAllPosts");
 
     return await Posts.findAll({
       attributes: {
@@ -231,12 +230,7 @@ class PostRepository {
 
   // 게시물 존재유무확인
   public existPost = async (params: GetPostEntity) => {
-    let id;
-    if ("object" == typeof params) {
-      id = params.postId;
-    } else {
-      id = params;
-    }
+
     logger.info("", {
       layer: "Repository",
       className: "PostRepository",
@@ -245,7 +239,7 @@ class PostRepository {
 
     return await Posts.findOne({
       where: {
-        id,
+        id: params.postId,
       },
     });
   };

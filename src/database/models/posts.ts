@@ -31,14 +31,6 @@ class Posts extends Model implements PostsAttributes {
       onUpdate: "cascade",
       onDelete: "cascade",
     });
-
-    // 좋아요
-    Posts.belongsToMany(PostLikes, {
-      through: "PostLikes",
-      as: "postId",
-      onUpdate: "cascade",
-      onDelete: "cascade",
-    });
   }
 }
 
@@ -54,7 +46,6 @@ Posts.init(
       allowNull: false,
       type: DataTypes.UUID,
     },
-    // title: { type: DataTypes.STRING, allowNull: false },
     content: { allowNull: false, type: DataTypes.STRING },
   },
   {

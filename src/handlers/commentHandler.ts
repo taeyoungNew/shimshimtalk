@@ -12,6 +12,7 @@ import logger from "../config/logger";
 import { postCache } from "../common/cacheLocal/postCache";
 import PostService from "../service/postService";
 import { GetPostDto } from "../dtos/PostDto";
+import { userPostsCache } from "../common/cacheLocal/userPostsCache";
 
 interface Comment {
   id: number;
@@ -45,7 +46,7 @@ class CommentHandler {
       const userId = res.locals.userInfo.userId;
       const postId = req.params.postId;
       const { authorization } = req.cookies;
-      const [tokenType, token] = authorization.split(" ");
+      const [_, token] = authorization.split(" ");
       const getUserLoginInfo = JSON.parse(
         await userCache.get(`token:${token}`)
       );
@@ -62,9 +63,12 @@ class CommentHandler {
 
       const result = await this.commentService.createComment(payment);
       const plainComment = result.get({ plain: true });
+      console.log("postId = ", postId);
 
       // 레디스의 해당 게시물의 댓글에도 추가
       const post = await postCache.get(`post:${postId}`);
+      const userPost = await userPostsCache.get(`post:${postId}`);
+      console.log(userPost);
 
       // 해당 댓글이 달린 게시물이 redis에 있는지 확인
       if (!post) {
@@ -79,6 +83,24 @@ class CommentHandler {
         await postParse.Comments.push(plainComment);
         const postListTTL = await postCache.ttl("posts:list");
         await postCache.set(`post:${postId}`, JSON.stringify(postParse), {
+          expire: postListTTL,
+        });
+      }
+      // 해당 댓글이 달린 게시물이 redis에 있는지 확인
+      if (!userPost) {
+        const postPayMent: GetPostDto = payment;
+        const getPost = await this.postService.getPost(postPayMent);
+        getPost.Comments.push(plainComment);
+        await userPostsCache.set(`post:${postId}`, JSON.stringify(getPost), {
+          EX: 600,
+        });
+      } else {
+        const postParse = await JSON.parse(userPost);
+
+        await postParse.Comments.push(plainComment);
+
+        const postListTTL = await userPostsCache.ttl("posts:list");
+        await userPostsCache.set(`post:${postId}`, JSON.stringify(postParse), {
           expire: postListTTL,
         });
       }

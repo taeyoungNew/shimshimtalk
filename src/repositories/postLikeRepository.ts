@@ -1,11 +1,13 @@
 import PostLikes from "../database/models/postlikes";
-import { PostLikeCancelDto } from "../dtos/postLikeDto";
+import { GetIsLikedPostIdsDto, PostLikeCancelDto } from "../dtos/postLikeDto";
 import {
   PostLikeEntity,
   PostLikeCancelEntity,
   PostLikeCntEntity,
 } from "../entity/postLikeEntity";
 import logger from "../config/logger";
+import { GetAllPostDto } from "../dtos/PostDto";
+import { log } from "console";
 
 /**
  * 게시물좋아요 리포지토리
@@ -38,6 +40,23 @@ class PostLikeRepository {
       },
     });
   };
+
+  // 자신이 좋아요를 누른 게시물의 id를 가져오기
+  public getIsLikedPostIds = async (param: GetIsLikedPostIdsDto) => {
+    logger.info("", {
+      layer: "Repository",
+      className: "PostLikeRepository",
+      functionName: "getIsLikedPostIds",
+    });
+    // log;
+    return PostLikes.findAll({
+      attributes: ["postId"],
+      where: {
+        userId: param,
+      },
+    });
+  };
+
   // 자신의 게시물들이 받은 좋아요 총 갯수
   public postLikeCnt = async (params: PostLikeCntEntity) => {
     logger.info("", {

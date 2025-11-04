@@ -87,14 +87,14 @@ class UserRepository {
               SELECT COUNT(CASE WHEN followingId = '${myId}' THEN 1 END)
                 FROM Follows
             )`),
-            "followerCtn",
+            "followerCnt",
           ],
           [
             sequelize.literal(`(
               SELECT COUNT(CASE WHEN followerId = '${myId}' THEN 1 END)
                 FROM Follows
             )`),
-            "followingCtn",
+            "followingCnt",
           ],
           [
             sequelize.literal(`(
@@ -103,12 +103,19 @@ class UserRepository {
             )`),
             "blockedCnt",
           ],
+          [
+            sequelize.literal(`(
+              SELECT COUNT(CASE WHEN userId = '${myId}' THEN 1 END)
+                FROM Posts 
+            )`),
+            "postCnt",
+          ],
         ],
       },
       include: [
         {
           model: UserInfos,
-          attributes: ["nickname", "aboutMe", "age"],
+          attributes: ["username", "nickname", "aboutMe", "age"],
         },
       ],
       subQuery: true,
@@ -153,11 +160,11 @@ class UserRepository {
     const result = await Users.findOne({
       attributes: {
         exclude: [
-          "refToken",
-          "password",
-          "refTokenExp",
-          "createdAt",
-          "updatedAt",
+          // "refToken",
+          // "password",
+          // "refTokenExp",
+          // "createdAt",
+          // "updatedAt",
         ],
         include: [
           [
@@ -165,14 +172,14 @@ class UserRepository {
               SELECT COUNT(CASE WHEN followingId = '${id}' THEN 1 END)
                 FROM Follows
             )`),
-            "followerCtn",
+            "followerCnt",
           ],
           [
             sequelize.literal(`(
               SELECT COUNT(CASE WHEN followerId = '${id}' THEN 1 END)
                 FROM Follows
             )`),
-            "followingCtn",
+            "followingCnt",
           ],
         ],
       },
@@ -183,12 +190,6 @@ class UserRepository {
       subQuery: true,
       where: { id },
     });
-
-    // sequelize.literal(`(
-    //   SELECT COUNT(CASE WHEN Follows.followerId = ${id} THEN 1 END)
-    //     FROM Follows
-    //   )`),
-    //   "followerCtn",
 
     return result;
   };

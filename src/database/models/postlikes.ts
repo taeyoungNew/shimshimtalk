@@ -54,27 +54,3 @@ PostLikes.init(
 );
 
 export default PostLikes;
-
-// const {
-//   Model
-// } = require('sequelize');
-// module.exports = (sequelize, DataTypes) => {
-//   class PostLikes extends Model {
-//     /**
-//      * Helper method for defining associations.
-//      * This method is not a part of Sequelize lifecycle.
-//      * The `models/index` file will call this method automatically.
-//      */
-//     static associate(models) {
-//       // define association here
-//     }
-//   }
-//   PostLikes.init({
-//     userId: DataTypes.INTEGER,
-//     postId: DataTypes.INTEGER
-//   }, {
-//     sequelize,
-//     modelName: 'PostLikes',
-//   });
-//   return PostLikes;
-// };

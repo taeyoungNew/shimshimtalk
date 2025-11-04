@@ -1,12 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { checkAuth } from "../middlewares/common/checkAuth";
 import { tokenType } from "../types/tokenType";
-import logger from "../config/logger";
 import { accessToken } from "../middlewares/common/accToken";
-import verifyAccToken from "./common/varifyAccToken";
-// import userRedisClient from "../common/cache/userIdCache";
-import UserRepository from "../repositories/usersRepository";
 import { userCache } from "../common/cacheLocal/userIdCache";
+import logger from "../config/logger";
+import verifyAccToken from "./common/varifyAccToken";
+import UserRepository from "../repositories/usersRepository";
 import verifyRefToken from "./common/varifyRefToken";
 
 /**
@@ -27,9 +26,6 @@ export const authMiddleware = async (
       functionName: "authMiddleware",
     });
     const { authorization } = req.cookies;
-
-    // authMe인지 다른 API인지 확인
-    const path = req.path;
 
     if (authorization == undefined) throw new Error("토큰이 없습니다.");
 

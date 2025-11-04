@@ -130,6 +130,7 @@ class UserHandler {
       const myId: string = res.locals.userInfo.userId;
 
       const result = await this.userService.findMyInfos(myId);
+
       return res.status(200).json({ data: result });
     } catch (error) {
       next(error);
@@ -211,7 +212,7 @@ class UserHandler {
       };
       // aboutMe형식
       if (aboutMeExp(userInfo.aboutMe))
-        throw new Error("100자이내로 써주세요.");
+        throw new Error("500자이내로 써주세요.");
 
       // age형식
       if (ageExp(userInfo.age)) throw new Error("나이형식에 맞지않습니다.");
@@ -221,7 +222,7 @@ class UserHandler {
         throw new Error("유저이름형식에 맞지않습니다. ");
 
       await this.userService.modifyUserInfo(userInfo);
-      return res.status(200).send("유저정보가 변경되었습니다. ");
+      return res.status(200).json({ message: "유저정보가 변경되었습니다. " });
     } catch (error) {
       next(error);
     }

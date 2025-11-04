@@ -141,15 +141,18 @@ class AuthHandler {
       const getUserLoginInfo = JSON.parse(
         await userCache.get(`token:${token}`)
       );
-
-      return res.status(200).json({
-        isLogin: true,
-        user: {
-          id: getUserLoginInfo.id,
-          email: getUserLoginInfo.email,
-          nickname: getUserLoginInfo.userNickname,
-        },
-      });
+      if (getUserLoginInfo) {
+        return res.status(200).json({
+          isLogin: true,
+          user: {
+            id: getUserLoginInfo.id,
+            email: getUserLoginInfo.email,
+            nickname: getUserLoginInfo.userNickname,
+          },
+        });
+      } else {
+        return res.status(404).json({ message: "로그인하지 않았습니다." });
+      }
     } catch (e) {
       next(e);
     }

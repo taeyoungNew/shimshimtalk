@@ -7,6 +7,8 @@ import logger from "../config/logger";
 import verifyAccToken from "./common/varifyAccToken";
 import UserRepository from "../repositories/usersRepository";
 import verifyRefToken from "./common/varifyRefToken";
+import { CustomError } from "../errors/customError";
+import errorCodes from "../constants/error-codes.json";
 
 /**
  * @param req
@@ -27,7 +29,13 @@ export const authMiddleware = async (
     });
     const { authorization } = req.cookies;
 
-    if (authorization == undefined) throw new Error("토큰이 없습니다.");
+    if (authorization == undefined) {
+      throw new CustomError(
+        errorCodes.AUTH.TOKEN_MISSING.status,
+        errorCodes.AUTH.TOKEN_MISSING.code,
+        "토큰이 없습니다."
+      );
+    }
 
     // acctoken의 유무를 확인
     //  -> 없으면 로그인하라는 에러와 함께 로그인화면으로 go
@@ -60,7 +68,11 @@ export const authMiddleware = async (
           functionName: "authMiddleware",
         });
         res.clearCookie("authorization");
-        throw new Error("다시 로그인 해주십시오");
+        throw new CustomError(
+          errorCodes.AUTH.TOKEN_EXPIRED.status,
+          errorCodes.AUTH.TOKEN_EXPIRED.code,
+          "다시 로그인 해주십시오."
+        );
       }
 
       const userId = result.replace(/\"/gi, "");
@@ -87,7 +99,11 @@ export const authMiddleware = async (
           functionName: "authMiddleware",
         });
         // 다시 로그인하라고 에러
-        next("토큰이 만료되어 다시 로그인해주십시오.");
+        throw new CustomError(
+          errorCodes.AUTH.TOKEN_EXPIRED.status,
+          errorCodes.AUTH.TOKEN_EXPIRED.code,
+          "토큰이 만료되어 다시 로그인해주십시오."
+        );
       } else {
         // refToken이 유효할경우 user정보를 가져와선
         // accToken을 재발급하고

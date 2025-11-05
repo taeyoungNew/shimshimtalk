@@ -159,13 +159,7 @@ class UserRepository {
     // migrate의 모델명으로 해야한다
     const result = await Users.findOne({
       attributes: {
-        exclude: [
-          // "refToken",
-          // "password",
-          // "refTokenExp",
-          // "createdAt",
-          // "updatedAt",
-        ],
+        exclude: [],
         include: [
           [
             sequelize.literal(`(
@@ -181,11 +175,18 @@ class UserRepository {
             )`),
             "followingCnt",
           ],
+          [
+            sequelize.literal(`(
+              SELECT COUNT(CASE WHEN userId = '${id}' THEN 1 END)
+                FROM Posts 
+            )`),
+            "postCnt",
+          ],
         ],
       },
       include: {
         model: UserInfos,
-        attributes: ["nickname", "aboutMe", "age"],
+        attributes: ["username", "nickname", "aboutMe", "age"],
       },
       subQuery: true,
       where: { id },

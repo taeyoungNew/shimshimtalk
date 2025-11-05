@@ -125,6 +125,67 @@ class UserRepository {
     return result;
   };
 
+  // 타유저의 정보가져오기
+  public findUserInfos = async (userId: string) => {
+    logger.info("", {
+      layer: "Repository",
+      className: "UserRepository",
+      functionName: "findUserInfos",
+    });
+    const result = await Users.findOne({
+      attributes: {
+        exclude: [
+          "refToken",
+          "password",
+          "refTokenExp",
+          "createdAt",
+          "updatedAt",
+        ],
+        // 서브쿼리
+        include: [
+          [
+            sequelize.literal(`(
+              SELECT COUNT(CASE WHEN followingId = '${userId}' THEN 1 END)
+                FROM Follows
+            )`),
+            "followerCnt",
+          ],
+          [
+            sequelize.literal(`(
+              SELECT COUNT(CASE WHEN followerId = '${userId}' THEN 1 END)
+                FROM Follows
+            )`),
+            "followingCnt",
+          ],
+          [
+            sequelize.literal(`(
+              SELECT COUNT(CASE WHEN blockerId = '${userId}' THEN 1 END)
+                FROM BlockUsers
+            )`),
+            "blockedCnt",
+          ],
+          [
+            sequelize.literal(`(
+              SELECT COUNT(CASE WHEN userId = '${userId}' THEN 1 END)
+                FROM Posts 
+            )`),
+            "postCnt",
+          ],
+        ],
+      },
+      include: [
+        {
+          model: UserInfos,
+          attributes: ["username", "nickname", "aboutMe", "age"],
+        },
+      ],
+      subQuery: true,
+      where: { id: userId },
+    });
+
+    return result;
+  };
+
   // email로 회원정보가져오기
   public findByEmail = async (email: string) => {
     logger.info("", {

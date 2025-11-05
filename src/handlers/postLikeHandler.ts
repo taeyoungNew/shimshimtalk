@@ -37,14 +37,14 @@ class PostLikeHandler {
         await postCache.set(`post:${postId}`, JSON.stringify(postParse));
       }
 
-      if (userPost) {
-        const userPostParse = await JSON.parse(userPost);
-        userPostParse.likeCnt = userPostParse.likeCnt + 1;
-        await userPostsCache.set(
-          `post:${postId}`,
-          JSON.stringify(userPostParse)
-        );
-      }
+      // if (userPost) {
+      //   const userPostParse = await JSON.parse(userPost);
+      //   userPostParse.likeCnt = userPostParse.likeCnt + 1;
+      //   await userPostsCache.set(
+      //     `post:${postId}`,
+      //     JSON.stringify(userPostParse)
+      //   );
+      // }
 
       return res
         .status(200)
@@ -77,21 +77,22 @@ class PostLikeHandler {
       await this.postLikeService.postLikeCancel(payment);
       const post = await postCache.get(`post:${postId}`);
       const userPost = await userPostsCache.get(`post:${postId}`);
-      
+      console.log("userPost = ", userPost);
+
       if (post) {
         const postParse = await JSON.parse(post);
         postParse.likeCnt = postParse.likeCnt - 1;
         await postCache.set(`post:${postId}`, JSON.stringify(postParse));
       }
-      if (userPost) {
-        const userPostParse = await JSON.parse(userPost);
-        userPostParse.likeCnt = userPostParse.likeCnt + 1;
-        await userPostsCache.set(
-          `post:${postId}`,
-          JSON.stringify(userPostParse)
-        );
-      }
-      
+      // if (userPost) {
+      //   const userPostParse = await JSON.parse(userPost);
+      //   userPostParse.likeCnt = userPostParse.likeCnt + 1;
+      //   await userPostsCache.set(
+      //     `post:${postId}`,
+      //     JSON.stringify(userPostParse)
+      //   );
+      // }
+
       return res
         .status(200)
         .send({ message: "해당 게시물에 좋아요를 취소했습니다." });

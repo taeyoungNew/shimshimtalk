@@ -26,9 +26,9 @@ postRouter.put(
 
 // 유저의 게시물들을 조회
 postRouter.get(
-  "/user_posts",
-  isLogoutMiddleware,
-  authMiddleware,
+  "/user-posts",
+  // isLogoutMiddleware,
+  // authMiddleware,
   postHandler.getUserPosts
 );
 

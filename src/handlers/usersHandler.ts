@@ -122,7 +122,7 @@ class UserHandler {
     try {
       logger.info("", {
         method: "get",
-        url: "api/user/:email",
+        url: "api/user/",
         layer: "Handlers",
         className: "UserHandler",
         functionName: "findMyInfos",
@@ -132,6 +132,33 @@ class UserHandler {
       const result = await this.userService.findMyInfos(myId);
 
       return res.status(200).json({ data: result });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * 특정유저의 정보가져오기
+   *
+   * @param req
+   * @param res
+   * @param next
+   */
+  public findUserInfos = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      logger.info("", {
+        method: "get",
+        url: "api/user/:userId",
+        layer: "Handlers",
+        className: "UserHandler",
+        functionName: "findUserInfos",
+      });
+      const userId = req.params.userId;
+      this.userService.findUserInfos(userId);
     } catch (error) {
       next(error);
     }
@@ -162,14 +189,14 @@ class UserHandler {
 
   // 자신의 정보가져오기
   public findUserById = async (
-    req: Request,
+    req: Request<{ userId: string }, {}, {}, {}>,
     res: Response,
     next: NextFunction
   ) => {
     try {
       logger.info("", {
         method: "get",
-        url: "api/user/myinfo",
+        url: "api/user/myinfo/:userId",
         layer: "Handlers",
         className: "UserHandler",
         functionName: "findUserById",

@@ -16,11 +16,14 @@ userRouter.get("/", userHandler.findAllUser);
 
 // 나의 회원정보 가져오기
 userRouter.get(
-  "/myinfo",
+  "/my-info",
   isLogoutMiddleware,
   authMiddleware,
   userHandler.findMyInfos
 );
+
+// 특정유저의 회원정보 가져오기
+userRouter.get(`/user-info/:userId`, userHandler.findUserInfos);
 
 // 차단한 유저의 리스트 가져오기
 userRouter.get(

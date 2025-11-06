@@ -96,6 +96,27 @@ class UserService {
       throw error;
     }
   };
+
+  /**
+   * 타유저의 정보가져오기
+   *
+   * @param userId
+   * @returns
+   */
+  public findUserInfos = async (userId: string) => {
+    try {
+      logger.info("", {
+        layer: "Service",
+        className: "UserService",
+        functionName: "findUserInfos",
+      });
+      const result = await this.userRepository.findUserInfos(userId);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   /**
    *
    * @param email
@@ -168,6 +189,7 @@ class UserService {
         className: "UserService",
         functionName: "findUserById",
       });
+      console.log("userId = ", userId);
 
       const result = await this.userRepository.findById(userId);
 

@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import logger from "../config/logger";
+import { CustomError } from "../errors/customError";
+import errorCodes from "../constants/error-codes.json";
 
 // 로그아웃을 이미 하고이는지 확인하는 미들웨어
 // 되어있으면 에러반환
@@ -16,7 +18,11 @@ export const isLogoutMiddleware = (
       functionName: "isLogoutMiddleware",
     });
     if (req.cookies.authorization === undefined)
-      throw new Error("현재 로그인한 상태가 아닙니다. ");
+      throw new CustomError(
+        errorCodes.AUTH.UNAUTHORIZED.status,
+        errorCodes.AUTH.UNAUTHORIZED.code,
+        "현재 로그인한 상태가 아닙니다."
+      );
     next();
   } catch (error) {
     throw error;

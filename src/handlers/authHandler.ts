@@ -10,7 +10,6 @@ import logger from "../config/logger";
 import bcrypt from "bcrypt";
 import { CustomError } from "../errors/customError";
 import errorCodes from "../constants/error-codes.json";
-import { error } from "console";
 
 class AuthHandler {
   userService = new UserService();

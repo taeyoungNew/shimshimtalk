@@ -105,6 +105,11 @@ class UserService {
    */
   public findUserInfos = async (userId: string) => {
     try {
+      logger.info("", {
+        layer: "Service",
+        className: "UserService",
+        functionName: "findUserInfos",
+      });
       const result = await this.userRepository.findUserInfos(userId);
       return result;
     } catch (error) {
@@ -184,6 +189,7 @@ class UserService {
         className: "UserService",
         functionName: "findUserById",
       });
+      console.log("userId = ", userId);
 
       const result = await this.userRepository.findById(userId);
 

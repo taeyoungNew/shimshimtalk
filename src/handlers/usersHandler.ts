@@ -158,7 +158,9 @@ class UserHandler {
         functionName: "findUserInfos",
       });
       const userId = req.params.userId;
-      this.userService.findUserInfos(userId);
+      const result = await this.userService.findUserInfos(userId);
+
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }

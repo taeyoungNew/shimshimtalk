@@ -43,13 +43,13 @@ class PostHandler {
         content,
       };
       console.log(postPayment);
-      
+
       const newPost = await this.postService.createPost(postPayment);
-      
+
       // posts:list와 post의 TTL을 조회
       const postListTTL = await postCache.ttl("posts:list");
-      
-      if(postListTTL !== -2) {
+
+      if (postListTTL !== -2) {
         await postCache.lPush("posts:list", String(newPost.id));
         const cacheUserPostIds = await userPostsCache.lRange(
           `userPosts:${userId}:List`,
@@ -98,11 +98,10 @@ class PostHandler {
           { EX: postListTTL }
         );
       } else {
-        
-        const postList: Posts[] = []
-        postList.push(newPost)
-        this.cachePosts(postList)
-        this.cacheUserPosts(postList, userId)
+        const postList: Posts[] = [];
+        postList.push(newPost);
+        this.cachePosts(postList);
+        this.cacheUserPosts(postList, userId);
       }
       res
         .status(200)
@@ -187,7 +186,7 @@ class PostHandler {
         functionName: "getPost",
       });
       const userId = res.locals.userInfo?.userId;
-      const postId = Number(req.params.postId)
+      const postId = Number(req.params.postId);
       const payload: GetPostDto = { postId: Number(req.params.postId), userId };
       const ids: [] = await postCache.lRange("posts:list", 0, -1);
 
@@ -209,8 +208,9 @@ class PostHandler {
         result = JSON.parse(postStr);
       } else {
         result = await this.postService.getPost(payload);
-        
-        result.dataValues.isLiked = result.dataValues.isLiked === 0 ? false : true
+
+        result.dataValues.isLiked =
+          result.dataValues.isLiked === 0 ? false : true;
 
         postCache.set(
           `post:${result.dataValues.id}`,
@@ -316,13 +316,21 @@ class PostHandler {
         functionName: "getUserPosts",
       });
 
-      let result: Posts[] = [];
-
       const ids: [] = await userPostsCache.lRange(
         `userPosts:${req.query.userId}:List`,
         0,
         -1
       );
+
+      let isLikedPostIds;
+      const userId = res.locals.userInfo?.userId;
+      let result: Posts[] = [];
+
+      if (userId) {
+        isLikedPostIds = await this.postService.getIsLikedPostIds(userId);
+      }
+
+      console.log("isLikedPostIds = ", isLikedPostIds);
 
       // 첫 랜더링
       if (ids.length === 0) {
@@ -339,7 +347,7 @@ class PostHandler {
         const userPosts = result.splice(0, 5);
         const isLast = userPosts.length < 5 ? true : false;
 
-        return res.status(200).json({ userPosts, isLast });
+        return res.status(200).json({ userPosts, isLast, isLikedPostIds });
       } else {
         const postLastId = req.query.postLastId;
 
@@ -352,11 +360,10 @@ class PostHandler {
         const postJsons = await Promise.all(
           targetIds.map((id: string) => postCache.get(`post:${id}`))
         );
-
         const userPosts = postJsons.map((post) => JSON.parse(post));
         const isLast = userPosts.length < 5 ? true : false;
 
-        return res.status(200).json({ userPosts, isLast });
+        return res.status(200).json({ userPosts, isLast, isLikedPostIds });
       }
     } catch (e) {
       next(e);

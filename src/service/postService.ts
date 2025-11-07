@@ -1,6 +1,6 @@
 import PostRepository from "../repositories/postsRepository";
 import UserService from "./usersService";
-
+import errorCodes from "../constants/error-codes.json";
 import {
   CreatePostDto,
   DeletePostDto,
@@ -13,6 +13,7 @@ import {
 import logger from "../config/logger";
 import PostLikeRepository from "../repositories/postLikeRepository";
 import { GetIsLikedPostIdsDto } from "../dtos/postLikeDto";
+import { CustomError } from "../errors/customError";
 class PostService {
   postLikeRepository = new PostLikeRepository();
   postRepository = new PostRepository();
@@ -149,9 +150,12 @@ class PostService {
       });
       const post = await this.postRepository.getPost(param);
 
-      if (post.userId !== param.userId) {
-        throw new Error("자신의 게시물이 아닙니다.");
-      }
+      if (post.userId !== param.userId)
+        throw new CustomError(
+          errorCodes.POST.FORBIDDEN.status,
+          errorCodes.POST.FORBIDDEN.code,
+          "자신의 게시물이 아닙니다."
+        );
     } catch (error) {
       throw error;
     }
@@ -166,7 +170,12 @@ class PostService {
       });
 
       const result = await this.postRepository.existPost(param);
-      if (!result) throw new Error("해당 게시물이 존재하지 않습니다.");
+      if (!result)
+        throw new CustomError(
+          errorCodes.POST.NOT_FOUND.status,
+          errorCodes.POST.NOT_FOUND.code,
+          "해당 게시물이 존재하지 않습니다."
+        );
     } catch (error) {
       throw error;
     }

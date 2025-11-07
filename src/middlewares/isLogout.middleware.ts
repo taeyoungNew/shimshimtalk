@@ -17,6 +17,8 @@ export const isLogoutMiddleware = (
       layer: "middlerware",
       functionName: "isLogoutMiddleware",
     });
+    console.log("isLogoutMiddleware = ", req.cookies);
+
     if (req.cookies.authorization === undefined)
       throw new CustomError(
         errorCodes.AUTH.UNAUTHORIZED.status,

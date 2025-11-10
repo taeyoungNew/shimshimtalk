@@ -128,6 +128,7 @@ class UserHandler {
         functionName: "findMyInfos",
       });
       const myId: string = res.locals.userInfo.userId;
+      console.log("myId = ", myId);
 
       const result = await this.userService.findMyInfos(myId);
 

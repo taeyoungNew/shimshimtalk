@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { LoginDto } from "../dtos/loginDto";
-// import userRedisClient from "../common/cache/userIdCache";
 import { accessToken } from "../middlewares/common/accToken";
 import { refreshToken } from "../middlewares/common/refToken";
 import { userCache } from "../common/cacheLocal/userIdCache";
@@ -56,6 +55,7 @@ class AuthHandler {
         email: getUserInfo.email,
         userNickname: getUserInfo.UserInfo.nickname,
       };
+      console.log("로그인시 토큰정보 = ", accToken);
 
       // cache에 유저id저장
       await userCache.set(`token:${accToken}`, JSON.stringify(loginUserInfo));

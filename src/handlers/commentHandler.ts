@@ -13,7 +13,8 @@ import { postCache } from "../common/cacheLocal/postCache";
 import PostService from "../service/postService";
 import { GetPostDto } from "../dtos/PostDto";
 import { userPostsCache } from "../common/cacheLocal/userPostsCache";
-
+import errorCodes from "../constants/error-codes.json";
+import { CustomError } from "../errors/customError";
 interface Comment {
   id: number;
   userId: string;
@@ -52,7 +53,12 @@ class CommentHandler {
       );
 
       if (!commentContentExp(req.body.comment))
-        throw Error("200자내로 적어주세요.");
+        throw new CustomError(
+          errorCodes.COMMENT.VALIDATION_ERROR.status,
+          errorCodes.COMMENT.VALIDATION_ERROR.code,
+          "200자내로 적어주세요."
+        );
+
       // 댓글의 형식검사
       const payment: CreateCommentDto = {
         userId,
@@ -63,12 +69,10 @@ class CommentHandler {
 
       const result = await this.commentService.createComment(payment);
       const plainComment = result.get({ plain: true });
-      console.log("postId = ", postId);
 
       // 레디스의 해당 게시물의 댓글에도 추가
       const post = await postCache.get(`post:${postId}`);
       const userPost = await userPostsCache.get(`post:${postId}`);
-      console.log(userPost);
 
       // 해당 댓글이 달린 게시물이 redis에 있는지 확인
       if (!post) {
@@ -130,7 +134,11 @@ class CommentHandler {
       const commentId = req.params.commentId;
       const postId = req.body.postId;
       if (!commentContentExp(req.body.comment))
-        throw Error("200자내로 적어주세요.");
+        throw new CustomError(
+          errorCodes.COMMENT.VALIDATION_ERROR.status,
+          errorCodes.COMMENT.VALIDATION_ERROR.code,
+          "200자내로 적어주세요."
+        );
 
       const payment: ModifyCommentDto = {
         userId,

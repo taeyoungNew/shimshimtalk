@@ -27,30 +27,27 @@ export const authMiddleware = async (
       layer: "middleware",
       functionName: "authMiddleware",
     });
+    console.log("authmiddleware = ", req.cookies);
     const { authorization } = req.cookies;
-
-    if (authorization == undefined) {
-      throw new CustomError(
-        errorCodes.AUTH.TOKEN_MISSING.status,
-        errorCodes.AUTH.TOKEN_MISSING.code,
-        "토큰이 없습니다."
-      );
-    }
 
     // acctoken의 유무를 확인
     //  -> 없으면 로그인하라는 에러와 함께 로그인화면으로 go
     let tokenType, token;
 
     [tokenType, token] = authorization.split(" ");
+    console.log("authorization = ", authorization);
+
+    console.log("token = ", token);
+    const cacheUserInfo = await userCache.get(`token:${token}`);
+    console.log("cacheUserInfo = ", cacheUserInfo);
     checkAuth(authorization, tokenType, token);
 
-    // acctoken이 유효한지 확인
-    //  -> 유효하지않으면 reftoken을 확인하고\
     const accTokenPayment: tokenType = {
       token: token,
       type: "accToken",
     };
 
+    // acctoken이 유효한지 확인
     const decodeAccToken = verifyAccToken(accTokenPayment);
 
     if (typeof decodeAccToken === "string" && decodeAccToken === "jwt exired") {
@@ -59,16 +56,21 @@ export const authMiddleware = async (
         functionName: "authMiddleware",
       });
       // accToken이 만료되었을경우
-      // 캐시에 저장된 userId를 가져온다
-      const result = await userCache.get("userId");
-      console.log("result = ", result);
+      //  -> 유효하지않으면 reftoken을 확인
+      // console.log("token = ", token);
 
-      if (result == null) {
+      // 캐시에 저장된 userId를 가져온다
+      const cacheUserInfo = await userCache.get(`token:${token}`);
+
+      const cacheUserInfoParse = JSON.parse(cacheUserInfo);
+
+      if (cacheUserInfoParse == null) {
         logger.warn("redis의 userId가 null", {
           layer: "middleware",
           functionName: "authMiddleware",
         });
         res.clearCookie("authorization");
+
         throw new CustomError(
           errorCodes.AUTH.TOKEN_EXPIRED.status,
           errorCodes.AUTH.TOKEN_EXPIRED.code,
@@ -76,16 +78,17 @@ export const authMiddleware = async (
         );
       }
 
-      const userId = result.replace(/\"/gi, "");
-
       // DB에 저장된 유저의 refToken을 가져온다.
-      const dbRefToken = await userRepository.getRefToken(userId);
+      const dbRefToken = await userRepository.getRefToken(
+        cacheUserInfoParse.id
+      );
 
       // 유저테이블의 refToken을 확인하고
       const refTokenPayment: tokenType = {
         token: dbRefToken,
         type: "refToken",
       };
+
       const decodeRefToken = verifyRefToken(refTokenPayment);
 
       // refToken이 만료되었을 경우
@@ -94,11 +97,14 @@ export const authMiddleware = async (
         decodeRefToken === "jwt exired"
       ) {
         // 리플레쉬토큰까지 만료가되었을 시 캐시의 정보도 같이 지워준다.
-        await userCache.del("userId");
         logger.error("토큰이 만료되어 다시 로그인해주십시오.", {
           layer: "middleware",
           functionName: "authMiddleware",
         });
+        console.log("캐시상의 유저정보 삭제하기");
+
+        await userCache.del(`token:${token}`);
+        res.clearCookie("authorization");
         // 다시 로그인하라고 에러
         throw new CustomError(
           errorCodes.AUTH.TOKEN_EXPIRED.status,
@@ -106,11 +112,13 @@ export const authMiddleware = async (
           "토큰이 만료되어 다시 로그인해주십시오."
         );
       } else {
-        // refToken이 유효할경우 user정보를 가져와선
+        // refToken이 유효할경우 user정보를 가져와서
         // accToken을 재발급하고
-        const getCacheUserId = await userCache.get("userId");
+        const cacheUserInfo = await userCache.get(`token:${token}`);
+        const cacheUserInfoParse = JSON.parse(cacheUserInfo);
+
         const userInfo = await userRepository.findById(
-          getCacheUserId.replace(/\"/gi, "") // json.stringfy로 저장을 했기때문에 이렇게 한번 큰따옴표와 \를 없애야한다.
+          cacheUserInfoParse.id // json.stringfy로 저장을 했기때문에 이렇게 한번 큰따옴표와 \를 없애야한다.
         );
 
         logger.info("acc토큰재발급", {
@@ -119,12 +127,25 @@ export const authMiddleware = async (
         });
         // 새로운 acc토큰을 발급받고
         const newAccToken = accessToken(userInfo.id, userInfo.email);
+        console.log("newAccToken = ", newAccToken);
+
         // res.locals로 다음 모듈에 유저의 정보들을 넘겨준다.
         res.locals.userInfo = {
           userId: userInfo.id,
           email: userInfo.email,
         };
+        const newSetUserInfo = {
+          id: userInfo.id,
+          email: userInfo.email,
+          userNickname: userInfo.UserInfo.nickname,
+        };
+        console.log("newSetUserInfo = ", newSetUserInfo);
 
+        await userCache.del(`token:${token}`);
+        await userCache.set(
+          `token:${newAccToken}`,
+          JSON.stringify(newSetUserInfo)
+        );
         res.cookie("authorization", `Bearer ${newAccToken}`);
         next();
       }

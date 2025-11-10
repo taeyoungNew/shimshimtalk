@@ -9,6 +9,9 @@ import {
 import { GetPostDto } from "../dtos/PostDto";
 import PostService from "./postService";
 import logger from "../config/logger";
+import { CustomError } from "../errors/customError";
+import errorCodes from "../constants/error-codes.json";
+
 class CommentService {
   private postService = new PostService();
 
@@ -92,7 +95,11 @@ class CommentService {
       const comment = await this.commentRepository.getComment(params);
 
       if (comment.userId !== params.userId)
-        throw new Error("자신의 댓글이 아닙니다.");
+        throw new CustomError(
+          errorCodes.COMMENT.FORBIDDEN.status,
+          errorCodes.COMMENT.FORBIDDEN.code,
+          "자신의 댓글이 아닙니다."
+        );
     } catch (error) {
       throw error;
     }
@@ -107,7 +114,12 @@ class CommentService {
         functionName: "existComment",
       });
       const result = await this.commentRepository.existComment(param);
-      if (!result) throw new Error("해당 댓글이 존재하지 않습니다.");
+      if (!result)
+        throw new CustomError(
+          errorCodes.COMMENT.NOT_FOUND.status,
+          errorCodes.COMMENT.NOT_FOUND.code,
+          "해당 댓글이 존재하지 않습니다."
+        );
     } catch (error) {
       throw error;
     }

@@ -7,6 +7,8 @@ import {
 import logger from "../config/logger";
 import FollowRepository from "../repositories/followRepository";
 import UserService from "./usersService";
+import errorCodes from "../constants/error-codes.json";
+import { CustomError } from "../errors/customError";
 
 class FollowService {
   followRepository = new FollowRepository();
@@ -85,9 +87,12 @@ class FollowService {
         functionName: "checkFollowingUser",
       });
       const result = await this.followRepository.getFollowing(followingId);
-      if (result) {
-        throw new Error("이미 팔로잉하고있습니다.");
-      }
+      if (result)
+        throw new CustomError(
+          errorCodes.FOLLOW.FOLLOWING_ALREADY_EXISTS.status,
+          errorCodes.FOLLOW.FOLLOWING_ALREADY_EXISTS.code,
+          "이미 팔로잉하고있는 유저입니다."
+        );
     } catch (e) {
       throw e;
     }
@@ -105,9 +110,12 @@ class FollowService {
         functionName: "checkUnFollowingUser",
       });
       const result = await this.followRepository.getFollowing(followingId);
-      if (!result) {
-        throw new Error("팔로잉하고 있지 않습니다..");
-      }
+      if (!result)
+        throw new CustomError(
+          errorCodes.FOLLOW.BAD_REQUEST.status,
+          errorCodes.FOLLOW.BAD_REQUEST.code,
+          "팔로잉하고 있지 않습니다."
+        );
     } catch (e) {
       throw e;
     }

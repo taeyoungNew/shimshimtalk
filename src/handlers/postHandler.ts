@@ -14,6 +14,8 @@ import logger from "../config/logger";
 import Posts from "../database/models/posts";
 import { postCache } from "../common/cacheLocal/postCache";
 import { userPostsCache } from "../common/cacheLocal/userPostsCache";
+import { CustomError } from "../errors/customError";
+import errorCodes from "../constants/error-codes.json";
 dotenv.config();
 class PostHandler {
   postService = new PostService();
@@ -35,14 +37,18 @@ class PostHandler {
 
       const { content } = req.body;
 
-      // title형식체크
       // content형식체크
-      if (!postContentExp(content)) throw Error("500자내로 적어주세요. ");
+      if (!postContentExp(content))
+        throw new CustomError(
+          errorCodes.POST.VALIDATION_ERROR.status,
+          errorCodes.POST.VALIDATION_ERROR.code,
+          "500자내로 적어주세요. "
+        );
+
       const postPayment: CreatePostDto = {
         userId,
         content,
       };
-      console.log(postPayment);
 
       const newPost = await this.postService.createPost(postPayment);
 
@@ -103,9 +109,10 @@ class PostHandler {
         this.cachePosts(postList);
         this.cacheUserPosts(postList, userId);
       }
-      res
-        .status(200)
-        .json({ message: "게시물이 작성되었습니다.", data: newPost });
+      res.status(200).json({
+        message: "게시물이 작성되었습니다.",
+        data: newPost,
+      });
     } catch (e) {
       next(e);
     }
@@ -142,7 +149,6 @@ class PostHandler {
       // 첫랜더링
       if (ids.length === 0) {
         result = await this.postService.getAllPosts(userId);
-        console.log("result = ", result[0].dataValues);
 
         await this.cachePosts(result);
         let posts;
@@ -257,7 +263,12 @@ class PostHandler {
 
       // content형식체크
       if (!postContentExp(content))
-        throw Error("게시물내용 형식에 맞지않습니다. ");
+        throw new CustomError(
+          errorCodes.POST.VALIDATION_ERROR.status,
+          errorCodes.POST.VALIDATION_ERROR.code,
+          "500자내로 적어주세요. "
+        );
+
       const modifyPayment: IsUserPost = {
         userId,
         postId,
@@ -329,8 +340,6 @@ class PostHandler {
       if (userId) {
         isLikedPostIds = await this.postService.getIsLikedPostIds(userId);
       }
-
-      console.log("isLikedPostIds = ", isLikedPostIds);
 
       // 첫 랜더링
       if (ids.length === 0) {

@@ -37,15 +37,6 @@ class PostLikeHandler {
         await postCache.set(`post:${postId}`, JSON.stringify(postParse));
       }
 
-      // if (userPost) {
-      //   const userPostParse = await JSON.parse(userPost);
-      //   userPostParse.likeCnt = userPostParse.likeCnt + 1;
-      //   await userPostsCache.set(
-      //     `post:${postId}`,
-      //     JSON.stringify(userPostParse)
-      //   );
-      // }
-
       return res
         .status(200)
         .json({ message: "해당 게시물에 좋아요를 눌렀습니다." });

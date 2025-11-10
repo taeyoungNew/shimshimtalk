@@ -201,7 +201,6 @@ class UserRepository {
           attributes: ["username", "nickname", "aboutMe", "age"],
         },
       ],
-      // group: ["Users.id"],
       where: {
         email,
       },

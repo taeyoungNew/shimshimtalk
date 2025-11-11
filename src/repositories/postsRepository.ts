@@ -43,13 +43,15 @@ class PostRepository {
       functionName: "getPost",
     });
     let id;
+    let postUserId;
     if ("object" == typeof params) {
       id = params.postId;
+      postUserId = params.postUserId;
     } else {
       id = params;
     }
     const isLikedLiteral = params.userId
-  ? sequelize.literal(`(
+      ? sequelize.literal(`(
           SELECT CASE
             WHEN COUNT(*) > 0
             THEN true
@@ -59,7 +61,20 @@ class PostRepository {
             WHERE postLikes.postId = Posts.id
               AND postLikes.userId = '${params.userId}'
           )`)
-  : sequelize.literal(`0`);
+      : sequelize.literal(`0`);
+    const isFollowingLiteral = params.postUserId
+      ? sequelize.literal(`(
+        SELECT CASE
+          WHEN COUNT(*) > 0
+          THEN true
+          ELSE false
+           END
+          FROM Follows as follows
+         WHERE follows.followerId = '${params.userId}'
+           AND follows.followingId = '${params.postUserId}'
+      
+      )`)
+      : sequelize.literal(`0`);
     return await Posts.findOne({
       attributes: {
         exclude: ["Posts.id"],
@@ -83,6 +98,7 @@ class PostRepository {
             "likeCnt",
           ],
           [isLikedLiteral, "isLiked"],
+          [isFollowingLiteral, "isFollowinged"],
         ],
       },
       include: {
@@ -154,7 +170,6 @@ class PostRepository {
             )`),
             "likeCnt",
           ],
-
         ],
       },
       include: {
@@ -230,7 +245,6 @@ class PostRepository {
 
   // 게시물 존재유무확인
   public existPost = async (params: GetPostEntity) => {
-
     logger.info("", {
       layer: "Repository",
       className: "PostRepository",

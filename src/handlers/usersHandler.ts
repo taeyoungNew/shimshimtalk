@@ -128,7 +128,6 @@ class UserHandler {
         functionName: "findMyInfos",
       });
       const myId: string = res.locals.userInfo.userId;
-      console.log("myId = ", myId);
 
       const result = await this.userService.findMyInfos(myId);
 
@@ -158,8 +157,14 @@ class UserHandler {
         className: "UserHandler",
         functionName: "findUserInfos",
       });
+
+      const myId = res.locals.userInfo?.userId;
+
       const userId = req.params.userId;
-      const result = await this.userService.findUserInfos(userId);
+      const result = await this.userService.findUserInfos({ userId, myId });
+
+      result.dataValues.isFollowinged =
+        result.dataValues.isFollowinged === 1 ? true : false;
 
       return res.status(200).json(result);
     } catch (error) {

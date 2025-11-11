@@ -1,10 +1,6 @@
 import { Response, Request, RequestHandler, NextFunction } from "express";
-import {
-  FollowingDto,
-  StopFollowingDto,
-  GetFollowersDto,
-  GetFollowingsDto,
-} from "../dtos/followDto";
+import { FollowingDto } from "../dtos/followDto";
+import { userCache } from "../common/cacheLocal/userIdCache";
 import FollowService from "../service/followService";
 import logger from "../config/logger";
 
@@ -28,6 +24,7 @@ class FollowHandler {
         userId: res.locals.userInfo.userId,
         followingId: req.params.followingId,
       };
+
       await this.followService.following(payment);
       return res.status(200).json({ message: "팔로잉되었습니다." });
     } catch (e) {

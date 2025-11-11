@@ -3,6 +3,7 @@ import UserInfos from "../database/models/userinfos";
 import { ModifyUserDto } from "../dtos/modifyUserDto";
 import {
   GetBlockedUsersEntity,
+  GetFindUserInfosEntity,
   ModifyUserEntity,
   SignupUserEntity,
   SignupUserInfosEntity,
@@ -126,12 +127,27 @@ class UserRepository {
   };
 
   // 타유저의 정보가져오기
-  public findUserInfos = async (userId: string) => {
+  public findUserInfos = async (params: GetFindUserInfosEntity) => {
     logger.info("", {
       layer: "Repository",
       className: "UserRepository",
       functionName: "findUserInfos",
     });
+
+    const isFollowingLiteral = params.myId
+      ? sequelize.literal(`(
+            SELECT CASE
+              WHEN COUNT(*) > 0
+              THEN true
+              ELSE false
+               END
+              FROM Follows as follows
+             WHERE follows.followerId = '${params.myId}'
+               AND follows.followingId = '${params.userId}'
+          
+          )`)
+      : sequelize.literal(`0`);
+
     const result = await Users.findOne({
       attributes: {
         exclude: [
@@ -145,32 +161,33 @@ class UserRepository {
         include: [
           [
             sequelize.literal(`(
-              SELECT COUNT(CASE WHEN followingId = '${userId}' THEN 1 END)
+              SELECT COUNT(CASE WHEN followingId = '${params.userId}' THEN 1 END)
                 FROM Follows
             )`),
             "followerCnt",
           ],
           [
             sequelize.literal(`(
-              SELECT COUNT(CASE WHEN followerId = '${userId}' THEN 1 END)
+              SELECT COUNT(CASE WHEN followerId = '${params.userId}' THEN 1 END)
                 FROM Follows
             )`),
             "followingCnt",
           ],
           [
             sequelize.literal(`(
-              SELECT COUNT(CASE WHEN blockerId = '${userId}' THEN 1 END)
+              SELECT COUNT(CASE WHEN blockerId = '${params.userId}' THEN 1 END)
                 FROM BlockUsers
             )`),
             "blockedCnt",
           ],
           [
             sequelize.literal(`(
-              SELECT COUNT(CASE WHEN userId = '${userId}' THEN 1 END)
+              SELECT COUNT(CASE WHEN userId = '${params.userId}' THEN 1 END)
                 FROM Posts 
             )`),
             "postCnt",
           ],
+          [isFollowingLiteral, "isFollowinged"],
         ],
       },
       include: [
@@ -180,7 +197,7 @@ class UserRepository {
         },
       ],
       subQuery: true,
-      where: { id: userId },
+      where: { id: params.userId },
     });
 
     return result;

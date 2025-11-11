@@ -3,7 +3,7 @@ import { ModifyUserDto } from "../dtos/modifyUserDto";
 import UserRepository from "../repositories/usersRepository";
 import logger from "../config/logger";
 import bcrypt from "bcrypt";
-import { GetBlockedUsersDto } from "../dtos/userDto";
+import { GetBlockedUsersDto, GetFindUserInfosDto } from "../dtos/userDto";
 import { CustomError } from "../errors/customError";
 import errorCodes from "../constants/error-codes.json";
 class UserService {
@@ -102,14 +102,14 @@ class UserService {
    * @param userId
    * @returns
    */
-  public findUserInfos = async (userId: string) => {
+  public findUserInfos = async (params: GetFindUserInfosDto) => {
     try {
       logger.info("", {
         layer: "Service",
         className: "UserService",
         functionName: "findUserInfos",
       });
-      const result = await this.userRepository.findUserInfos(userId);
+      const result = await this.userRepository.findUserInfos(params);
       return result;
     } catch (error) {
       throw error;
@@ -188,7 +188,6 @@ class UserService {
         className: "UserService",
         functionName: "findUserById",
       });
-      console.log("userId = ", userId);
 
       const result = await this.userRepository.findById(userId);
 

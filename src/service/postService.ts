@@ -5,6 +5,7 @@ import {
   CreatePostDto,
   DeletePostDto,
   GetAllPostDto,
+  GetPostDetailDto,
   GetPostDto,
   GetUserPostsDto,
   IsUserPost,
@@ -44,16 +45,18 @@ class PostService {
         functionName: "createPost",
       });
       const newPost = await this.postRepository.createPost(postInfo);
-      const newPostId: GetPostDto = {
+      const newPostInfo: GetPostDetailDto = {
+        postUserId: newPost.userId,
         postId: newPost.id,
+        userId: newPost.userId,
       };
-      return await this.getPost(newPostId);
+      return await this.getPost(newPostInfo);
     } catch (error) {
       throw error;
     }
   };
   // 한 게시물만 조회
-  public getPost = async (postInfo: GetPostDto) => {
+  public getPost = async (postInfo: GetPostDetailDto) => {
     try {
       logger.info("", {
         layer: "Service",

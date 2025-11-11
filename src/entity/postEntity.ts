@@ -10,7 +10,14 @@ export interface ModifyPostEntity {
 }
 
 export interface GetPostEntity {
-  userId?: string
+  postUserId?: string;
+  userId?: string;
+  postId: number;
+}
+
+export interface GetPostDetailEntity {
+  userId?: string;
+  postUserId: string;
   postId: number;
 }
 

@@ -21,6 +21,7 @@ commentRouter.put(
   authMiddleware,
   commentHandler.modifyComment
 );
+
 // 댓글삭제
 commentRouter.delete(
   "/:commentId",

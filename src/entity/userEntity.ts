@@ -20,3 +20,8 @@ export interface ModifyUserEntity {
 export interface GetBlockedUsersEntity {
   blockedUserIds: string[];
 }
+
+export interface GetFindUserInfosEntity {
+  myId?: string;
+  userId: string;
+}

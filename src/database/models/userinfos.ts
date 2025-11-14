@@ -1,6 +1,6 @@
 "use strict";
 
-import { Model, DataTypes, Association } from "sequelize";
+import { Model, DataTypes, Association, Sequelize } from "sequelize";
 
 import connection from "../connection";
 import Users from "./users";
@@ -20,12 +20,52 @@ class UserInfos extends Model implements UserInfoAttributes {
   public aboutMe!: string;
   public age!: number;
 
-  // public static associations: {
-  //   UserInfos: Association<UserInfos, Users>;
-  // };
+  static initModel(sequelize: Sequelize) {
+    return UserInfos.init(
+      {
+        id: {
+          allowNull: false,
+          autoIncrement: true,
+          primaryKey: true,
+          type: DataTypes.INTEGER,
+        },
+        userId: {
+          allowNull: false,
+          type: DataTypes.UUID,
+          references: {
+            model: Users,
+            key: "id",
+          },
+        },
+        username: {
+          allowNull: false,
+          type: DataTypes.STRING,
+        },
+        nickname: {
+          allowNull: false,
+          type: DataTypes.STRING,
+        },
+        aboutMe: {
+          type: DataTypes.STRING,
+        },
+        age: DataTypes.INTEGER({
+          length: 100,
+        }),
+        createdAt: {
+          allowNull: false,
+          type: DataTypes.DATE,
+        },
+        updatedAt: {
+          allowNull: false,
+          type: DataTypes.DATE,
+        },
+      },
+      { sequelize: sequelize, modelName: "UserInfos" }
+    );
+  }
 
-  static associate() {
-    UserInfos.belongsTo(Users, {
+  static associate(db: any) {
+    UserInfos.belongsTo(db.Users, {
       foreignKey: "userId",
       targetKey: "id",
       onUpdate: "cascade",
@@ -36,47 +76,47 @@ class UserInfos extends Model implements UserInfoAttributes {
   //   // // user - userInfo
 }
 
-UserInfos.init(
-  {
-    id: {
-      allowNull: false,
-      autoIncrement: true,
-      primaryKey: true,
-      type: DataTypes.INTEGER,
-    },
-    userId: {
-      allowNull: false,
-      type: DataTypes.UUID,
-      references: {
-        model: Users,
-        key: "id",
-      },
-    },
-    username: {
-      allowNull: false,
-      type: DataTypes.STRING,
-    },
-    nickname: {
-      allowNull: false,
-      type: DataTypes.STRING,
-    },
-    aboutMe: {
-      type: DataTypes.STRING,
-    },
-    age: DataTypes.INTEGER({
-      length: 100,
-    }),
-    createdAt: {
-      allowNull: false,
-      type: DataTypes.DATE,
-    },
-    updatedAt: {
-      allowNull: false,
-      type: DataTypes.DATE,
-    },
-  },
-  { sequelize: connection, modelName: "UserInfo" }
-);
+// UserInfos.init(
+//   {
+//     id: {
+//       allowNull: false,
+//       autoIncrement: true,
+//       primaryKey: true,
+//       type: DataTypes.INTEGER,
+//     },
+//     userId: {
+//       allowNull: false,
+//       type: DataTypes.UUID,
+//       references: {
+//         model: Users,
+//         key: "id",
+//       },
+//     },
+//     username: {
+//       allowNull: false,
+//       type: DataTypes.STRING,
+//     },
+//     nickname: {
+//       allowNull: false,
+//       type: DataTypes.STRING,
+//     },
+//     aboutMe: {
+//       type: DataTypes.STRING,
+//     },
+//     age: DataTypes.INTEGER({
+//       length: 100,
+//     }),
+//     createdAt: {
+//       allowNull: false,
+//       type: DataTypes.DATE,
+//     },
+//     updatedAt: {
+//       allowNull: false,
+//       type: DataTypes.DATE,
+//     },
+//   },
+//   { sequelize: connection, modelName: "UserInfo" }
+// );
 
 // user - userinfo
 

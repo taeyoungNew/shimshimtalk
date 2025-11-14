@@ -129,7 +129,7 @@ class PostHandler {
     try {
       logger.info("", {
         method: "get",
-        url: "api/post/all_posts",
+        url: "api/post/",
         layer: "Handlers",
         className: "PostHandler",
         functionName: "getAllPosts",
@@ -387,8 +387,6 @@ class PostHandler {
         );
         const userPosts = postJsons.map((post) => JSON.parse(post));
         const isLast = userPosts.length < 5 ? true : false;
-
-        console.log("userPosts = ", userPosts);
         return res.status(200).json({ userPosts, isLast, isLikedPostIds });
       }
     } catch (e) {
@@ -448,7 +446,7 @@ class PostHandler {
         });
 
         await postCache.del("posts:list");
-        // await userPostsCache.del(`userPosts:${userId}:List`);
+
         await postCache.rPush(
           "posts:list",
           filterIds.map((el: string) => JSON.stringify(el))
@@ -503,9 +501,10 @@ class PostHandler {
   // 게시물데이터들을 다시 캐싱하기
   private cachePosts = async (posts: Posts[]) => {
     const ids = posts.map((el) => el.id);
-
-    await postCache.rPush("posts:list", ids.map(String));
-    await postCache.expire("posts:list", 600);
+    if (ids.length !== 0) {
+      await postCache.rPush("posts:list", ids.map(String));
+      await postCache.expire("posts:list", 600);
+    }
 
     for (let idx = 0; idx < posts.length; idx++) {
       await postCache.set(

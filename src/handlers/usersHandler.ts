@@ -104,6 +104,7 @@ class UserHandler {
       next(error);
     }
   };
+
   /**
    * 자신의 정보가져오기
    *

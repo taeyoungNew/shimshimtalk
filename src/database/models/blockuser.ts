@@ -1,5 +1,5 @@
 "use strict";
-import { Model, DataTypes, Association } from "sequelize";
+import { Model, DataTypes, Association, Sequelize } from "sequelize";
 import connection from "../connection";
 import Users from "./users";
 
@@ -12,14 +12,40 @@ class BlockUsers extends Model implements BlockUserAttributes {
   public blockerId!: string;
   public blockedId!: string;
 
-  static associate() {
-    BlockUsers.belongsTo(Users, {
+  static initModel(sequelize: Sequelize) {
+    BlockUsers.init(
+      {
+        id: {
+          allowNull: false,
+          autoIncrement: true,
+          primaryKey: true,
+          type: DataTypes.NUMBER,
+        },
+        blockerId: {
+          allowNull: false,
+          type: DataTypes.UUID,
+        },
+        blockedId: {
+          allowNull: false,
+          type: DataTypes.UUID,
+        },
+      },
+      {
+        sequelize: sequelize,
+        modelName: "BlockUsers",
+      }
+    );
+    return BlockUsers;
+  }
+
+  static associate(db: any) {
+    BlockUsers.belongsTo(db.Users, {
       foreignKey: "blockerId",
       targetKey: "id",
       onUpdate: "cascade",
       onDelete: "cascade",
     });
-    BlockUsers.belongsTo(Users, {
+    BlockUsers.belongsTo(db.Users, {
       foreignKey: "blockedId",
       targetKey: "id",
       onUpdate: "cascade",
@@ -28,28 +54,28 @@ class BlockUsers extends Model implements BlockUserAttributes {
   }
 }
 
-BlockUsers.init(
-  {
-    id: {
-      allowNull: false,
-      autoIncrement: true,
-      primaryKey: true,
-      type: DataTypes.NUMBER,
-    },
-    blockerId: {
-      allowNull: false,
-      type: DataTypes.UUID,
-    },
-    blockedId: {
-      allowNull: false,
-      type: DataTypes.UUID,
-    },
-  },
-  {
-    sequelize: connection,
-    modelName: "BlockUsers",
-  }
-);
+// BlockUsers.init(
+//   {
+//     id: {
+//       allowNull: false,
+//       autoIncrement: true,
+//       primaryKey: true,
+//       type: DataTypes.NUMBER,
+//     },
+//     blockerId: {
+//       allowNull: false,
+//       type: DataTypes.UUID,
+//     },
+//     blockedId: {
+//       allowNull: false,
+//       type: DataTypes.UUID,
+//     },
+//   },
+//   {
+//     sequelize: connection,
+//     modelName: "BlockUsers",
+//   }
+// );
 
 // BlockUsers.hasMany(Users, {
 //   foreignKey: "blockerId",

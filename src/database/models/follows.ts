@@ -1,6 +1,7 @@
 "use strict";
 
-import { Model, DataTypes } from "sequelize";
+import { Model, DataTypes, Sequelize } from "sequelize";
+import db from "../models/index";
 import connection from "../connection";
 import Users from "./users";
 
@@ -13,46 +14,83 @@ class Follows extends Model implements FollowsAttributes {
   public followerId!: string;
   public followingId!: string;
 
-  static associate() {
-    Follows.belongsTo(Users, {
+  static initModel(sequelize: Sequelize) {
+    Follows.init(
+      {
+        id: {
+          allowNull: false,
+          autoIncrement: true,
+          primaryKey: true,
+          type: DataTypes.NUMBER,
+        },
+        followerId: {
+          allowNull: false,
+          type: DataTypes.UUID,
+        },
+        followingId: {
+          allowNull: false,
+          type: DataTypes.UUID,
+        },
+      },
+      {
+        sequelize: sequelize,
+        modelName: "Follows",
+      }
+    );
+    return Follows;
+  }
+
+  static associate(db: any) {
+    Follows.belongsTo(db.Users, {
       foreignKey: "followingId",
-      targetKey: "id",
-      as: "Followings",
       onUpdate: "cascade",
       onDelete: "cascade",
     });
 
-    Follows.belongsTo(Users, {
+    Follows.belongsTo(db.Users, {
       foreignKey: "followerId",
-      targetKey: "id",
-      as: "Followers",
       onUpdate: "cascade",
       onDelete: "cascade",
     });
+    // Follows.belongsTo(Users, {
+    //   foreignKey: "followingId",
+    //   targetKey: "id",
+    //   as: "Followings",
+    //   onUpdate: "cascade",
+    //   onDelete: "cascade",
+    // });
+
+    // Follows.belongsTo(Users, {
+    //   foreignKey: "followerId",
+    //   targetKey: "id",
+    //   as: "Followers",
+    //   onUpdate: "cascade",
+    //   onDelete: "cascade",
+    // });
   }
 }
 
-Follows.init(
-  {
-    id: {
-      allowNull: false,
-      autoIncrement: true,
-      primaryKey: true,
-      type: DataTypes.NUMBER,
-    },
-    followerId: {
-      allowNull: false,
-      type: DataTypes.UUID,
-    },
-    followingId: {
-      allowNull: false,
-      type: DataTypes.UUID,
-    },
-  },
-  {
-    sequelize: connection,
-    modelName: "Follows",
-  }
-);
+// Follows.init(
+//   {
+//     id: {
+//       allowNull: false,
+//       autoIncrement: true,
+//       primaryKey: true,
+//       type: DataTypes.NUMBER,
+//     },
+//     followerId: {
+//       allowNull: false,
+//       type: DataTypes.UUID,
+//     },
+//     followingId: {
+//       allowNull: false,
+//       type: DataTypes.UUID,
+//     },
+//   },
+//   {
+//     sequelize: connection,
+//     modelName: "Follows",
+//   }
+// );
 
 export default Follows;

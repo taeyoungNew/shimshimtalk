@@ -90,6 +90,7 @@ class UserService {
       });
 
       const result = await this.userRepository.findMyInfos(myId);
+
       return result;
     } catch (error) {
       throw error;

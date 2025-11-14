@@ -1,6 +1,3 @@
-import Users from "../database/models/users";
-import UserInfos from "../database/models/userinfos";
-import { ModifyUserDto } from "../dtos/modifyUserDto";
 import {
   GetBlockedUsersEntity,
   GetFindUserInfosEntity,
@@ -10,9 +7,10 @@ import {
 } from "../entity/userEntity";
 import logger from "../config/logger";
 import sequelize from "sequelize";
-import BlockUsers from "../database/models/blockuser";
-import { and, Op, where } from "sequelize";
+import db from "../database/models/index";
+import { Op } from "sequelize";
 
+const { Users, UserInfos } = db;
 class UserRepository {
   // refToken취득
   public getRefToken = async (userId: string) => {
@@ -63,7 +61,6 @@ class UserRepository {
    * @param myId: string
    * @returns id, email, follower, folloing, blockedUsers, info
    */
-
   public findMyInfos = async (myId: string) => {
     logger.info("", {
       layer: "Repository",
@@ -117,6 +114,24 @@ class UserRepository {
         {
           model: UserInfos,
           attributes: ["username", "nickname", "aboutMe", "age"],
+        },
+        {
+          model: Users,
+          as: "Followings",
+          attributes: ["id"],
+          include: [
+            { model: UserInfos, attributes: ["id", "nickname", "username"] },
+          ],
+          through: { attributes: [] }, // 중간 테이블 제거
+        },
+        {
+          model: Users,
+          as: "Followers",
+          attributes: ["id"],
+          include: [
+            { model: UserInfos, attributes: ["id", "nickname", "username"] },
+          ],
+          through: { attributes: [] }, // 중간 테이블 제거
         },
       ],
       subQuery: true,
@@ -194,6 +209,24 @@ class UserRepository {
         {
           model: UserInfos,
           attributes: ["username", "nickname", "aboutMe", "age"],
+        },
+        {
+          model: Users,
+          as: "Followings",
+          attributes: ["id"],
+          include: [
+            { model: UserInfos, attributes: ["id", "nickname", "username"] },
+          ],
+          through: { attributes: [] }, // 중간 테이블 제거
+        },
+        {
+          model: Users,
+          as: "Followers",
+          attributes: ["id"],
+          include: [
+            { model: UserInfos, attributes: ["id", "nickname", "username"] },
+          ],
+          through: { attributes: [] }, // 중간 테이블 제거
         },
       ],
       subQuery: true,

@@ -55,7 +55,6 @@ class AuthHandler {
         email: getUserInfo.email,
         userNickname: getUserInfo.UserInfo.nickname,
       };
-      console.log("로그인시 토큰정보 = ", accToken);
 
       // cache에 유저id저장
       await userCache.set(`token:${accToken}`, JSON.stringify(loginUserInfo));

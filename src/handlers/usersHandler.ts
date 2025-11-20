@@ -104,6 +104,7 @@ class UserHandler {
       next(error);
     }
   };
+
   /**
    * 자신의 정보가져오기
    *
@@ -157,10 +158,18 @@ class UserHandler {
         className: "UserHandler",
         functionName: "findUserInfos",
       });
-      const userId = req.params.userId;
-      const result = await this.userService.findUserInfos(userId);
 
-      return res.status(200).json(result);
+      const myId = res.locals.userInfo?.userId;
+
+      const userId = req.params.userId;
+      const result = await this.userService.findUserInfos({ userId, myId });
+
+      result.dataValues.isFollowinged =
+        result.dataValues.isFollowinged === 1 ? true : false;
+
+      return res
+        .status(200)
+        .json({ data: result, isFollowingedIds: result.isFollowingedIds });
     } catch (error) {
       next(error);
     }

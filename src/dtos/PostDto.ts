@@ -10,7 +10,13 @@ export interface ModifyPostDto {
 }
 
 export interface GetPostDto {
-  userId?: string
+  userId?: string;
+  postId: number;
+}
+
+export interface GetPostDetailDto {
+  userId?: string;
+  postUserId?: string;
   postId: number;
 }
 

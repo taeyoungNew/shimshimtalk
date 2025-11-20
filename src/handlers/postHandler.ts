@@ -4,8 +4,8 @@ import {
   DeletePostDto,
   GetUserPostsDto,
   ModifyPostDto,
-  GetPostDto,
   IsUserPost,
+  GetPostDetailDto,
 } from "../dtos/PostDto";
 import dotenv from "dotenv";
 import { postTitleExp, postContentExp } from "../common/validators/postExp";
@@ -16,9 +16,11 @@ import { postCache } from "../common/cacheLocal/postCache";
 import { userPostsCache } from "../common/cacheLocal/userPostsCache";
 import { CustomError } from "../errors/customError";
 import errorCodes from "../constants/error-codes.json";
+import FollowService from "../service/followService";
 dotenv.config();
 class PostHandler {
   postService = new PostService();
+  followService = new FollowService();
   // 게시물 작성
   public createPost: RequestHandler = async (
     req: Request<{}, {}, CreatePostDto, {}>,
@@ -127,7 +129,7 @@ class PostHandler {
     try {
       logger.info("", {
         method: "get",
-        url: "api/post/all_posts",
+        url: "api/post/",
         layer: "Handlers",
         className: "PostHandler",
         functionName: "getAllPosts",
@@ -140,11 +142,14 @@ class PostHandler {
       const ids: [] = await postCache.lRange("posts:list", 0, -1);
 
       let isLikedPostIds;
-
+      let isFollowingedUserIds;
       let result: Posts[] = [];
 
       if (userId) {
         isLikedPostIds = await this.postService.getIsLikedPostIds(userId);
+        isFollowingedUserIds = await this.followService.getFollowings({
+          userId,
+        });
       }
       // 첫랜더링
       if (ids.length === 0) {
@@ -155,7 +160,9 @@ class PostHandler {
         if (result.length != 0) {
           posts = result.splice(0, 5);
           const isLast = posts.length < 5 ? true : false;
-          return res.status(200).json({ posts, isLast, isLikedPostIds });
+          return res
+            .status(200)
+            .json({ posts, isLast, isLikedPostIds, isFollowingedUserIds });
         }
       } else {
         // 두번째랜더링
@@ -170,7 +177,9 @@ class PostHandler {
 
         const posts = postJsons.map((post) => JSON.parse(post));
         const isLast = posts.length < 5 ? true : false;
-        return res.status(200).json({ posts, isLast, isLikedPostIds });
+        return res
+          .status(200)
+          .json({ posts, isLast, isLikedPostIds, isFollowingedUserIds });
       }
     } catch (e) {
       next(e);
@@ -179,7 +188,7 @@ class PostHandler {
 
   // 한 게시물만 조회
   public getPost = async (
-    req: Request<{ postId: string }, {}, {}, {}>,
+    req: Request<{}, {}, {}, { postId: string; postUserId: string }>,
     res: Response,
     next: NextFunction
   ) => {
@@ -192,8 +201,10 @@ class PostHandler {
         functionName: "getPost",
       });
       const userId = res.locals.userInfo?.userId;
-      const postId = Number(req.params.postId);
-      const payload: GetPostDto = { postId: Number(req.params.postId), userId };
+      const postId = Number(req.query.postId);
+      const postUserId = req.query.postUserId;
+
+      const payload: GetPostDetailDto = { postId, userId, postUserId };
       const ids: [] = await postCache.lRange("posts:list", 0, -1);
 
       // 그전에 레디스에 데이터들이 있는지 확인
@@ -210,14 +221,14 @@ class PostHandler {
       // 레디스에 해당 게시물이 있으면 반환
       if (checkPostId) {
         const postStr = await postCache.get(`post:${checkPostId}`);
-
         result = JSON.parse(postStr);
       } else {
         result = await this.postService.getPost(payload);
 
         result.dataValues.isLiked =
           result.dataValues.isLiked === 0 ? false : true;
-
+        result.dataValues.isFollowinged =
+          result.dataValues.isFollowinged === 0 ? false : true;
         postCache.set(
           `post:${result.dataValues.id}`,
           JSON.stringify({
@@ -227,6 +238,7 @@ class PostHandler {
             content: result.dataValues.content,
             userNickname: result.dataValues.userNickname,
             likeCnt: result.dataValues.likeCnt,
+            isFollowinged: result.dataValues.isFollowinged,
             commentCnt: result.dataValues.commentCnt,
             Comments: result.dataValues.Comments,
           }),
@@ -242,7 +254,7 @@ class PostHandler {
 
   // 게시물 수정
   public modifyPost = async (
-    req: Request<{ postId: string }, {}, ModifyPostDto>,
+    req: Request<{ postId: string }, {}, ModifyPostDto, { postUserId: string }>,
     res: Response,
     next: NextFunction
   ) => {
@@ -256,7 +268,7 @@ class PostHandler {
       });
       // 수정대상게시물의 id
       const postId = Number(req.params.postId);
-
+      const postUserId = req.query.postUserId;
       // 현재로그인한 유저의 id
       const userId = res.locals.userInfo.userId;
       const { content } = req.body;
@@ -294,7 +306,11 @@ class PostHandler {
         await userPostsCache.set(`post:${postId}`, JSON.stringify(postParse));
       } else {
         // redis에 해당 게시물의 데이터가 없을경우
-        const post: GetPostDto = payment;
+        const post: GetPostDetailDto = {
+          postId,
+          postUserId,
+          userId,
+        };
         const result = await this.postService.getPost(post);
         this.cachePost(result);
       }
@@ -364,6 +380,7 @@ class PostHandler {
         const lastUserPostIdx = ids.findIndex((id) => {
           return Number(id) === Number(postLastId);
         });
+
         const targetIds = ids.slice(lastUserPostIdx + 1, lastUserPostIdx + 6);
 
         const postJsons = await Promise.all(
@@ -371,7 +388,6 @@ class PostHandler {
         );
         const userPosts = postJsons.map((post) => JSON.parse(post));
         const isLast = userPosts.length < 5 ? true : false;
-
         return res.status(200).json({ userPosts, isLast, isLikedPostIds });
       }
     } catch (e) {
@@ -405,63 +421,78 @@ class PostHandler {
 
       // 먼저 posts:list가 있는지 확인
       const ids: string[] = await postCache.lRange("posts:list", 0, -1);
+      const userPostIds: string[] = await userPostsCache.lRange(
+        `userPosts:${userId}:List`,
+        0,
+        -1
+      );
+      const param: GetUserPostsDto = {
+        userId,
+        postLastId: undefined,
+      };
 
       if (ids.length === 0) {
         const result = await this.postService.getAllPosts(userId);
-        const param: GetUserPostsDto = {
-          userId,
-          postLastId: undefined,
-        };
-        const userGetPostsResult = await this.postService.getUserPosts(param);
-
         await this.cachePosts(result);
-        await this.cacheUserPosts(userGetPostsResult, userId);
       } else {
         // 해당 삭제할 게시물의 id값을 없앤 posts:list로 덮어쓰기
         const cacheIds = await postCache.lRange("posts:list", 0, -1);
+
+        const postListTTL = await postCache.ttl("posts:list");
+
+        const ids = cacheIds.map((el: string) => JSON.parse(el));
+
+        const filterIds = ids.filter((el: number) => {
+          return el.toString() !== postId;
+        });
+
+        await postCache.del("posts:list");
+
+        await postCache.rPush(
+          "posts:list",
+          filterIds.map((el: string) => JSON.stringify(el))
+        );
+
+        await postCache.expire("posts:list", postListTTL);
+      }
+
+      if (userPostIds.length === 0) {
+        const userGetPostsResult = await this.postService.getUserPosts(param);
+        await this.cacheUserPosts(userGetPostsResult, userId);
+      } else {
+        // userCache의 게시물도 삭제
         const cacheUserPostIds = await userPostsCache.lRange(
           `userPosts:${userId}:List`,
           0,
           -1
         );
-        const postListTTL = await postCache.ttl("posts:list");
         const userPostListTTL = await userPostsCache.ttl(
           `userPosts:${userId}:List`
         );
-        const ids = cacheIds.map((el: string) => JSON.parse(el));
         const userPostIds = cacheUserPostIds.map((el: string) =>
           JSON.parse(el)
         );
-        const filterIds = ids.filter((el: number) => {
-          return el.toString() !== postId;
-        });
-
         const filterUserPostIds = userPostIds.filter((el: number) => {
           return el.toString() !== postId;
         });
-        await postCache.del("posts:list");
+
         await userPostsCache.del(`userPosts:${userId}:List`);
-        await postCache.rPush(
-          "posts:list",
-          filterIds.map((el: string) => JSON.stringify(el))
-        );
         await userPostsCache.rPush(
           `userPosts:${userId}:List`,
           filterUserPostIds.map((el: string) => JSON.stringify(el))
         );
-        await postCache.expire("posts:list", postListTTL);
         await userPostsCache.expire(
           `userPosts:${userId}:List`,
           userPostListTTL
         );
-        const checkPostCache = await postCache.get(`post:${postId}`);
-
-        if (checkPostCache) {
-          await postCache.del(`post:${postId}`);
-          await userPostsCache.del(`post:${postId}`);
-        }
       }
 
+      const checkPostCache = await postCache.get(`post:${postId}`);
+
+      if (checkPostCache) {
+        await postCache.del(`post:${postId}`);
+        await userPostsCache.del(`post:${postId}`);
+      }
       res.status(200).json({ message: "게시물이 삭제되었습니다." });
     } catch (e) {
       next(e);
@@ -471,9 +502,10 @@ class PostHandler {
   // 게시물데이터들을 다시 캐싱하기
   private cachePosts = async (posts: Posts[]) => {
     const ids = posts.map((el) => el.id);
-
-    await postCache.rPush("posts:list", ids.map(String));
-    await postCache.expire("posts:list", 600);
+    if (ids.length !== 0) {
+      await postCache.rPush("posts:list", ids.map(String));
+      await postCache.expire("posts:list", 600);
+    }
 
     for (let idx = 0; idx < posts.length; idx++) {
       await postCache.set(

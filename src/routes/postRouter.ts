@@ -37,7 +37,7 @@ postRouter.get(
 postRouter.get("/", optionalAuthMiddleware, postHandler.getAllPosts);
 
 // 한 게시물만 조회
-postRouter.get("/:postId", optionalAuthMiddleware, postHandler.getPost);
+postRouter.get("/detail", optionalAuthMiddleware, postHandler.getPost);
 
 // 게시물 삭제
 postRouter.delete(

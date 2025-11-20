@@ -29,7 +29,7 @@ class PostLikeHandler {
       };
       await this.postLikeService.postLike(payment);
       const post = await postCache.get(`post:${postId}`);
-      const userPost = await userPostsCache.get(`post:${postId}`);
+
       // 캐싱된 게시물데이터의 좋아요갯수를 갱신
       if (post) {
         const postParse = await JSON.parse(post);

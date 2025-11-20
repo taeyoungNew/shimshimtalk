@@ -27,7 +27,6 @@ export const authMiddleware = async (
       layer: "middleware",
       functionName: "authMiddleware",
     });
-    console.log("authmiddleware = ", req.cookies);
     const { authorization } = req.cookies;
 
     // acctoken의 유무를 확인
@@ -35,11 +34,7 @@ export const authMiddleware = async (
     let tokenType, token;
 
     [tokenType, token] = authorization.split(" ");
-    console.log("authorization = ", authorization);
 
-    console.log("token = ", token);
-    const cacheUserInfo = await userCache.get(`token:${token}`);
-    console.log("cacheUserInfo = ", cacheUserInfo);
     checkAuth(authorization, tokenType, token);
 
     const accTokenPayment: tokenType = {
@@ -57,7 +52,6 @@ export const authMiddleware = async (
       });
       // accToken이 만료되었을경우
       //  -> 유효하지않으면 reftoken을 확인
-      // console.log("token = ", token);
 
       // 캐시에 저장된 userId를 가져온다
       const cacheUserInfo = await userCache.get(`token:${token}`);
@@ -101,7 +95,6 @@ export const authMiddleware = async (
           layer: "middleware",
           functionName: "authMiddleware",
         });
-        console.log("캐시상의 유저정보 삭제하기");
 
         await userCache.del(`token:${token}`);
         res.clearCookie("authorization");
@@ -127,7 +120,6 @@ export const authMiddleware = async (
         });
         // 새로운 acc토큰을 발급받고
         const newAccToken = accessToken(userInfo.id, userInfo.email);
-        console.log("newAccToken = ", newAccToken);
 
         // res.locals로 다음 모듈에 유저의 정보들을 넘겨준다.
         res.locals.userInfo = {
@@ -139,7 +131,6 @@ export const authMiddleware = async (
           email: userInfo.email,
           userNickname: userInfo.UserInfo.nickname,
         };
-        console.log("newSetUserInfo = ", newSetUserInfo);
 
         await userCache.del(`token:${token}`);
         await userCache.set(

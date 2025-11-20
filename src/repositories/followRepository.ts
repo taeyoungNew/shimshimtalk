@@ -7,7 +7,6 @@ import {
 import Follows from "../database/models/follows";
 import logger from "../config/logger";
 import UserInfos from "../database/models/userinfos";
-import Users from "../database/models/users";
 
 class FollowRepository {
   // 팔로잉
@@ -45,49 +44,57 @@ class FollowRepository {
     }
   };
 
-  // 자신의 팔로잉 팔로워의 숫자를 조회
-  // public getMyFollowers = async (userId: string) => {
-  //   try {
-  //     return await Follows.findAndCountAll({
-  //       attributes: [],
-  //       where: {
-
-  //       }
-  //     })
-  //   } catch (error) {
-  //     throw error
-  //   }
-  // }
-
   // 자신이 팔로잉한 유저들을조회
-  public getFollowings = async (params: GetFollowingsEntity) => {
+  public getFollowings = async (param: GetFollowingsEntity) => {
     try {
       logger.info("", {
         layer: "Repository",
         className: "FollowRepository",
         functionName: "getFollowings",
       });
+
       return await Follows.findAll({
         attributes: ["followingId"],
         where: {
-          followerId: params,
+          followerId: param.userId,
         },
       });
     } catch (error) {
       throw error;
     }
   };
+
   // 자신의 팔로워들을조회
-  public getFollowers = async (params: GetFollowersEntity) => {
+  public getFollowers = async (param: GetFollowersEntity) => {
     try {
       logger.info("", {
         layer: "Repository",
         className: "FollowRepository",
         functionName: "getFollowers",
       });
+
       return await Follows.findAll({
+        attributes: ["followerId"],
         where: {
-          followingId: params.userId,
+          followingId: param.userId,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  public getFollowInfos = async (params: string[]) => {
+    try {
+      logger.info("", {
+        layer: "Repository",
+        className: "FollowRepository",
+        functionName: "getFollowInfos",
+      });
+      return await UserInfos.findAll({
+        attributes: ["userId", "nickname", "username"],
+        where: {
+          userId: params,
         },
       });
     } catch (error) {

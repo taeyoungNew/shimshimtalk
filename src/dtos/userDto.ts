@@ -16,3 +16,8 @@ export interface ModifyUserDto {
 export interface GetBlockedUsersDto {
   blockedUserIds: string[];
 }
+
+export interface GetFindUserInfosDto {
+  myId?: string;
+  userId: string;
+}

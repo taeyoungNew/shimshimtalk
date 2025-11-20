@@ -1,10 +1,6 @@
 import { Response, Request, RequestHandler, NextFunction } from "express";
-import {
-  FollowingDto,
-  StopFollowingDto,
-  GetFollowersDto,
-  GetFollowingsDto,
-} from "../dtos/followDto";
+import { FollowingDto } from "../dtos/followDto";
+import { userCache } from "../common/cacheLocal/userIdCache";
 import FollowService from "../service/followService";
 import logger from "../config/logger";
 
@@ -12,7 +8,7 @@ class FollowHandler {
   private followService = new FollowService();
   // 팔로잉하기
   public following = async (
-    req: Request<{ followingId: string }, {}, {}, {}>,
+    req: Request<{ followingId: string }, {}, { isMyPage: boolean }, {}>,
     res: Response,
     next: NextFunction
   ) => {
@@ -24,19 +20,28 @@ class FollowHandler {
         className: "FollowHandler",
         functionName: "following",
       });
+      const isMyPage = req.body.isMyPage;
+
       const payment: FollowingDto = {
+        isMyPage: isMyPage,
         userId: res.locals.userInfo.userId,
         followingId: req.params.followingId,
       };
-      await this.followService.following(payment);
-      return res.status(200).json({ message: "팔로잉되었습니다." });
+
+      // 내 페이지에서 팔로잉을 했을경우 팔로잉한유저의 정보를 리턴
+      // 만약 다른 유저의 페이지에서 내가 팔로잉을 했을경우 나의 정보를 리턴
+      const followingUserInfo = await this.followService.following(payment);
+
+      return res
+        .status(200)
+        .json({ message: "팔로잉되었습니다.", data: followingUserInfo });
     } catch (e) {
       next(e);
     }
   };
   // 팔로잉끊기
   public stopFollowing = async (
-    req: Request<{ followingId: string }, {}, {}, {}>,
+    req: Request<{ followingId: string }, {}, { isMypage: boolean }, {}>,
     res: Response,
     next: NextFunction
   ) => {
@@ -48,12 +53,20 @@ class FollowHandler {
         className: "FollowHandler",
         functionName: "stopFollowing",
       });
+      const isMypage = req.query;
+      console.log(isMypage);
+
       const payment: FollowingDto = {
+        isMyPage: false,
         userId: res.locals.userInfo.userId,
         followingId: req.params.followingId,
       };
-      await this.followService.stopFollowing(payment);
-      return res.status(200).json({ message: "팔로잉을 취소했습니다." });
+      const followingCencelUserInfo =
+        await this.followService.stopFollowing(payment);
+      return res.status(200).json({
+        message: "팔로잉을 취소했습니다.",
+        data: followingCencelUserInfo,
+      });
     } catch (e) {
       next(e);
     }

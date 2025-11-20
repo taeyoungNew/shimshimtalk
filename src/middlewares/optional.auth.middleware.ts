@@ -12,13 +12,10 @@ export const optionalAuthMiddleware = async (
     functionName: "optionalMiddleware",
   });
 
-  const authorization = req.cookies?.authorization;
-
+  const authorization = req.cookies.authorization;
   if (!authorization) {
-    res.locals.userInfo = null;
     next();
   }
-
   try {
     const [tokenType, token] = authorization.split(" ");
 
@@ -33,8 +30,8 @@ export const optionalAuthMiddleware = async (
     if (typeof decodeAccToken === "object") {
       // 다음 모듈에 유저의 정보를 넘긴다.
       res.locals.userInfo = decodeAccToken;
-      next();
     }
+    next();
   } catch (error) {
     res.locals.userInfo = null;
     next();

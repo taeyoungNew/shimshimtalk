@@ -1,5 +1,5 @@
 export interface FollowingEntity {
-  userId: string;
+  userId?: string;
   followingId: string;
 }
 

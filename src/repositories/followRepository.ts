@@ -56,7 +56,7 @@ class FollowRepository {
       return await Follows.findAll({
         attributes: ["followingId"],
         where: {
-          followerId: param,
+          followerId: param.userId,
         },
       });
     } catch (error) {

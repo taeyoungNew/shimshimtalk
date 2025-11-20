@@ -56,27 +56,4 @@ class PostLikes extends Model implements PostLikeAttributes {
   }
 }
 
-// PostLikes.init(
-//   {
-//     id: {
-//       allowNull: false,
-//       autoIncrement: true,
-//       primaryKey: true,
-//       type: DataTypes.NUMBER,
-//     },
-//     userId: {
-//       allowNull: false,
-//       type: DataTypes.UUID,
-//     },
-//     postId: {
-//       allowNull: false,
-//       type: DataTypes.INTEGER,
-//     },
-//   },
-//   {
-//     sequelize: connection,
-//     modelName: "PostLikes",
-//   }
-// );
-
 export default PostLikes;

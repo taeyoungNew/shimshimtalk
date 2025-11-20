@@ -1,9 +1,11 @@
 export interface FollowingDto {
+  isMyPage: boolean;
   userId: string;
   followingId: string;
 }
 
 export interface StopFollowingDto {
+  isMyPage: boolean;
   userId: string;
   followingId: string;
 }

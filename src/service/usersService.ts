@@ -6,8 +6,11 @@ import bcrypt from "bcrypt";
 import { GetBlockedUsersDto, GetFindUserInfosDto } from "../dtos/userDto";
 import { CustomError } from "../errors/customError";
 import errorCodes from "../constants/error-codes.json";
+import FollowRepository from "../repositories/followRepository";
+
 class UserService {
   private userRepository = new UserRepository();
+  private followRepository = new FollowRepository();
 
   /**
    *
@@ -111,6 +114,15 @@ class UserService {
         functionName: "findUserInfos",
       });
       const result = await this.userRepository.findUserInfos(params);
+      let isFollowingedIds;
+      if (params.myId) {
+        const getMyFollowings = await this.followRepository.getFollowings({
+          userId: params.myId,
+        });
+        isFollowingedIds = getMyFollowings.map((el) => el.followingId);
+        result.isFollowingedIds = isFollowingedIds;
+      }
+
       return result;
     } catch (error) {
       throw error;
@@ -189,6 +201,7 @@ class UserService {
         className: "UserService",
         functionName: "findUserById",
       });
+      console.log(userId);
 
       const result = await this.userRepository.findById(userId);
 

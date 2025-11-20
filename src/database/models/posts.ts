@@ -69,40 +69,4 @@ class Posts extends Model implements PostsAttributes {
   }
 }
 
-// Posts.init(
-//   {
-//     id: {
-//       allowNull: false,
-//       autoIncrement: true,
-//       primaryKey: true,
-//       type: DataTypes.NUMBER,
-//     },
-//     userId: {
-//       allowNull: false,
-//       type: DataTypes.UUID,
-//     },
-//     content: { allowNull: false, type: DataTypes.STRING },
-//   },
-//   {
-//     sequelize: connection,
-//     modelName: "Posts",
-//   }
-// );
-
-// Posts.hasMany(Comments, {
-//   foreignKey: "postId",
-//   sourceKey: "id",
-//   hooks: true,
-//   onUpdate: "cascade",
-//   onDelete: "cascade",
-// });
-
-// Posts.hasMany(PostLikes, {
-//   foreignKey: "postId",
-//   sourceKey: "id",
-//   hooks: true,
-//   onUpdate: "cascade",
-//   onDelete: "cascade",
-// });
-
 export default Posts;

@@ -27,6 +27,21 @@ class FollowService {
       // 이미 팔로잉하고있는지
       await this.checkFollowingUser(params);
       await this.followRepository.following(params);
+      // isMyPage가 true일경우 팔로잉한 유저의 정보를 리턴
+      // isMyPage가 false일경우 내 정보를 리턴
+      const getUserInfoId = params.isMyPage
+        ? params.followingId
+        : params.userId;
+
+      const getFollowingUserInfo =
+        await this.userService.findUserById(getUserInfoId);
+      const followingUserInfo = {
+        id: getFollowingUserInfo.id,
+        nickname: getFollowingUserInfo.UserInfo.nickname,
+        username: getFollowingUserInfo.UserInfo.username,
+      };
+
+      return followingUserInfo;
     } catch (error) {
       throw error;
     }
@@ -44,6 +59,18 @@ class FollowService {
 
       await this.checkUnFollowingUser(params);
       await this.followRepository.stopFollowing(params);
+      const getUserInfoId = params.isMyPage
+        ? params.followingId
+        : params.userId;
+      console.log("stopFollowing =", getUserInfoId);
+      const getFollowingUserInfo =
+        await this.userService.findUserById(getUserInfoId);
+      const followingUserInfo = {
+        id: getFollowingUserInfo.id,
+        nickname: getFollowingUserInfo.UserInfo.nickname,
+        username: getFollowingUserInfo.UserInfo.username,
+      };
+      return followingUserInfo;
     } catch (e) {
       throw e;
     }

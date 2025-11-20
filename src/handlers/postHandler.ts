@@ -147,7 +147,9 @@ class PostHandler {
 
       if (userId) {
         isLikedPostIds = await this.postService.getIsLikedPostIds(userId);
-        isFollowingedUserIds = await this.followService.getFollowings(userId);
+        isFollowingedUserIds = await this.followService.getFollowings({
+          userId,
+        });
       }
       // 첫랜더링
       if (ids.length === 0) {
@@ -219,7 +221,6 @@ class PostHandler {
       // 레디스에 해당 게시물이 있으면 반환
       if (checkPostId) {
         const postStr = await postCache.get(`post:${checkPostId}`);
-
         result = JSON.parse(postStr);
       } else {
         result = await this.postService.getPost(payload);

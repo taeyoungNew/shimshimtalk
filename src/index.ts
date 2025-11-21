@@ -10,11 +10,15 @@ import morgan from "morgan";
 import { json } from "express";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import cors from "cors";
+import http from "http";
+import initSocket from "./sockets";
+
 import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 const PORT = 3001;
-dotenv.config();
 
 app.use(cors({ origin: process.env.FRONT_CORS, credentials: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -40,6 +44,11 @@ app.all(/(.*)/, (req, res) => {
     .json({ errorCode: "COMMON_NOT_FOUND", message: "잘못된 경로입니다. " });
 });
 app.use(errorHandler);
-app.listen(PORT, () => {
+
+const server = http.createServer(app);
+
+initSocket(server);
+
+server.listen(PORT, () => {
   logger.info("심심톡 실행 PORT: ${PORT}");
 });

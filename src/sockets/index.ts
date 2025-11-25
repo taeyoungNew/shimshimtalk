@@ -1,4 +1,5 @@
 import { Server } from "socket.io";
+import { socektLogin, socketLogout } from "./auth";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -12,16 +13,18 @@ export default function initSocket(server: any) {
   });
 
   io.on("connection", (socket) => {
-    console.log("socket on!");
+    const socketId = socket.handshake.query.userId;
 
-    const userId = socket.handshake.query.userId;
+    socket.on("loginJoinOnlineRoom", async (param) => {
+      await socektLogin(socket, param.userId);
+    });
 
-    socket.emit("loginJoinOnlineRoom", () => {
-      console.log("로그인성공");
+    socket.on("loginLeaveOnlineRoom", async (param) => {
+      await socketLogout(socket, param.userId);
     });
 
     socket.on("disconnect", () => {
-      console.log("User disconnected", userId);
+      console.log("User disconnected", socketId);
     });
   });
 

@@ -54,7 +54,6 @@ class FollowHandler {
         functionName: "stopFollowing",
       });
       const isMypage = req.query;
-      console.log(isMypage);
 
       const payment: FollowingDto = {
         isMyPage: false,

@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 
-export const socektLogin = async (socket: Socket, userId: string) => {
+export const socketLogin = async (socket: Socket, userId: string) => {
   await socket.join(`user:${String(userId)}`);
 };
 

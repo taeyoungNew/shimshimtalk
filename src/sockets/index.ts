@@ -2,6 +2,8 @@ import { Server, Socket } from "socket.io";
 import { socketLogin, socketLogout } from "./auth";
 import { onlineCache } from "../common/cacheLocal/onlineCache";
 import dotenv from "dotenv";
+import { emitSendMessage, joinChatRoom } from "./chat";
+import verifyAccToken from "../middlewares/common/varifyAccToken";
 
 dotenv.config();
 
@@ -28,6 +30,10 @@ export default function initSocket(server: any) {
 
     broadcastOnlineUsers(socket);
 
+    socket.on("sendMessage", async (param) => {
+      emitSendMessage(io, socket, param);
+    });
+
     // 현재 로그인중인 유저정보들을 커넥트한클라이언트에 전달
     socket.on("loginJoinOnlineRoom", async (param) => {
       socketIdToUserId.set(socketId, param.userId);
@@ -51,6 +57,10 @@ export default function initSocket(server: any) {
       broadcastOnlineUsers(socket);
     });
 
+    socket.on("joinChatRoom", ({ chatRoomId }) => {
+      joinChatRoom(socket, chatRoomId);
+    });
+
     socket.on("heartbeat", ({ userId }) => {
       const onlineUserInfo = onlineUsers.get(userId);
       if (onlineUserInfo) {
@@ -59,8 +69,6 @@ export default function initSocket(server: any) {
     });
 
     socket.on("registerOnline", ({ userId }) => {
-      console.log(userId);
-
       // socketIdToUserId에 등록
       socketIdToUserId.set(socket.id, userId);
 

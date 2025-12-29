@@ -63,6 +63,19 @@ class Users extends Model implements UsersAttributes {
   }
 
   static associate(db: any) {
+    // chatrooms
+    Users.hasMany(db.ChatRooms, {
+      foreignKey: "userBId",
+      sourceKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
+    });
+    Users.hasMany(db.ChatRooms, {
+      foreignKey: "userAId",
+      sourceKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
+    });
     Users.belongsToMany(db.BlockUsers, {
       as: "blockerId",
       through: "BlockUsers",
@@ -102,6 +115,7 @@ class Users extends Model implements UsersAttributes {
       onUpdate: "cascade",
       onDelete: "cascade",
     });
+
     // 유저정보
     Users.hasOne(db.UserInfos, {
       foreignKey: "userId",
@@ -125,6 +139,20 @@ class Users extends Model implements UsersAttributes {
       foreignKey: "userId",
       sourceKey: "id",
       hooks: true,
+      onUpdate: "cascade",
+      onDelete: "cascade",
+    });
+    // 메세지
+    Users.hasMany(db.Messages, {
+      foreignKey: "senderId",
+      sourceKey: "id",
+      onUpdate: "cascade",
+      onDelete: "cascade",
+    });
+    // 메세지알람
+    Users.hasMany(db.MessageAlarms, {
+      foreignKey: "userId",
+      sourceKey: "id",
       onUpdate: "cascade",
       onDelete: "cascade",
     });

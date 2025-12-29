@@ -59,8 +59,6 @@ export default function initSocket(server: any) {
     });
 
     socket.on("registerOnline", ({ userId }) => {
-      console.log(userId);
-
       // socketIdToUserId에 등록
       socketIdToUserId.set(socket.id, userId);
 

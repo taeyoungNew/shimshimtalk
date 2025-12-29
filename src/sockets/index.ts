@@ -2,6 +2,7 @@ import { Server, Socket } from "socket.io";
 import { socketLogin, socketLogout } from "./auth";
 import { onlineCache } from "../common/cacheLocal/onlineCache";
 import dotenv from "dotenv";
+import { emitSendMessage, joinChatRoom } from "./chat";
 
 dotenv.config();
 
@@ -27,6 +28,14 @@ export default function initSocket(server: any) {
     if (!socketId) return;
 
     broadcastOnlineUsers(socket);
+
+    socket.on("sendMessage", async (param) => {
+      await emitSendMessage(io, socket, param);
+    });
+
+    socket.on("joinChatRoom", async (param) => {
+      await joinChatRoom(socket, param.chatRoomId);
+    });
 
     // 현재 로그인중인 유저정보들을 커넥트한클라이언트에 전달
     socket.on("loginJoinOnlineRoom", async (param) => {

@@ -1,9 +1,9 @@
 import { Server, Socket } from "socket.io";
 import { socketLogin, socketLogout } from "./auth";
-import { onlineCache } from "../common/cacheLocal/onlineCache";
 import dotenv from "dotenv";
 import { emitSendMessage, joinChatRoom } from "./chat";
 import verifyAccToken from "../middlewares/common/varifyAccToken";
+import { tokenType } from "../types/tokenType";
 
 dotenv.config();
 
@@ -30,14 +30,71 @@ export default function initSocket(server: any) {
 
     broadcastOnlineUsers(socket);
 
+    socket.on("authenticate", () => {
+      const cookie = socket.request.headers.cookie;
+      console.log("cookie = ", cookie);
+
+      if (!cookie) return;
+      const [type, token] = cookie
+        .split("authorization=")[1]
+        ?.split(";")[0]
+        .split("%");
+      if (!token) return;
+      console.log("token = ", token);
+      const accTokenPayment: tokenType = {
+        token: token,
+        type: "accToken",
+      };
+
+      // acctoken이 유효한지 확인
+      const decodeAccToken = verifyAccToken(accTokenPayment);
+      if (
+        typeof decodeAccToken === "string" &&
+        decodeAccToken === "jwt exired"
+      ) {
+        socket.data.userId = null;
+      } else {
+        // 유저id를 소켓에 저장
+        socket.data.userId = decodeAccToken?.userId;
+      }
+
+      console.log("authenticate = ", socket.data.userId);
+    });
+
     socket.on("sendMessage", async (param) => {
       emitSendMessage(io, socket, param);
     });
 
     // 현재 로그인중인 유저정보들을 커넥트한클라이언트에 전달
     socket.on("loginJoinOnlineRoom", async (param) => {
-      socketIdToUserId.set(socketId, param.userId);
+      // const cookie = socket.request.headers.cookie;
+      // console.log("loginJoinOnlineRoom = ", cookie);
 
+      // if (!cookie) return;
+      // const [type, token] = cookie
+      //   .split("authorization=")[1]
+      //   ?.split(";")[0]
+      //   .split("%");
+      // if (!token) return;
+
+      // const accTokenPayment: tokenType = {
+      //   token: token,
+      //   type: "accToken",
+      // };
+
+      // // acctoken이 유효한지 확인
+      // const decodeAccToken = verifyAccToken(accTokenPayment);
+      // if (
+      //   typeof decodeAccToken === "string" &&
+      //   decodeAccToken === "jwt exired"
+      // ) {
+      //   socket.data.userId = null;
+      // } else {
+      //   // 유저id를 소켓에 저장
+      //   socket.data.userId = decodeAccToken?.userId;
+      // }
+
+      socketIdToUserId.set(socketId, param.userId);
       await socketLogin(socket, param.userId);
       (socket as any).userId = param.userId;
 
@@ -53,6 +110,8 @@ export default function initSocket(server: any) {
         const onlineUser = onlineUsers.get(param.userId);
         onlineUser.socketIds.add(socketId);
       }
+      // 소켓에 userId를 저장
+      socket.data.userId = param.userId;
 
       broadcastOnlineUsers(socket);
     });

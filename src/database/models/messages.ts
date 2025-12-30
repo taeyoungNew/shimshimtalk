@@ -38,8 +38,8 @@ class Messages extends Model implements MessagesAttributes {
           type: DataTypes.STRING(2000), // TEXT는 길어질 수 있으니 2000~허용
           allowNull: false,
         },
-        messageType: {
-          type: DataTypes.ENUM("TEXT", "IMAGE", "FILE"),
+        type: {
+          type: DataTypes.ENUM("TEXT", "IMAGE", "FILE", "SYSTEM"),
           allowNull: false,
           defaultValue: "TEXT",
         },

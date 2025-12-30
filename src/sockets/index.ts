@@ -2,8 +2,11 @@ import { Server, Socket } from "socket.io";
 import { socketLogin, socketLogout } from "./auth";
 import { onlineCache } from "../common/cacheLocal/onlineCache";
 import dotenv from "dotenv";
-import { emitSendMessage, joinChatRoom } from "./chat";
+import { joinChatRoom } from "./chat";
+import { emitSendMessage } from "./message";
 import verifyAccToken from "../middlewares/common/varifyAccToken";
+import MessageRepository from "../repositories/messageRepository";
+import { getChatHistory } from "./message";
 
 dotenv.config();
 
@@ -55,6 +58,11 @@ export default function initSocket(server: any) {
       }
 
       broadcastOnlineUsers(socket);
+    });
+
+    // 해당채팅방의 메세지를 불러오는 이벤트
+    socket.on("getChatHistory", async ({ chatRoomId }) => {
+      getChatHistory(socket, chatRoomId);
     });
 
     socket.on("joinChatRoom", ({ chatRoomId }) => {

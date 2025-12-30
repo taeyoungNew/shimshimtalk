@@ -37,7 +37,7 @@ module.exports = {
         type: Sequelize.TEXT,
       },
       type: {
-        type: Sequelize.ENUM("TEXT", "IMAGE", "FILE"),
+        type: Sequelize.ENUM("TEXT", "IMAGE", "FILE", "SYSTEM"),
         allowNull: false,
       },
       createdAt: {

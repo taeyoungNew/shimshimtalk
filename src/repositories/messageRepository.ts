@@ -4,7 +4,6 @@ import {
   GetMessagesByRoomEntity,
   SaveMessageByRoomEntity,
 } from "../entity/messagesEntity";
-import { where } from "sequelize";
 
 const { Messages } = db;
 
@@ -12,8 +11,6 @@ class MessageRepository {
   public getMessagesByRoom = async ({
     chatRoomId,
   }: GetMessagesByRoomEntity) => {
-    console.log("getMessagesByRoom = ", chatRoomId);
-
     logger.info("", {
       layer: "Repository",
       className: "MessageRepository",
@@ -40,7 +37,7 @@ class MessageRepository {
     await Messages.create({
       chatRoomId,
       content,
-      type: contentType,
+      contentType,
       senderId,
     });
   };

@@ -1,7 +1,4 @@
-import { Server, Socket } from "socket.io";
-import verifyAccToken from "../middlewares/common/varifyAccToken";
-import { log } from "console";
-import MessageRepository from "../repositories/messageRepository";
+import { Socket } from "socket.io";
 
 export const joinChatRoom = async (socket: Socket, chatRoomId: string) => {
   socket.join(chatRoomId);

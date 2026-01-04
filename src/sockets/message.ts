@@ -22,8 +22,9 @@ export const emitSendMessage = async (
 ) => {
   const messageRepo = new MessageRepository();
   const { chatRoomId, content, contentType } = props;
-  const userId = socket.data.userId;
 
+  const userId = socket.data.userId;
+  // if (contentType === "TEXT")
   await messageRepo.saveMessageByRoom({
     chatRoomId,
     senderId: userId,

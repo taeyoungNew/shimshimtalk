@@ -114,10 +114,12 @@ class PostService {
         functionName: "getAllPosts",
       });
       let result = await this.postRepository.getAllPosts();
-      result = result.map((el) => {
-        el.dataValues.isLiked = el.dataValues.isLiked === 0 ? false : true;
-        return el;
-      });
+      result = result.map(
+        (el: { dataValues: { isLiked: number | boolean } }) => {
+          el.dataValues.isLiked = el.dataValues.isLiked === 0 ? false : true;
+          return el;
+        }
+      );
       return result;
     } catch (error) {
       throw error;

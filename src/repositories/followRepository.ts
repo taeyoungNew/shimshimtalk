@@ -4,10 +4,11 @@ import {
   GetFollowingsEntity,
   StopFollowingEntity,
 } from "../entity/followEntity";
-import Follows from "../database/models/follows";
+import db from "../database/models/index";
 import logger from "../config/logger";
 import UserInfos from "../database/models/userinfos";
 
+const { Follows } = db;
 class FollowRepository {
   // 팔로잉
   public following = async (params: FollowingEntity) => {

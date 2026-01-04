@@ -21,10 +21,10 @@ const app = express();
 const PORT = 3001;
 
 app.use(cors({ origin: process.env.FRONT_CORS, credentials: true }));
-app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api", router);
 
 // 모든 곳에서 발생하는 에러를 catch

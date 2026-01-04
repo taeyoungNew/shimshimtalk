@@ -7,6 +7,7 @@ import followRouter from "./followRouter";
 import postLikeRouter from "./postLikeRouter";
 import blockUserRouter from "./blockUsersRouter";
 import chatRouter from "./chatRouter";
+import uploadRouter from "./uploadRouter";
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use("/follow", followRouter);
 router.use("/post-like", postLikeRouter);
 router.use("/block-user", blockUserRouter);
 router.use("/chat", chatRouter);
+router.use("/upload", uploadRouter);
 
 export default router;

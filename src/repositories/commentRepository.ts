@@ -5,9 +5,10 @@ import {
   GetCommentsEntity,
   DeleteCommentEntity,
 } from "../entity/commentEntity";
-import Comments from "../database/models/comments";
+import db from "../database/models/index";
 import { Op } from "sequelize";
 import logger from "../config/logger";
+const { Comments } = db;
 class CommentRepository {
   // 댓글작성
   public createComment = async (commentPayment: CreateCommentEntity) => {

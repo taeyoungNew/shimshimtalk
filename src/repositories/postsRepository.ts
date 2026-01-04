@@ -6,11 +6,12 @@ import {
   GetUserPostsEntity,
   ModifyPostEntity,
 } from "../entity/postEntity";
-import Posts from "../database/models/posts";
-import Comments from "../database/models/comments";
 import logger from "../config/logger";
 import { Op } from "sequelize";
 import sequelize from "sequelize";
+import db from "../database/models/index";
+
+const { Posts, Comments } = db;
 
 class PostRepository {
   public findPostById = async (postId: GetPostEntity) => {

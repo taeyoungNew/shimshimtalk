@@ -28,7 +28,6 @@ class ChatRepository {
       className: "ChatRepository",
       functionName: "createChatRoom",
     });
-    console.log("pairKey = ", pairKey);
 
     return await ChatRooms.findOne({
       attributes: ["id"],

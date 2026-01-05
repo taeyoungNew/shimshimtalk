@@ -1,0 +1,9 @@
+import { Socket } from "socket.io";
+
+export const joinChatRoom = async (socket: Socket, chatRoomId: string) => {
+  socket.join(chatRoomId);
+};
+
+export const leaveChatRoom = async (socket: Socket, chatRoomId: string) => {
+  socket.leave(chatRoomId);
+};

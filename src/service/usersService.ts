@@ -119,7 +119,9 @@ class UserService {
         const getMyFollowings = await this.followRepository.getFollowings({
           userId: params.myId,
         });
-        isFollowingedIds = getMyFollowings.map((el) => el.followingId);
+        isFollowingedIds = getMyFollowings.map(
+          (el: { followingId: string }) => el.followingId
+        );
         result.isFollowingedIds = isFollowingedIds;
       }
 
@@ -201,7 +203,6 @@ class UserService {
         className: "UserService",
         functionName: "findUserById",
       });
-      console.log(userId);
 
       const result = await this.userRepository.findById(userId);
 

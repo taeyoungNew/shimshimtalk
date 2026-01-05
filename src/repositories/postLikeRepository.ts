@@ -1,4 +1,4 @@
-import PostLikes from "../database/models/postlikes";
+import db from "../database/models/index";
 import { GetIsLikedPostIdsDto, PostLikeCancelDto } from "../dtos/postLikeDto";
 import {
   PostLikeEntity,
@@ -9,6 +9,7 @@ import logger from "../config/logger";
 import { GetAllPostDto } from "../dtos/PostDto";
 import { log } from "console";
 
+const { PostLikes } = db;
 /**
  * 게시물좋아요 리포지토리
  *

@@ -1,9 +1,6 @@
 "use strict";
 
 import { Model, DataTypes, Sequelize } from "sequelize";
-import db from "../models/index";
-import connection from "../connection";
-import Users from "./users";
 
 interface FollowsAttributes {
   followingId: string;

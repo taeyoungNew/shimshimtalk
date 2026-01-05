@@ -2,6 +2,13 @@ import { Server, Socket } from "socket.io";
 import { socketLogin, socketLogout } from "./auth";
 import { onlineCache } from "../common/cacheLocal/onlineCache";
 import dotenv from "dotenv";
+import { joinChatRoom, leaveChatRoom } from "./chat";
+import { emitSendMessage } from "./message";
+import verifyAccToken from "../middlewares/common/varifyAccToken";
+import MessageRepository from "../repositories/messageRepository";
+import { getChatHistory } from "./message";
+import { tokenType } from "../types/tokenType";
+import { saveMessageAlram } from "./messageAlarm";
 
 dotenv.config();
 
@@ -23,14 +30,61 @@ export default function initSocket(server: any) {
 
   io.on("connection", (socket) => {
     const socketId = socket.id;
+    const cookie = socket.request.headers.cookie;
 
-    if (!socketId) return;
+    if (cookie) {
+      const [type, token] = cookie
+        .split("authorization=")[1]
+        ?.split(";")[0]
+        .split("%20");
+
+      const accTokenPayment: tokenType = {
+        token: token,
+        type: "accToken",
+      };
+      // acctoken이 유효한지 확인
+      const decodeAccToken = verifyAccToken(accTokenPayment);
+
+      if (typeof decodeAccToken !== "string") {
+        socket.data.userId = decodeAccToken?.userId;
+      }
+    }
 
     broadcastOnlineUsers(socket);
+
+    socket.on("sendMessage", async (param) => {
+      let isJoined = false;
+      const { targetUserId, chatRoomId } = param;
+
+      const receiverSocketInfo = onlineUsers.get(targetUserId);
+      const room = io.sockets.adapter.rooms.get(chatRoomId);
+      const result = await emitSendMessage(io, socket, param);
+
+      const messageId = result.id;
+      console.log(receiverSocketInfo?.socketIds);
+
+      // 여기서 상대방이 조인했는지 안했는지 확인
+      isJoined =
+        receiverSocketInfo?.socketIds &&
+        Array.from(receiverSocketInfo?.socketIds).some((socketId) => {
+          console.log("scoketId = ", socketId);
+          console.log("room = ", room);
+          console.log("room?.has(socketId) = ", room?.has(socketId));
+
+          return room?.has(socketId);
+        });
+      console.log("isJoined = ", isJoined);
+      if (!isJoined) {
+        saveMessageAlram(socket, chatRoomId, targetUserId, messageId);
+      }
+    });
+    socket.on("sendImageOrFile", async () => {});
 
     // 현재 로그인중인 유저정보들을 커넥트한클라이언트에 전달
     socket.on("loginJoinOnlineRoom", async (param) => {
       socketIdToUserId.set(socketId, param.userId);
+
+      socket.data.userId = param.userId;
 
       await socketLogin(socket, param.userId);
       (socket as any).userId = param.userId;
@@ -49,6 +103,19 @@ export default function initSocket(server: any) {
       }
 
       broadcastOnlineUsers(socket);
+    });
+
+    // 해당채팅방의 메세지를 불러오는 이벤트
+    socket.on("getChatHistory", async ({ chatRoomId }) => {
+      getChatHistory(socket, chatRoomId);
+    });
+
+    socket.on("joinChatRoom", ({ targetUserId, chatRoomId }) => {
+      joinChatRoom(socket, chatRoomId);
+    });
+
+    socket.on("leaveChatRoom", ({ chatRoomId }) => {
+      leaveChatRoom(socket, chatRoomId);
     });
 
     socket.on("heartbeat", ({ userId }) => {

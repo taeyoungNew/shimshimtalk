@@ -62,7 +62,6 @@ class FollowService {
       const getUserInfoId = params.isMyPage
         ? params.followingId
         : params.userId;
-      console.log("stopFollowing =", getUserInfoId);
       const getFollowingUserInfo =
         await this.userService.findUserById(getUserInfoId);
       const followingUserInfo = {

@@ -1,6 +1,7 @@
-import Users from "../database/models/users";
+import db from "../database/models/index";
 import logger from "../config/logger";
 
+const { Users } = db;
 class AuthRepository {
   public saveRefToken = async (refToken: string, userId: string) => {
     logger.info("", {

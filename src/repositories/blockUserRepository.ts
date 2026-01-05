@@ -4,9 +4,9 @@ import {
   BlockUserListEntity,
 } from "../entity/blockUserEntity";
 import logger from "../config/logger";
-import BlockUser from "../database/models/blockuser";
+import BlockUser from "../database/models/block-user";
 import Users from "../database/models/users";
-import UserInfos from "../database/models/userinfos";
+import UserInfos from "../database/models/user-infos";
 import sequelize from "sequelize";
 
 class BlockUserRepository {

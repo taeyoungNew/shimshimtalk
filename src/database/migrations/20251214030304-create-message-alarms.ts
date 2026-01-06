@@ -5,14 +5,14 @@ import { DataTypes, QueryInterface } from "sequelize";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
-    await queryInterface.createTable("Messages", {
+    await queryInterface.createTable("MessageAlarms", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      senderId: {
+      userId: {
         allowNull: false,
         type: Sequelize.UUID,
         onUpdate: "cascade",
@@ -32,16 +32,20 @@ module.exports = {
           model: "ChatRooms",
         },
       },
-      originalName: {
-        type: Sequelize.TEXT,
-      },
-      content: {
+      messageId: {
         allowNull: false,
-        type: Sequelize.TEXT,
+        type: Sequelize.INTEGER,
+        onUpdate: "cascade",
+        onDelete: "cascade",
+        references: {
+          key: "id",
+          model: "Messages",
+        },
       },
-      contentType: {
-        type: Sequelize.ENUM("TEXT", "IMAGE", "FILE", "SYSTEM"),
+      isRead: {
         allowNull: false,
+        type: Sequelize.TINYINT,
+        defaultValue: false,
       },
       createdAt: {
         allowNull: false,
@@ -55,6 +59,6 @@ module.exports = {
   },
 
   async down(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
-    await queryInterface.dropTable("Messages");
+    await queryInterface.dropTable("MessageAlarms");
   },
 };

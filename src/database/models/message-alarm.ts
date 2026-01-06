@@ -2,31 +2,31 @@
 
 import { Model, Sequelize, DataTypes } from "sequelize";
 
-interface MessagesAttributes {
+interface MessageAlarmAttributes {
   id: number;
-  senderId: string;
+  userId: string;
   chatRoomId: string;
-  content: string;
-  messageType: "TEXT" | "IMAGE" | "FILE";
+  messageId: number;
+  isRead: boolean;
 }
 
-class Messages extends Model implements MessagesAttributes {
-  content: string;
+class MessageAlarms extends Model implements MessageAlarmAttributes {
   public id: number;
-  public senderId: string;
+  public userId: string;
   public chatRoomId: string;
-  messageType: "TEXT" | "IMAGE" | "FILE";
+  public messageId: number;
+  public isRead: boolean;
 
   static initModel(sequelize: Sequelize) {
-    Messages.init(
+    MessageAlarms.init(
       {
         id: {
           allowNull: false,
           autoIncrement: true,
           primaryKey: true,
-          type: DataTypes.INTEGER,
+          type: DataTypes.UUID,
         },
-        senderId: {
+        userId: {
           allowNull: false,
           type: DataTypes.UUID,
         },
@@ -34,31 +34,28 @@ class Messages extends Model implements MessagesAttributes {
           allowNull: false,
           type: DataTypes.UUID,
         },
-        originalName: {
-          type: DataTypes.STRING,
-        },
-        content: {
-          type: DataTypes.STRING(2000), // TEXT는 길어질 수 있으니 2000~허용
+        messageId: {
           allowNull: false,
+          type: DataTypes.INTEGER,
         },
-        contentType: {
-          type: DataTypes.ENUM("TEXT", "IMAGE", "FILE", "SYSTEM"),
+        isRead: {
           allowNull: false,
-          defaultValue: "TEXT",
+          type: DataTypes.TINYINT,
+          defaultValue: false,
         },
       },
       {
         sequelize: sequelize,
-        modelName: "Messages",
+        modelName: "MessageAlarms",
       }
     );
-    return Messages;
+    return MessageAlarms;
   }
 
   static associate(db: any) {
-    Messages.belongsTo(db.Users, {
+    MessageAlarms.belongsTo(db.Users, {
       foreignKey: {
-        name: "senderId",
+        name: "userId",
         allowNull: false,
       },
       targetKey: "id",
@@ -66,7 +63,7 @@ class Messages extends Model implements MessagesAttributes {
       onDelete: "cascade",
       onUpdate: "cascade",
     });
-    Messages.belongsTo(db.ChatRooms, {
+    MessageAlarms.belongsTo(db.ChatRooms, {
       foreignKey: {
         name: "chatRoomId",
         allowNull: false,
@@ -76,13 +73,17 @@ class Messages extends Model implements MessagesAttributes {
       onDelete: "cascade",
       onUpdate: "cascade",
     });
-    Messages.hasMany(db.MessageAlarms, {
-      foreignKey: "messageId",
-      sourceKey: "id",
-      onUpdate: "cascade",
+    MessageAlarms.belongsTo(db.ChatRooms, {
+      foreignKey: {
+        name: "messageId",
+        allowNull: false,
+      },
+      targetKey: "id",
+      foreignKeyConstraint: true,
       onDelete: "cascade",
+      onUpdate: "cascade",
     });
   }
 }
 
-export default Messages;
+export default MessageAlarms;

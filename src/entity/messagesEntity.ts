@@ -5,6 +5,7 @@ export interface GetMessagesByRoomEntity {
 export interface SaveMessageByRoomEntity {
   chatRoomId: string;
   senderId: string;
+  originalName: string;
   content: string;
   contentType: "TEXT" | "FILE" | "SYSTEM" | "IMAGE";
 }

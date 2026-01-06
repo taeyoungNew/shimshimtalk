@@ -12,4 +12,11 @@ uploadRouter.post(
   uploadHandler.uploadImage
 );
 
+uploadRouter.post(
+  "/file",
+  authMiddleware,
+  upload.single("file"),
+  uploadHandler.uploadFile
+);
+
 export default uploadRouter;

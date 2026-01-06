@@ -24,6 +24,7 @@ class MessageRepository {
   };
   public saveMessageByRoom = async ({
     chatRoomId,
+    originalName,
     content,
     contentType,
     senderId,
@@ -34,9 +35,10 @@ class MessageRepository {
       functionName: "saveMessageByRoom",
     });
 
-    await Messages.create({
+    return await Messages.create({
       chatRoomId,
       content,
+      originalName,
       contentType,
       senderId,
     });

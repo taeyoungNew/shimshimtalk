@@ -3,7 +3,7 @@ import { Model, DataTypes, Association, Sequelize } from "sequelize";
 import connection from "../connection";
 import Users from "./users";
 import Posts from "./posts";
-import CommentLikes from "./commentlike";
+import CommentLikes from "./comment-like";
 
 interface CommentsAttributes {
   userId: string;

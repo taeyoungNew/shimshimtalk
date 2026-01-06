@@ -2,12 +2,13 @@ import { Server, Socket } from "socket.io";
 import { socketLogin, socketLogout } from "./auth";
 import { onlineCache } from "../common/cacheLocal/onlineCache";
 import dotenv from "dotenv";
-import { joinChatRoom } from "./chat";
+import { joinChatRoom, leaveChatRoom } from "./chat";
 import { emitSendMessage } from "./message";
 import verifyAccToken from "../middlewares/common/varifyAccToken";
 import MessageRepository from "../repositories/messageRepository";
 import { getChatHistory } from "./message";
 import { tokenType } from "../types/tokenType";
+import { saveMessageAlram, sendMessageAlram } from "./messageAlarm";
 
 dotenv.config();
 
@@ -27,7 +28,7 @@ export default function initSocket(server: any) {
     },
   });
 
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
     const socketId = socket.id;
     const cookie = socket.request.headers.cookie;
 
@@ -45,14 +46,35 @@ export default function initSocket(server: any) {
       const decodeAccToken = verifyAccToken(accTokenPayment);
 
       if (typeof decodeAccToken !== "string") {
-        socket.data.userId = decodeAccToken?.userId;
+        const userId = decodeAccToken?.userId;
+        socket.data.userId = userId;
+
+        await sendMessageAlram(socket, userId);
       }
     }
 
     broadcastOnlineUsers(socket);
 
     socket.on("sendMessage", async (param) => {
-      emitSendMessage(io, socket, param);
+      let isJoined = false;
+      const { targetUserId, chatRoomId } = param;
+
+      const receiverSocketInfo = onlineUsers.get(targetUserId);
+      const room = io.sockets.adapter.rooms.get(chatRoomId);
+      const result = await emitSendMessage(io, socket, param);
+
+      const messageId = result.id;
+
+      // 여기서 상대방이 조인했는지 안했는지 확인
+      isJoined =
+        receiverSocketInfo?.socketIds &&
+        Array.from(receiverSocketInfo?.socketIds).some((socketId) => {
+          return room?.has(socketId);
+        });
+
+      if (!isJoined) {
+        saveMessageAlram(socket, chatRoomId, targetUserId, messageId);
+      }
     });
     socket.on("sendImageOrFile", async () => {});
 
@@ -86,8 +108,12 @@ export default function initSocket(server: any) {
       getChatHistory(socket, chatRoomId);
     });
 
-    socket.on("joinChatRoom", ({ chatRoomId }) => {
+    socket.on("joinChatRoom", ({ targetUserId, chatRoomId }) => {
       joinChatRoom(socket, chatRoomId);
+    });
+
+    socket.on("leaveChatRoom", ({ chatRoomId }) => {
+      leaveChatRoom(socket, chatRoomId);
     });
 
     socket.on("heartbeat", ({ userId }) => {

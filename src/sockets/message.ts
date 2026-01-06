@@ -2,6 +2,8 @@ import { Server, Socket } from "socket.io";
 import MessageRepository from "../repositories/messageRepository";
 interface EmitSendMessage {
   chatRoomId: string;
+  originalName: string;
+  targetUserId: string;
   content: string;
   contentType: "TEXT" | "FILE" | "SYSTEM" | "IMAGE";
 }
@@ -21,13 +23,14 @@ export const emitSendMessage = async (
   props: EmitSendMessage
 ) => {
   const messageRepo = new MessageRepository();
-  const { chatRoomId, content, contentType } = props;
+  const { chatRoomId, content, originalName, contentType } = props;
 
   const userId = socket.data.userId;
-  // if (contentType === "TEXT")
-  await messageRepo.saveMessageByRoom({
+  // const receiverId
+  const result = await messageRepo.saveMessageByRoom({
     chatRoomId,
     senderId: userId,
+    originalName,
     content,
     contentType,
   });
@@ -35,7 +38,9 @@ export const emitSendMessage = async (
   io.to(chatRoomId).emit("receiveMessage", {
     chatRoomId,
     senderId: userId,
+    originalName,
     content,
     contentType,
   });
+  return result;
 };

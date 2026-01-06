@@ -8,7 +8,7 @@ import verifyAccToken from "../middlewares/common/varifyAccToken";
 import MessageRepository from "../repositories/messageRepository";
 import { getChatHistory } from "./message";
 import { tokenType } from "../types/tokenType";
-import { saveMessageAlram } from "./messageAlarm";
+import { saveMessageAlram, sendMessageAlram } from "./messageAlarm";
 
 dotenv.config();
 
@@ -28,7 +28,7 @@ export default function initSocket(server: any) {
     },
   });
 
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
     const socketId = socket.id;
     const cookie = socket.request.headers.cookie;
 
@@ -46,7 +46,10 @@ export default function initSocket(server: any) {
       const decodeAccToken = verifyAccToken(accTokenPayment);
 
       if (typeof decodeAccToken !== "string") {
-        socket.data.userId = decodeAccToken?.userId;
+        const userId = decodeAccToken?.userId;
+        socket.data.userId = userId;
+
+        await sendMessageAlram(socket, userId);
       }
     }
 
@@ -61,19 +64,14 @@ export default function initSocket(server: any) {
       const result = await emitSendMessage(io, socket, param);
 
       const messageId = result.id;
-      console.log(receiverSocketInfo?.socketIds);
 
       // 여기서 상대방이 조인했는지 안했는지 확인
       isJoined =
         receiverSocketInfo?.socketIds &&
         Array.from(receiverSocketInfo?.socketIds).some((socketId) => {
-          console.log("scoketId = ", socketId);
-          console.log("room = ", room);
-          console.log("room?.has(socketId) = ", room?.has(socketId));
-
           return room?.has(socketId);
         });
-      console.log("isJoined = ", isJoined);
+
       if (!isJoined) {
         saveMessageAlram(socket, chatRoomId, targetUserId, messageId);
       }

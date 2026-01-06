@@ -15,7 +15,6 @@ class UploadHandler {
         functionName: "uploadImage",
       });
       const file = req.file;
-      console.log("file = ", file);
       if (!file) return res.status(400).json({ message: "파일이 없습니다." });
       const senderId = res.locals.userInfo.userId;
       const chatRoomId = req.body.chatRoomId;
@@ -25,7 +24,6 @@ class UploadHandler {
       ).toString("utf8");
       const key = await uploadToR2({ file: req.file, folder: "chat" });
       const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
-      console.log("originalName = ", originalName);
 
       const payload: UploadDto = {
         chatRoomId,

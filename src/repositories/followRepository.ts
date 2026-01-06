@@ -6,7 +6,7 @@ import {
 } from "../entity/followEntity";
 import db from "../database/models/index";
 import logger from "../config/logger";
-import UserInfos from "../database/models/userinfos";
+import UserInfos from "../database/models/user-infos";
 
 const { Follows } = db;
 class FollowRepository {

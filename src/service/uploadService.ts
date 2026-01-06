@@ -14,19 +14,19 @@ class UploadService {
     type,
   }: UploadDto) => {
     try {
-      logger.info("", {
-        layer: "Service",
-        className: "UploadService",
-        functionName: "uploadImage",
-      });
-
-      const payload: SaveMessageByRoomEntity = {
-        chatRoomId,
-        content,
-        contentType: type,
-        senderId,
-      };
-      return await this.uploadRepository.uploadFileOrImg(payload);
+      // logger.info("", {
+      //   layer: "Service",
+      //   className: "UploadService",
+      //   functionName: "uploadImage",
+      // });
+      // const payload: SaveMessageByRoomEntity = {
+      //   chatRoomId,
+      //   content,
+      //   originalName,
+      //   contentType: type,
+      //   senderId,
+      // };
+      // return await this.uploadRepository.uploadFileOrImg(payload);
     } catch (error) {
       throw error;
     }

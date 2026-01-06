@@ -9,8 +9,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint",
-    "db:create": "sequelize db:create",
-    "db:migrate": "sequelize db:migrate",
+    "db:create": "node -r ts-node/register ./node_modules/.bin/sequelize-cli db:create",
+    "db:migrate": "node -r ts-node/register ./node_modules/.bin/sequelize-cli db:migrate",
     "db:up": "docker-compose up -d"
   },
   "keywords": [],
@@ -47,6 +47,7 @@
     "sequelize-cli": "^6.6.2",
     "sequelize-typescript": "^2.1.6",
     "socket.io": "^4.8.1",
+    "socketio": "^1.0.0",
     "uuid": "^11.0.3",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"

@@ -2,12 +2,13 @@ import { Server, Socket } from "socket.io";
 import { socketLogin, socketLogout } from "./auth";
 import { onlineCache } from "../common/cacheLocal/onlineCache";
 import dotenv from "dotenv";
-import { joinChatRoom } from "./chat";
+import { joinChatRoom, leaveChatRoom } from "./chat";
 import { emitSendMessage } from "./message";
 import verifyAccToken from "../middlewares/common/varifyAccToken";
 import MessageRepository from "../repositories/messageRepository";
 import { getChatHistory } from "./message";
 import { tokenType } from "../types/tokenType";
+import { saveMessageAlram } from "./messageAlarm";
 
 dotenv.config();
 
@@ -52,7 +53,30 @@ export default function initSocket(server: any) {
     broadcastOnlineUsers(socket);
 
     socket.on("sendMessage", async (param) => {
-      emitSendMessage(io, socket, param);
+      let isJoined = false;
+      const { targetUserId, chatRoomId } = param;
+
+      const receiverSocketInfo = onlineUsers.get(targetUserId);
+      const room = io.sockets.adapter.rooms.get(chatRoomId);
+      const result = await emitSendMessage(io, socket, param);
+
+      const messageId = result.id;
+      console.log(receiverSocketInfo?.socketIds);
+
+      // 여기서 상대방이 조인했는지 안했는지 확인
+      isJoined =
+        receiverSocketInfo?.socketIds &&
+        Array.from(receiverSocketInfo?.socketIds).some((socketId) => {
+          console.log("scoketId = ", socketId);
+          console.log("room = ", room);
+          console.log("room?.has(socketId) = ", room?.has(socketId));
+
+          return room?.has(socketId);
+        });
+      console.log("isJoined = ", isJoined);
+      if (!isJoined) {
+        saveMessageAlram(socket, chatRoomId, targetUserId, messageId);
+      }
     });
     socket.on("sendImageOrFile", async () => {});
 
@@ -86,8 +110,12 @@ export default function initSocket(server: any) {
       getChatHistory(socket, chatRoomId);
     });
 
-    socket.on("joinChatRoom", ({ chatRoomId }) => {
+    socket.on("joinChatRoom", ({ targetUserId, chatRoomId }) => {
       joinChatRoom(socket, chatRoomId);
+    });
+
+    socket.on("leaveChatRoom", ({ chatRoomId }) => {
+      leaveChatRoom(socket, chatRoomId);
     });
 
     socket.on("heartbeat", ({ userId }) => {

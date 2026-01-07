@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import { socketLogin, socketLogout } from "./auth";
+import { socketAuthenticated, socketLogin, socketLogout } from "./auth";
 import { onlineCache } from "../common/cacheLocal/onlineCache";
 import dotenv from "dotenv";
 import { joinChatRoom, leaveChatRoom } from "./chat";
@@ -9,6 +9,8 @@ import MessageRepository from "../repositories/messageRepository";
 import { getChatHistory } from "./message";
 import { tokenType } from "../types/tokenType";
 import { saveMessageAlram, sendMessageAlram } from "./messageAlarm";
+import { decodeSocketUser } from "./utils/decodeSocketUser";
+import MessageAlramsRepository from "../repositories/messageAlarmRepository";
 
 dotenv.config();
 
@@ -20,6 +22,7 @@ type OnlineUserData = {
 export default function initSocket(server: any) {
   const onlineUsers = new Map<string, OnlineUserData>();
   const socketIdToUserId = new Map<string, string>();
+  let userId: string;
   const io = new Server(server, {
     cors: {
       origin: `${process.env.FRONT_CORS}`,
@@ -30,30 +33,29 @@ export default function initSocket(server: any) {
 
   io.on("connection", async (socket) => {
     const socketId = socket.id;
-    const cookie = socket.request.headers.cookie;
+    const decodeAccToken = decodeSocketUser(socket);
 
-    if (cookie) {
-      const [type, token] = cookie
-        .split("authorization=")[1]
-        ?.split(";")[0]
-        .split("%20");
+    if (decodeAccToken && decodeAccToken != "jwt exired") {
+      userId = decodeAccToken?.userId;
+      socket.data.userId = userId;
 
-      const accTokenPayment: tokenType = {
-        token: token,
-        type: "accToken",
-      };
-      // acctoken이 유효한지 확인
-      const decodeAccToken = verifyAccToken(accTokenPayment);
-
-      if (typeof decodeAccToken !== "string") {
-        const userId = decodeAccToken?.userId;
-        socket.data.userId = userId;
-
-        await sendMessageAlram(socket, userId);
-      }
+      await sendMessageAlram(socket, userId);
     }
 
     broadcastOnlineUsers(socket);
+
+    socket.on("getAlrams", async (_, ack) => {
+      const decodeAccToken = decodeSocketUser(socket);
+
+      if (decodeAccToken && decodeAccToken != "jwt exired") {
+        userId = decodeAccToken?.userId;
+        const messageAlarmRepository = new MessageAlramsRepository();
+        const getAlrams = await messageAlarmRepository.findUnreadByUser(userId);
+        ack({ ok: true, reason: getAlrams });
+      } else {
+        return ack({ ok: false, reason: "NO_COOKIE" });
+      }
+    });
 
     socket.on("sendMessage", async (param) => {
       let isJoined = false;
@@ -99,7 +101,6 @@ export default function initSocket(server: any) {
         const onlineUser = onlineUsers.get(param.userId);
         onlineUser.socketIds.add(socketId);
       }
-
       broadcastOnlineUsers(socket);
     });
 

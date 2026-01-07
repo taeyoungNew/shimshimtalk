@@ -1,7 +1,10 @@
 import { QueryTypes } from "sequelize";
 import logger from "../config/logger";
 import db from "../database/models/index";
-import { SaveAlarmEntity } from "../entity/messageAlarmEntity";
+import {
+  MarkMessageAlramEntity,
+  SaveAlarmEntity,
+} from "../entity/messageAlarmEntity";
 
 const { MessageAlarms } = db;
 
@@ -57,6 +60,31 @@ class MessageAlramsRepository {
         type: QueryTypes.SELECT,
       }
     );
+  };
+
+  public markMessageAlrams = async ({
+    chatRoomId,
+    userId,
+  }: MarkMessageAlramEntity) => {
+    try {
+      logger.info("", {
+        layer: "Repository",
+        className: "MessageAlramsRepository",
+        functionName: "markMessageAlrams",
+      });
+      await MessageAlarms.update(
+        { isRead: true },
+        {
+          where: {
+            userId,
+            chatRoomId,
+            isRead: false,
+          },
+        }
+      );
+    } catch (error) {
+      throw error;
+    }
   };
 }
 

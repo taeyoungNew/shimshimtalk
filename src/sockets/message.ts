@@ -26,7 +26,6 @@ export const emitSendMessage = async (
   const { chatRoomId, content, originalName, contentType } = props;
 
   const userId = socket.data.userId;
-  // const receiverId
   const result = await messageRepo.saveMessageByRoom({
     chatRoomId,
     senderId: userId,

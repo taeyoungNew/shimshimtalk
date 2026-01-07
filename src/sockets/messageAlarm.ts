@@ -15,7 +15,6 @@ export const saveMessageAlram = async (
 export const sendMessageAlram = async (socket: Socket, userId: string) => {
   const messageAlarmRepository = new MessageAlramsRepository();
   const getAlrams = await messageAlarmRepository.findUnreadByUser(userId);
-  console.log("알람리스트 보내주기");
 
   socket.emit("emitAlrams", { getAlrams });
 };

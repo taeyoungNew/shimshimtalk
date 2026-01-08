@@ -20,7 +20,7 @@ class MessageAlramsRepository {
         className: "MessageAlramsRepository",
         functionName: "saveAlarm",
       });
-      await MessageAlarms.create({
+      return await MessageAlarms.create({
         userId,
         chatRoomId,
         messageId,
@@ -28,6 +28,41 @@ class MessageAlramsRepository {
     } catch (error) {
       throw error;
     }
+  };
+
+  public findAlarmById = async (userId: string, alramId: string) => {
+    logger.info("", {
+      layer: "Repository",
+      className: "MessageAlramRepository",
+      functionName: "findAlarmById",
+    });
+    return await db.sequelize.query(
+      `
+      SELECT msg_alram.id, 
+             msg.chatRoomId,
+             msg.senderId,
+             user_info.nickname AS senderNickname,
+             msg.content,
+             msg.contentType,
+             msg.id AS messageId,
+             msg_alram.createdAt
+        FROM MessageAlarms AS msg_alram
+        JOIN Messages AS msg
+          ON msg.id = msg_alram.messageId
+        JOIN Users AS users
+          ON users.id = msg.senderId
+        JOIN UserInfos AS user_info
+          ON users.id = user_info.userId
+        WHERE msg_alram.userId = :userId
+          AND msg_alram.isRead = 0
+          AND msg_alram.id = :alramId
+      
+      `,
+      {
+        replacements: { userId, alramId },
+        type: QueryTypes.SELECT,
+      }
+    );
   };
 
   public findUnreadByUser = async (userId: string) => {

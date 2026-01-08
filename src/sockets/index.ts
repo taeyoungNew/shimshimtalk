@@ -1,14 +1,15 @@
 import { Server, Socket } from "socket.io";
-import { socketAuthenticated, socketLogin, socketLogout } from "./auth";
-import { onlineCache } from "../common/cacheLocal/onlineCache";
+import { socketLogin, socketLogout } from "./auth";
 import dotenv from "dotenv";
 import { joinChatRoom, leaveChatRoom } from "./chat";
 import { emitSendMessage } from "./message";
-import verifyAccToken from "../middlewares/common/varifyAccToken";
-import MessageRepository from "../repositories/messageRepository";
 import { getChatHistory } from "./message";
-import { tokenType } from "../types/tokenType";
-import { saveMessageAlram, sendMessageAlram } from "./messageAlarm";
+import {
+  notifyMessageAlarm,
+  readAlrams,
+  saveMessageAlram,
+  sendMessageAlramToMe,
+} from "./messageAlarm";
 import { decodeSocketUser } from "./utils/decodeSocketUser";
 import MessageAlramsRepository from "../repositories/messageAlarmRepository";
 
@@ -39,7 +40,7 @@ export default function initSocket(server: any) {
       userId = decodeAccToken?.userId;
       socket.data.userId = userId;
 
-      await sendMessageAlram(socket, userId);
+      await sendMessageAlramToMe(socket, userId);
     }
 
     broadcastOnlineUsers(socket);
@@ -54,6 +55,20 @@ export default function initSocket(server: any) {
         ack({ ok: true, reason: getAlrams });
       } else {
         return ack({ ok: false, reason: "NO_COOKIE" });
+      }
+    });
+
+    socket.on("alramsRead", async (param) => {
+      const decodeAccToken = decodeSocketUser(socket);
+      const { chatRoomId } = param;
+      if (decodeAccToken && decodeAccToken != "jwt exired") {
+        userId = decodeAccToken?.userId;
+        const sockets = onlineUsers.get(userId);
+        if (sockets.socketIds.size > 0) {
+          sockets.socketIds?.forEach((socketId) => {
+            readAlrams(io, chatRoomId, socketId);
+          });
+        }
       }
     });
 
@@ -75,7 +90,21 @@ export default function initSocket(server: any) {
         });
 
       if (!isJoined) {
-        saveMessageAlram(socket, chatRoomId, targetUserId, messageId);
+        const userSocketInfo = onlineUsers.get(targetUserId);
+        const alramData = await saveMessageAlram(
+          socket,
+          chatRoomId,
+          targetUserId,
+          messageId
+        );
+        console.log(targetUserId);
+
+        console.log(userSocketInfo);
+        if (userSocketInfo) {
+          userSocketInfo.socketIds.forEach((socketId) =>
+            notifyMessageAlarm(io, socketId, alramData)
+          );
+        }
       }
     });
     socket.on("sendImageOrFile", async () => {});

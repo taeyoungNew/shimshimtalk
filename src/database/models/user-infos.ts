@@ -72,52 +72,6 @@ class UserInfos extends Model implements UserInfoAttributes {
       onDelete: "cascade",
     });
   }
-  // public static associate() {
-  //   // // user - userInfo
 }
-
-// UserInfos.init(
-//   {
-//     id: {
-//       allowNull: false,
-//       autoIncrement: true,
-//       primaryKey: true,
-//       type: DataTypes.INTEGER,
-//     },
-//     userId: {
-//       allowNull: false,
-//       type: DataTypes.UUID,
-//       references: {
-//         model: Users,
-//         key: "id",
-//       },
-//     },
-//     username: {
-//       allowNull: false,
-//       type: DataTypes.STRING,
-//     },
-//     nickname: {
-//       allowNull: false,
-//       type: DataTypes.STRING,
-//     },
-//     aboutMe: {
-//       type: DataTypes.STRING,
-//     },
-//     age: DataTypes.INTEGER({
-//       length: 100,
-//     }),
-//     createdAt: {
-//       allowNull: false,
-//       type: DataTypes.DATE,
-//     },
-//     updatedAt: {
-//       allowNull: false,
-//       type: DataTypes.DATE,
-//     },
-//   },
-//   { sequelize: connection, modelName: "UserInfo" }
-// );
-
-// user - userinfo
 
 export default UserInfos;

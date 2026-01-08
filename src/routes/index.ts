@@ -9,6 +9,7 @@ import blockUserRouter from "./blockUsersRouter";
 import chatRouter from "./chatRouter";
 import uploadRouter from "./uploadRouter";
 import messageAlramRouter from "./messageAlramRouter";
+import userRelationRouter from "./userRelationRouter";
 
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.use("/block-user", blockUserRouter);
 router.use("/chat", chatRouter);
 router.use("/upload", uploadRouter);
 router.use("/message-alram", messageAlramRouter);
+router.use("/user-relation", userRelationRouter);
 
 export default router;

@@ -98,6 +98,19 @@ class Users extends Model implements UsersAttributes {
     });
 
     // following follower
+    // Users.hasMany(db.Follows, {
+    //   foreignKey: "followerId",
+    //   as: "FollowingRelations",
+    //   onUpdate: "cascade",
+    //   onDelete: "cascade",
+    // });
+
+    // Users.hasMany(db.Follows, {
+    //   foreignKey: "followingId",
+    //   as: "FollowerRelations",
+    //   onUpdate: "cascade",
+    //   onDelete: "cascade",
+    // });
     Users.belongsToMany(db.Users, {
       as: "Followers",
       through: db.Follows,

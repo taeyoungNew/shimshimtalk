@@ -10,19 +10,26 @@ class UserRelationHandler {
   ) => {
     try {
       const userId = res.locals.userInfo.userId;
-
       const result = await userRelationService.getFollowings(userId);
-      console.log("result = ", result);
 
       const rows = result.map(
         (row: {
-          followingId: any;
-          User: { UserInfos: { nickname: any } };
-        }) => ({
-          followingId: row.followingId,
-          nickname: row.User.UserInfos.nickname,
-        })
+          id: number;
+          followingId: string;
+          "following.id": string;
+          "following.email": string;
+          "following.UserInfo.id": number;
+          "following.UserInfo.nickname": string;
+        }) => {
+          return {
+            id: row.id,
+            followingId: row.followingId,
+            followingEmail: row["following.email"],
+            followingNickname: row["following.UserInfo.nickname"],
+          };
+        }
       );
+
       return res.status(200).json({ rows });
     } catch (error) {
       next(error);

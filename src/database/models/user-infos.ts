@@ -68,6 +68,7 @@ class UserInfos extends Model implements UserInfoAttributes {
     UserInfos.belongsTo(db.Users, {
       foreignKey: "userId",
       targetKey: "id",
+      as: "user",
       onUpdate: "cascade",
       onDelete: "cascade",
     });

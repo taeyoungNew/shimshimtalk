@@ -9,27 +9,50 @@ class UserRelationRepository {
         className: "UserRelationRepository",
         functionName: "getFollowings",
       });
-      console.log(userId);
-
+      console.log(
+        "Follows.associations = ",
+        Follows.associations.following.target.associations.UserInfo
+      );
       return await Follows.findAll({
-        attributes: ["followingId"],
+        where: { followerId: userId },
+        attributes: ["id", "followingId"],
         include: [
           {
-            model: Users,
-            attributes: ["id"],
-            as: "following",
+            association: Follows.associations.following,
+            required: false, // 중요
+            attributes: ["id", "email"],
             include: [
               {
-                model: UserInfos,
+                association:
+                  Follows.associations.following.target.associations.UserInfo,
                 attributes: ["nickname"],
               },
             ],
           },
         ],
-        where: {
-          followerId: userId,
-        },
+        raw: true,
       });
+      // console.log("rows = ", rows);
+
+      // return await Follows.findAll({
+      //   attributes: ["followingId"],
+      //   include: [
+      //     {
+      //       association: Follows.associations.following,
+      //       attributes: ["id"],
+      //       include: [
+      //         {
+      //           association:
+      //             Follows.associations.following.target.associations.UserInfo,
+      //           attributes: ["nickname"],
+      //         },
+      //       ],
+      //     },
+      //   ],
+      //   where: {
+      //     followerId: userId,
+      //   },
+      // });
     } catch (error) {
       throw error;
     }

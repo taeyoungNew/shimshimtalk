@@ -40,12 +40,14 @@ class Follows extends Model implements FollowsAttributes {
   static associate(db: any) {
     Follows.belongsTo(db.Users, {
       foreignKey: "followingId",
+      as: "following",
       onUpdate: "cascade",
       onDelete: "cascade",
     });
 
     Follows.belongsTo(db.Users, {
       foreignKey: "followerId",
+      as: "follower",
       onUpdate: "cascade",
       onDelete: "cascade",
     });

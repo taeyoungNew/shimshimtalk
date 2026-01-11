@@ -1,9 +1,17 @@
 import { Server, Socket } from "socket.io";
 import { socketLogin, socketLogout } from "./auth";
 import dotenv from "dotenv";
-import { emitSendMessage, joinChatRoom } from "./chat";
-import verifyAccToken from "../middlewares/common/varifyAccToken";
-import { tokenType } from "../types/tokenType";
+import { joinChatRoom, leaveChatRoom } from "./chat";
+import { emitSendMessage } from "./message";
+import { getChatHistory } from "./message";
+import {
+  notifyMessageAlarm,
+  readAlrams,
+  saveMessageAlram,
+  sendMessageAlramToMe,
+} from "./messageAlarm";
+import { decodeSocketUser } from "./utils/decodeSocketUser";
+import MessageAlramsRepository from "../repositories/messageAlarmRepository";
 
 dotenv.config();
 
@@ -15,6 +23,7 @@ type OnlineUserData = {
 export default function initSocket(server: any) {
   const onlineUsers = new Map<string, OnlineUserData>();
   const socketIdToUserId = new Map<string, string>();
+  let userId: string;
   const io = new Server(server, {
     cors: {
       origin: `${process.env.FRONT_CORS}`,
@@ -23,47 +32,82 @@ export default function initSocket(server: any) {
     },
   });
 
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
     const socketId = socket.id;
+    const decodeAccToken = decodeSocketUser(socket);
 
-    if (!socketId) return;
+    if (decodeAccToken && decodeAccToken != "jwt exired") {
+      userId = decodeAccToken?.userId;
+      socket.data.userId = userId;
+
+      await sendMessageAlramToMe(socket, userId);
+    }
 
     broadcastOnlineUsers(socket);
 
-    socket.on("authenticate", () => {
-      const cookie = socket.request.headers.cookie;
-      console.log("cookie = ", cookie);
+    socket.on("getAlrams", async (_, ack) => {
+      const decodeAccToken = decodeSocketUser(socket);
 
-      if (!cookie) return;
-      const [type, token] = cookie
-        .split("authorization=")[1]
-        ?.split(";")[0]
-        .split("%");
-      if (!token) return;
-      console.log("token = ", token);
-      const accTokenPayment: tokenType = {
-        token: token,
-        type: "accToken",
-      };
-
-      // acctoken이 유효한지 확인
-      const decodeAccToken = verifyAccToken(accTokenPayment);
-      if (
-        typeof decodeAccToken === "string" &&
-        decodeAccToken === "jwt exired"
-      ) {
-        socket.data.userId = null;
+      if (decodeAccToken && decodeAccToken != "jwt exired") {
+        userId = decodeAccToken?.userId;
+        const messageAlarmRepository = new MessageAlramsRepository();
+        const getAlrams = await messageAlarmRepository.findUnreadByUser(userId);
+        ack({ ok: true, reason: getAlrams });
       } else {
-        // 유저id를 소켓에 저장
-        socket.data.userId = decodeAccToken?.userId;
+        return ack({ ok: false, reason: "NO_COOKIE" });
       }
+    });
 
-      console.log("authenticate = ", socket.data.userId);
+    socket.on("alramsRead", async (param) => {
+      const decodeAccToken = decodeSocketUser(socket);
+      const { chatRoomId } = param;
+      if (decodeAccToken && decodeAccToken != "jwt exired") {
+        userId = decodeAccToken?.userId;
+        const sockets = onlineUsers.get(userId);
+        if (sockets.socketIds.size > 0) {
+          sockets.socketIds?.forEach((socketId) => {
+            readAlrams(io, chatRoomId, socketId);
+          });
+        }
+      }
     });
 
     socket.on("sendMessage", async (param) => {
-      emitSendMessage(io, socket, param);
+      let isJoined = false;
+      const { targetUserId, chatRoomId } = param;
+
+      const receiverSocketInfo = onlineUsers.get(targetUserId);
+      const room = io.sockets.adapter.rooms.get(chatRoomId);
+      const result = await emitSendMessage(io, socket, param);
+
+      const messageId = result.id;
+
+      // 여기서 상대방이 조인했는지 안했는지 확인
+      isJoined =
+        receiverSocketInfo?.socketIds &&
+        Array.from(receiverSocketInfo?.socketIds).some((socketId) => {
+          return room?.has(socketId);
+        });
+
+      if (!isJoined) {
+        const userSocketInfo = onlineUsers.get(targetUserId);
+        const alramData = await saveMessageAlram(
+          socket,
+          chatRoomId,
+          targetUserId,
+          messageId
+        );
+        console.log(targetUserId);
+
+        console.log(userSocketInfo);
+        if (userSocketInfo) {
+          userSocketInfo.socketIds.forEach((socketId) =>
+            notifyMessageAlarm(io, socketId, alramData)
+          );
+        }
+      }
     });
+    socket.on("sendImageOrFile", async () => {});
 
     // 현재 로그인중인 유저정보들을 커넥트한클라이언트에 전달
     socket.on("loginJoinOnlineRoom", async (param) => {
@@ -95,6 +139,9 @@ export default function initSocket(server: any) {
       // }
 
       socketIdToUserId.set(socketId, param.userId);
+
+      socket.data.userId = param.userId;
+
       await socketLogin(socket, param.userId);
       (socket as any).userId = param.userId;
 
@@ -110,14 +157,20 @@ export default function initSocket(server: any) {
         const onlineUser = onlineUsers.get(param.userId);
         onlineUser.socketIds.add(socketId);
       }
-      // 소켓에 userId를 저장
-      socket.data.userId = param.userId;
-
       broadcastOnlineUsers(socket);
     });
 
-    socket.on("joinChatRoom", ({ chatRoomId }) => {
+    // 해당채팅방의 메세지를 불러오는 이벤트
+    socket.on("getChatHistory", async ({ chatRoomId }) => {
+      getChatHistory(socket, chatRoomId);
+    });
+
+    socket.on("joinChatRoom", ({ targetUserId, chatRoomId }) => {
       joinChatRoom(socket, chatRoomId);
+    });
+
+    socket.on("leaveChatRoom", ({ chatRoomId }) => {
+      leaveChatRoom(socket, chatRoomId);
     });
 
     socket.on("heartbeat", ({ userId }) => {

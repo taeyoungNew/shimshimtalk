@@ -18,8 +18,6 @@ class Users extends Model implements UsersAttributes {
   public refToken!: string;
   public refTokenExp!: Date;
 
-  // public static associations: { UserInfos: Association<Users, UserInfos> };
-
   static initModel(sequelize: Sequelize) {
     Users.init(
       {
@@ -98,6 +96,19 @@ class Users extends Model implements UsersAttributes {
     });
 
     // following follower
+    // Users.hasMany(db.Follows, {
+    //   foreignKey: "followerId",
+    //   as: "FollowingRelations",
+    //   onUpdate: "cascade",
+    //   onDelete: "cascade",
+    // });
+
+    // Users.hasMany(db.Follows, {
+    //   foreignKey: "followingId",
+    //   as: "FollowerRelations",
+    //   onUpdate: "cascade",
+    //   onDelete: "cascade",
+    // });
     Users.belongsToMany(db.Users, {
       as: "Followers",
       through: db.Follows,
@@ -109,7 +120,7 @@ class Users extends Model implements UsersAttributes {
 
     Users.belongsToMany(db.Users, {
       as: "Followings",
-      through: "Follows",
+      through: db.Follows,
       foreignKey: "followerId",
       otherKey: "followingId",
       onUpdate: "cascade",
@@ -120,6 +131,7 @@ class Users extends Model implements UsersAttributes {
     Users.hasOne(db.UserInfos, {
       foreignKey: "userId",
       sourceKey: "id",
+      // as: "userInfo",
       hooks: true,
       onUpdate: "cascade",
       onDelete: "cascade",

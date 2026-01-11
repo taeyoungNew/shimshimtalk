@@ -3,16 +3,16 @@
 import config from "../sequelize.config";
 import sequelizeConnection from "../connection";
 import Users from "./users";
-import UserInfos from "./userinfos";
+import UserInfos from "./user-infos";
 import Posts from "./posts";
 import Comments from "./comments";
-import PostLikes from "./postlikes";
-import CommentLikes from "./commentlike";
+import PostLikes from "./post-likes";
+import CommentLikes from "./comment-like";
 import Follows from "./follows";
-import BlockUsers from "./blockuser";
-import ChatRooms from "./chatrooms";
+import BlockUsers from "./block-user";
+import ChatRooms from "./chat-rooms";
 import Messages from "./messages";
-import MessageAlarms from "./messageAlarm";
+import MessageAlarms from "./message-alarm";
 
 const Sequelize = require("sequelize");
 const db: any = {};

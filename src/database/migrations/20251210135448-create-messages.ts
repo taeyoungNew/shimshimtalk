@@ -32,12 +32,15 @@ module.exports = {
           model: "ChatRooms",
         },
       },
+      originalName: {
+        type: Sequelize.TEXT,
+      },
       content: {
         allowNull: false,
         type: Sequelize.TEXT,
       },
-      type: {
-        type: Sequelize.ENUM("TEXT", "IMAGE", "FILE"),
+      contentType: {
+        type: Sequelize.ENUM("TEXT", "IMAGE", "FILE", "SYSTEM"),
         allowNull: false,
       },
       createdAt: {

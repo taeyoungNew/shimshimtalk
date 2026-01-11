@@ -13,7 +13,6 @@ class ChatService {
     await this.userService.findUserById(targetUserId);
 
     const pairKey = [userId, targetUserId].sort().join("_");
-    console.log("pairKey = ", pairKey);
 
     let chatRoom = await this.isChatRoom({ pairKey });
 

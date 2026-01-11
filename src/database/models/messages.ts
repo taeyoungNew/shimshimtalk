@@ -34,12 +34,15 @@ class Messages extends Model implements MessagesAttributes {
           allowNull: false,
           type: DataTypes.UUID,
         },
+        originalName: {
+          type: DataTypes.STRING,
+        },
         content: {
           type: DataTypes.STRING(2000), // TEXT는 길어질 수 있으니 2000~허용
           allowNull: false,
         },
-        messageType: {
-          type: DataTypes.ENUM("TEXT", "IMAGE", "FILE"),
+        contentType: {
+          type: DataTypes.ENUM("TEXT", "IMAGE", "FILE", "SYSTEM"),
           allowNull: false,
           defaultValue: "TEXT",
         },

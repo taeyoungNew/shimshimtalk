@@ -45,6 +45,7 @@ module.exports = {
       isRead: {
         allowNull: false,
         type: Sequelize.TINYINT,
+        defaultValue: false,
       },
       createdAt: {
         allowNull: false,

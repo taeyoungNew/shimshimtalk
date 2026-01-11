@@ -1,16 +1,8 @@
-# dependencies
-node_modules
+# build
+dist/
 
+# deps
+node_modules/
 
 # env
 .env
-.env.*
-
-# build output
-dist
-build
-
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*

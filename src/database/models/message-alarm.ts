@@ -41,11 +41,12 @@ class MessageAlarms extends Model implements MessageAlarmAttributes {
         isRead: {
           allowNull: false,
           type: DataTypes.TINYINT,
+          defaultValue: false,
         },
       },
       {
         sequelize: sequelize,
-        modelName: "Messages",
+        modelName: "MessageAlarms",
       }
     );
     return MessageAlarms;

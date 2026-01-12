@@ -1,6 +1,6 @@
 "use strict";
 
-import config from "../sequelize.config";
+import config from "../sequelize.confing";
 import sequelizeConnection from "../connection";
 import Users from "./users";
 import UserInfos from "./user-infos";

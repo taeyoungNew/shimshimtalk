@@ -13,7 +13,7 @@ const config = {
   database: DB_DATABASE,
   host: DB_HOST,
   port: DB_PORT,
-  dialect: DB_DIALECT as any, // Sequelize.Dialect 타입 지정 가능
+  dialect: DB_DIALECT, // Sequelize.Dialect 타입 지정 가능
 };
 
 export default config;

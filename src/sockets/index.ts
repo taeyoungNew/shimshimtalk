@@ -111,6 +111,33 @@ export default function initSocket(server: any) {
 
     // 현재 로그인중인 유저정보들을 커넥트한클라이언트에 전달
     socket.on("loginJoinOnlineRoom", async (param) => {
+      // const cookie = socket.request.headers.cookie;
+      // console.log("loginJoinOnlineRoom = ", cookie);
+
+      // if (!cookie) return;
+      // const [type, token] = cookie
+      //   .split("authorization=")[1]
+      //   ?.split(";")[0]
+      //   .split("%");
+      // if (!token) return;
+
+      // const accTokenPayment: tokenType = {
+      //   token: token,
+      //   type: "accToken",
+      // };
+
+      // // acctoken이 유효한지 확인
+      // const decodeAccToken = verifyAccToken(accTokenPayment);
+      // if (
+      //   typeof decodeAccToken === "string" &&
+      //   decodeAccToken === "jwt exired"
+      // ) {
+      //   socket.data.userId = null;
+      // } else {
+      //   // 유저id를 소켓에 저장
+      //   socket.data.userId = decodeAccToken?.userId;
+      // }
+
       socketIdToUserId.set(socketId, param.userId);
 
       socket.data.userId = param.userId;

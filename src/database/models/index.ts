@@ -48,3 +48,4 @@ db.Sequelize = Sequelize;
 
 module.exports = db;
 export default db;
+export { sequelize };

@@ -17,15 +17,15 @@ class UserRelationRepository {
                 users.email,
                 userInfos.nickname,
                 chatRooms.id AS chatRoomId
-            FROM follows follow1
-            JOIN follows follow2
+            FROM Follows follow1
+            JOIN Follows follow2
               ON follow1.followerId = follow2.followingId
             AND follow1.followingId = follow2.followerId
-            JOIN users users
+            JOIN Users users
               ON users.id = follow1.followingId
-            JOIN userinfos userInfos
+            JOIN UserInfos userInfos
               ON userInfos.userId = users.id
-            LEFT JOIN chatrooms chatRooms
+            LEFT JOIN ChatRooms chatRooms
               ON (
                   (chatRooms.userAId = follow1.followerId AND chatRooms.userBId = follow1.followingId)
                 OR (chatRooms.userAId = follow1.followingId AND chatRooms.userBId = follow1.followerId)

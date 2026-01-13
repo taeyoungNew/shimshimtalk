@@ -16,24 +16,24 @@ class ChatRepository {
       SELECT chatrooms.id AS chatRoomId,
              users.id AS targetUserId,
              users.email AS targetUserEmail,
-             userInfos.nickname AS targetUserNickname,
+             userinfos.nickname AS targetUserNickname,
              messages.content AS lastMessagePreview,
              messages.contentType AS lastMessageType,
              messages.createdAt AS lastMessageAt
-        FROM simsim_talk.chatrooms chatrooms
-        JOIN simsim_talk.users users
+        FROM simsim_talk.ChatRooms chatrooms
+        JOIN simsim_talk.Users users
           ON users.id = 
         CASE WHEN chatrooms.userAId = :userId
         THEN chatrooms.userBId 
         ELSE chatrooms.userAId
          END
-        JOIN simsim_talk.userinfos userinfos
+        JOIN simsim_talk.UserInfos userinfos
           ON userinfos.userId = users.id
-        LEFT JOIN simsim_talk.messages messages
+        LEFT JOIN simsim_talk.Messages messages
           ON messages.id = (
           SELECT messages2.id
-                FROM simsim_talk.messages messages2
-          WHERE messages2.chatRoomId = chatRooms.id
+                FROM simsim_talk.Messages messages2
+          WHERE messages2.chatRoomId = chatrooms.id
           ORDER BY messages.createdAt DESC
           LIMIT 1
           )

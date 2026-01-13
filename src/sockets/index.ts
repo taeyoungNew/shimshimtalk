@@ -63,12 +63,15 @@ export default function initSocket(server: any) {
       const { chatRoomId } = param;
       if (decodeAccToken && decodeAccToken != "jwt exired") {
         userId = decodeAccToken?.userId;
+
         const sockets = onlineUsers.get(userId);
-        if (sockets.socketIds.size > 0) {
-          sockets.socketIds?.forEach((socketId) => {
-            readAlrams(io, chatRoomId, socketId);
-          });
+
+        if (!sockets || sockets.socketIds.size === 0) {
+          return;
         }
+        sockets.socketIds?.forEach((socketId) => {
+          readAlrams(io, chatRoomId, socketId);
+        });
       }
     });
 

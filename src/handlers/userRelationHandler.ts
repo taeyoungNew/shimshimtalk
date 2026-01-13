@@ -1,13 +1,40 @@
 import { Response, Request, NextFunction } from "express";
 import UserRelationService from "../service/userRelationService";
+import logger from "../config/logger";
+import UserService from "../service/usersService";
 
 const userRelationService = new UserRelationService();
 class UserRelationHandler {
+  public getFriends = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    logger.info("", {
+      layer: "Handler",
+      className: "UserRelationHandler",
+      functionName: "getFriends",
+    });
+    try {
+      const userId = res.locals.userInfo.userId;
+      const result = await userRelationService.getFriends(userId);
+      console.log(result);
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getFollowings = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
+    logger.info("", {
+      layer: "Handler",
+      className: "UserRelationHandler",
+      functionName: "getFollowings",
+    });
     try {
       const userId = res.locals.userInfo.userId;
       const result = await userRelationService.getFollowings(userId);

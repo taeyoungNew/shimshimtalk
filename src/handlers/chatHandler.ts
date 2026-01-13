@@ -3,19 +3,40 @@ import logger from "../config/logger";
 import ChatService from "../service/chatService";
 class ChatHandler {
   private chatService = new ChatService();
+  public getChatList = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    logger.info("", {
+      method: "post",
+      url: "api/chat/get-chatlist",
+      layer: "Handlers",
+      className: "ChatHandler",
+      functionName: "getChatList",
+    });
+    try {
+      const userId = res.locals.userInfo.userId;
+      const result = await this.chatService.getChatList(userId);
+      console.log(result);
+      return res.status(200).json(result);
+    } catch (e) {
+      next(e);
+    }
+  };
   public createChatRoom = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
+    logger.info("", {
+      method: "post",
+      url: "api/chat/create-chatroom",
+      layer: "Handlers",
+      className: "ChatHandler",
+      functionName: "createChatRoom",
+    });
     try {
-      logger.info("", {
-        method: "post",
-        url: "api/chat/create-chatroom",
-        layer: "Handlers",
-        className: "ChatHandler",
-        functionName: "createChatRoom",
-      });
       const targetUserId = req.body.targetUserId;
       const userId = res.locals.userInfo.userId;
 

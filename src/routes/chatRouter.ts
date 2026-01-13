@@ -7,5 +7,7 @@ const chatHandler = new ChatHandler();
 
 // 채팅방만들기
 chatRouter.post("/create-chatroom", authMiddleware, chatHandler.createChatRoom);
+// 나의 채팅방리스트 가져오기
+chatRouter.get("/get-chatlist", authMiddleware, chatHandler.getChatList);
 
 export default chatRouter;

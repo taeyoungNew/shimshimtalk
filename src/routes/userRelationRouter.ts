@@ -11,4 +11,10 @@ userRelationRouter.get(
   userRelationHandler.getFollowings
 );
 
+userRelationRouter.get(
+  "/friends",
+  authMiddleware,
+  userRelationHandler.getFriends
+);
+
 export default userRelationRouter;

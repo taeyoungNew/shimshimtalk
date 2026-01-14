@@ -100,9 +100,7 @@ export default function initSocket(server: any) {
           targetUserId,
           messageId
         );
-        console.log(targetUserId);
 
-        console.log(userSocketInfo);
         if (userSocketInfo) {
           userSocketInfo.socketIds.forEach((socketId) =>
             notifyMessageAlarm(io, socketId, alramData)

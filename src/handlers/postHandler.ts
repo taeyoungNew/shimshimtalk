@@ -44,7 +44,7 @@ class PostHandler {
         throw new CustomError(
           errorCodes.POST.VALIDATION_ERROR.status,
           errorCodes.POST.VALIDATION_ERROR.code,
-          "500자내로 적어주세요. "
+          "300자내로 적어주세요. "
         );
 
       const postPayment: CreatePostDto = {

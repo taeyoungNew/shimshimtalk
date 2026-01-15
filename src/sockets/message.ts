@@ -40,6 +40,7 @@ export const emitSendMessage = async (
     originalName,
     content,
     contentType,
+    createdAt: result.createdAt,
   });
   return result;
 };

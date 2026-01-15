@@ -48,8 +48,6 @@ export const notifyMessageAlarm = async (
   socketId: string,
   payload: AddMessageAlram
 ) => {
-  console.log("socketId = ", payload);
-
   io.to(socketId).emit("notifyMessageAlarm", payload);
 };
 

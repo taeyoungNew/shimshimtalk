@@ -8,8 +8,6 @@ export const postTitleExp = (param: string): Boolean => {
 
 // 게시물 내용형식
 export const postContentExp = (param: string): Boolean => {
-  const exp = /.{1,500}$/i;
-
-  if (exp.test(param)) return true;
-  return false;
+  const normalized = param.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  return normalized.length >= 1 && normalized.length <= 300;
 };

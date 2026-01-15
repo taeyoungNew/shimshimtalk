@@ -31,14 +31,15 @@ class ChatRepository {
           ON userinfos.userId = users.id
         LEFT JOIN simsim_talk.Messages messages
           ON messages.id = (
-          SELECT messages2.id
-                FROM simsim_talk.Messages messages2
-          WHERE messages2.chatRoomId = chatrooms.id
-          ORDER BY messages.createdAt DESC
-          LIMIT 1
+            SELECT messages2.id
+              FROM simsim_talk.Messages messages2
+             WHERE messages2.chatRoomId = chatrooms.id
+             ORDER BY messages2.createdAt DESC
+             LIMIT 1
           )
-      WHERE chatrooms.userAId = :userId
-          OR chatrooms.userBId = :userId;
+       WHERE chatrooms.userAId = :userId
+          OR chatrooms.userBId = :userId
+       ORDER BY chatrooms.createdAt DESC;
     `;
     return await db.sequelize.query(query, {
       replacements: { userId },

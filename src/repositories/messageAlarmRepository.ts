@@ -2,13 +2,13 @@ import { QueryTypes } from "sequelize";
 import logger from "../config/logger";
 import db from "../database/models/index";
 import {
-  MarkMessageAlramEntity,
+  MarkMessagealarmEntity,
   SaveAlarmEntity,
 } from "../entity/messageAlarmEntity";
 
 const { MessageAlarms } = db;
 
-class MessageAlramsRepository {
+class MessageAlarmsRepository {
   public saveAlarm = async ({
     chatRoomId,
     messageId,
@@ -17,7 +17,7 @@ class MessageAlramsRepository {
     try {
       logger.info("", {
         layer: "Repository",
-        className: "MessageAlramsRepository",
+        className: "MessageAlarmsRepository",
         functionName: "saveAlarm",
       });
       return await MessageAlarms.create({
@@ -30,36 +30,36 @@ class MessageAlramsRepository {
     }
   };
 
-  public findAlarmById = async (userId: string, alramId: string) => {
+  public findAlarmById = async (userId: string, alarmId: string) => {
     logger.info("", {
       layer: "Repository",
-      className: "MessageAlramRepository",
+      className: "MessagealarmRepository",
       functionName: "findAlarmById",
     });
     return await db.sequelize.query(
       `
-      SELECT msg_alram.id, 
+      SELECT msg_alarm.id, 
              msg.chatRoomId,
              msg.senderId,
              user_info.nickname AS senderNickname,
              msg.content,
              msg.contentType,
              msg.id AS messageId,
-             msg_alram.createdAt
-        FROM MessageAlarms AS msg_alram
+             msg_alarm.createdAt
+        FROM MessageAlarms AS msg_alarm
         JOIN Messages AS msg
-          ON msg.id = msg_alram.messageId
+          ON msg.id = msg_alarm.messageId
         JOIN Users AS users
           ON users.id = msg.senderId
         JOIN UserInfos AS user_info
           ON users.id = user_info.userId
-        WHERE msg_alram.userId = :userId
-          AND msg_alram.isRead = 0
-          AND msg_alram.id = :alramId
+        WHERE msg_alarm.userId = :userId
+          AND msg_alarm.isRead = 0
+          AND msg_alarm.id = :alarmId
       
       `,
       {
-        replacements: { userId, alramId },
+        replacements: { userId, alarmId },
         type: QueryTypes.SELECT,
       }
     );
@@ -68,28 +68,28 @@ class MessageAlramsRepository {
   public findUnreadByUser = async (userId: string) => {
     logger.info("", {
       layer: "Repository",
-      className: "MessageAlramRepository",
+      className: "MessagealarmRepository",
       functionName: "findUnreadByUser",
     });
     return await db.sequelize.query(
-      `SELECT msg_alram.id, 
+      `SELECT msg_alarm.id, 
              msg.chatRoomId,
              msg.senderId,
              user_info.nickname AS senderNickname,
              msg.content,
              msg.contentType,
              msg.id AS messageId,
-             msg_alram.createdAt
-        FROM MessageAlarms AS msg_alram
+             msg_alarm.createdAt
+        FROM MessageAlarms AS msg_alarm
         JOIN Messages AS msg
-          ON msg.id = msg_alram.messageId
+          ON msg.id = msg_alarm.messageId
         JOIN Users AS users
           ON users.id = msg.senderId
         JOIN UserInfos AS user_info
           ON users.id = user_info.userId
-        WHERE msg_alram.userId = :userId
-          AND msg_alram.isRead = 0
-        ORDER BY msg_alram.createdAt ASC`,
+        WHERE msg_alarm.userId = :userId
+          AND msg_alarm.isRead = 0
+        ORDER BY msg_alarm.createdAt ASC`,
       {
         replacements: { userId },
         type: QueryTypes.SELECT,
@@ -97,15 +97,15 @@ class MessageAlramsRepository {
     );
   };
 
-  public markMessageAlrams = async ({
+  public markMessageAlarms = async ({
     chatRoomId,
     userId,
-  }: MarkMessageAlramEntity) => {
+  }: MarkMessagealarmEntity) => {
     try {
       logger.info("", {
         layer: "Repository",
-        className: "MessageAlramsRepository",
-        functionName: "markMessageAlrams",
+        className: "MessageAlarmsRepository",
+        functionName: "markMessagealarms",
       });
       await MessageAlarms.update(
         { isRead: true },
@@ -123,4 +123,4 @@ class MessageAlramsRepository {
   };
 }
 
-export default MessageAlramsRepository;
+export default MessageAlarmsRepository;

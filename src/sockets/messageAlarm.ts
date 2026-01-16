@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
-import MessageAlramsRepository from "../repositories/messageAlarmRepository";
+import MessagealarmsRepository from "../repositories/messageAlarmRepository";
 
-interface AddMessageAlram {
+interface AddMessagealarm {
   chatRoomId: string;
   senderId: string;
   senderNickname: string;
@@ -11,13 +11,13 @@ interface AddMessageAlram {
   createdAt: string;
 }
 
-export const saveMessageAlram = async (
+export const saveMessagealarm = async (
   socket: Socket,
   chatRoomId: string,
   userId: string,
   messageId: string
 ) => {
-  const messageAlarmRepository = new MessageAlramsRepository();
+  const messageAlarmRepository = new MessagealarmsRepository();
 
   const result = await messageAlarmRepository.saveAlarm({
     chatRoomId,
@@ -25,36 +25,36 @@ export const saveMessageAlram = async (
     messageId,
   });
   console.log(result);
-  const alramId = result.id;
+  const alarmId = result.id;
   const receiverId = userId;
 
-  const alramData = await messageAlarmRepository.findAlarmById(
+  const alarmData = await messageAlarmRepository.findAlarmById(
     receiverId,
-    alramId
+    alarmId
   );
 
-  return alramData[0];
+  return alarmData[0];
 };
 
-export const sendMessageAlramToMe = async (socket: Socket, userId: string) => {
-  const messageAlarmRepository = new MessageAlramsRepository();
-  const getAlrams = await messageAlarmRepository.findUnreadByUser(userId);
+export const sendMessagealarmToMe = async (socket: Socket, userId: string) => {
+  const messageAlarmRepository = new MessagealarmsRepository();
+  const getalarms = await messageAlarmRepository.findUnreadByUser(userId);
 
-  socket.emit("emitAlrams", { getAlrams });
+  socket.emit("emitalarms", { getalarms });
 };
 
 export const notifyMessageAlarm = async (
   io: Server,
   socketId: string,
-  payload: AddMessageAlram
+  payload: AddMessagealarm
 ) => {
   io.to(socketId).emit("notifyMessageAlarm", payload);
 };
 
-export const readAlrams = async (
+export const readalarms = async (
   io: Server,
   chatRoomId: string,
   socketId: string
 ) => {
-  io.to(socketId).emit("alramsRead", { chatRoomId });
+  io.to(socketId).emit("alarmsRead", { chatRoomId });
 };

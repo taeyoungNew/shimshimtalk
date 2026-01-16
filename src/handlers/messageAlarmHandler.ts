@@ -1,11 +1,11 @@
 import { Response, Request, RequestHandler, NextFunction } from "express";
 import logger from "../config/logger";
-import MessageAlramService from "../service/messageAlramService";
+import MessageAlarmService from "../service/messageAlarmService";
 
-const messageAlramService = new MessageAlramService();
+const messageAlarmService = new MessageAlarmService();
 
-class MessageAlramHandler {
-  public markMessageAlrams = async (
+class messageAlarmHandler {
+  public markMessagealarms = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -13,18 +13,18 @@ class MessageAlramHandler {
     try {
       logger.info("", {
         method: "post",
-        url: "api/message-alram/mark-message-alram",
+        url: "api/message-alarm/mark-message-alarm",
         layer: "Handlers",
         className: "FollowHandler",
         functionName: "following",
       });
       const userId = res.locals.userInfo.userId;
       const chatRoomId = req.body.chatRoomId;
-      await messageAlramService.markMessageAlrams({ chatRoomId, userId });
+      await messageAlarmService.markMessageAlarms({ chatRoomId, userId });
       return res.status(200).json({ chatRoomId });
     } catch (error) {
       next(error);
     }
   };
 }
-export default MessageAlramHandler;
+export default messageAlarmHandler;

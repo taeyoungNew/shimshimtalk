@@ -4,7 +4,7 @@ export interface SaveAlarmEntity {
   messageId: string;
 }
 
-export interface MarkMessageAlramEntity {
+export interface MarkMessagealarmEntity {
   chatRoomId: string;
   userId: string;
 }

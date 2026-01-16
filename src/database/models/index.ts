@@ -1,6 +1,6 @@
 "use strict";
 
-import config from "../sequelize.confing";
+import config from "../sequelize.config";
 import sequelizeConnection from "../connection";
 import Users from "./users";
 import UserInfos from "./user-infos";
@@ -12,7 +12,8 @@ import Follows from "./follows";
 import BlockUsers from "./block-user";
 import ChatRooms from "./chat-rooms";
 import Messages from "./messages";
-import MessageAlarms from "./message-alarm";
+import MessageAlarms from "./message-alarms";
+import Alarms from "./alarms";
 
 const Sequelize = require("sequelize");
 const db: any = {};
@@ -36,6 +37,7 @@ db.ChatRooms = ChatRooms.initModel(sequelizeConnection);
 db.Messages = Messages.initModel(sequelizeConnection);
 db.MessageAlarms = MessageAlarms.initModel(sequelizeConnection);
 db.BlockUsers = BlockUsers.initModel(sequelizeConnection);
+db.Alarms = Alarms.initModel(sequelizeConnection);
 
 Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {

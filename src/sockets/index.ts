@@ -6,12 +6,12 @@ import { emitSendMessage } from "./message";
 import { getChatHistory } from "./message";
 import {
   notifyMessageAlarm,
-  readAlrams,
-  saveMessageAlram,
-  sendMessageAlramToMe,
+  readalarms,
+  saveMessagealarm,
+  sendMessagealarmToMe,
 } from "./messageAlarm";
 import { decodeSocketUser } from "./utils/decodeSocketUser";
-import MessageAlramsRepository from "../repositories/messageAlarmRepository";
+import MessagealarmsRepository from "../repositories/messageAlarmRepository";
 
 dotenv.config();
 
@@ -40,25 +40,25 @@ export default function initSocket(server: any) {
       userId = decodeAccToken?.userId;
       socket.data.userId = userId;
 
-      await sendMessageAlramToMe(socket, userId);
+      await sendMessagealarmToMe(socket, userId);
     }
 
     broadcastOnlineUsers(socket);
 
-    socket.on("getAlrams", async (_, ack) => {
+    socket.on("getalarms", async (_, ack) => {
       const decodeAccToken = decodeSocketUser(socket);
 
       if (decodeAccToken && decodeAccToken != "jwt exired") {
         userId = decodeAccToken?.userId;
-        const messageAlarmRepository = new MessageAlramsRepository();
-        const getAlrams = await messageAlarmRepository.findUnreadByUser(userId);
-        ack({ ok: true, reason: getAlrams });
+        const messageAlarmRepository = new MessagealarmsRepository();
+        const getalarms = await messageAlarmRepository.findUnreadByUser(userId);
+        ack({ ok: true, reason: getalarms });
       } else {
         return ack({ ok: false, reason: "NO_COOKIE" });
       }
     });
 
-    socket.on("alramsRead", async (param) => {
+    socket.on("alarmsRead", async (param) => {
       const decodeAccToken = decodeSocketUser(socket);
       const { chatRoomId } = param;
       if (decodeAccToken && decodeAccToken != "jwt exired") {
@@ -70,7 +70,7 @@ export default function initSocket(server: any) {
           return;
         }
         sockets.socketIds?.forEach((socketId) => {
-          readAlrams(io, chatRoomId, socketId);
+          readalarms(io, chatRoomId, socketId);
         });
       }
     });
@@ -94,7 +94,7 @@ export default function initSocket(server: any) {
 
       if (!isJoined) {
         const userSocketInfo = onlineUsers.get(targetUserId);
-        const alramData = await saveMessageAlram(
+        const alarmData = await saveMessagealarm(
           socket,
           chatRoomId,
           targetUserId,
@@ -103,7 +103,7 @@ export default function initSocket(server: any) {
 
         if (userSocketInfo) {
           userSocketInfo.socketIds.forEach((socketId) =>
-            notifyMessageAlarm(io, socketId, alramData)
+            notifyMessageAlarm(io, socketId, alarmData)
           );
         }
       }

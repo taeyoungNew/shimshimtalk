@@ -6,3 +6,8 @@ node_modules/
 
 # env
 .env
+
+# package.win.json
+package.win.json
+
+.sequelizerc

@@ -3,7 +3,7 @@ import logger from "../config/logger";
 import db from "../database/models/index";
 import {
   MarkMessagealarmEntity,
-  SaveAlarmEntity,
+  SaveMsgAlarmEntity,
 } from "../entity/messageAlarmEntity";
 
 const { MessageAlarms } = db;
@@ -13,7 +13,7 @@ class MessageAlarmsRepository {
     chatRoomId,
     messageId,
     userId,
-  }: SaveAlarmEntity) => {
+  }: SaveMsgAlarmEntity) => {
     try {
       logger.info("", {
         layer: "Repository",

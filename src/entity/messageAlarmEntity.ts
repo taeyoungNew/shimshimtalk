@@ -1,4 +1,4 @@
-export interface SaveAlarmEntity {
+export interface SaveMsgAlarmEntity {
   userId: string;
   chatRoomId: string;
   messageId: string;

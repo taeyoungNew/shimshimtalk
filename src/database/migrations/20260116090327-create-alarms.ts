@@ -23,7 +23,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.ENUM("USER", "POST", "COMMENT", "SYSTEM"),
       },
-      isRead: { allowNull: false, type: Sequelize.BOOLEAN },
+      isRead: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

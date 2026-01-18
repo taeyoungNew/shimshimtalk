@@ -42,7 +42,7 @@ class alarms extends Model implements AlarmAttributes {
       },
       {
         sequelize: sequelize,
-        modelName: "alarms",
+        modelName: "Alarms",
       }
     );
     return alarms;

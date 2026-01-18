@@ -11,7 +11,7 @@ interface AddMessagealarm {
   createdAt: string;
 }
 
-export const saveMessagealarm = async (
+export const saveMessageAlarm = async (
   socket: Socket,
   chatRoomId: string,
   userId: string,
@@ -24,7 +24,6 @@ export const saveMessagealarm = async (
     userId,
     messageId,
   });
-  console.log(result);
   const alarmId = result.id;
   const receiverId = userId;
 
@@ -36,7 +35,7 @@ export const saveMessagealarm = async (
   return alarmData[0];
 };
 
-export const sendMessagealarmToMe = async (socket: Socket, userId: string) => {
+export const sendMessageAlarmToMe = async (socket: Socket, userId: string) => {
   const messageAlarmRepository = new MessagealarmsRepository();
   const getalarms = await messageAlarmRepository.findUnreadByUser(userId);
 
@@ -51,7 +50,7 @@ export const notifyMessageAlarm = async (
   io.to(socketId).emit("notifyMessageAlarm", payload);
 };
 
-export const readalarms = async (
+export const readAlarms = async (
   io: Server,
   chatRoomId: string,
   socketId: string

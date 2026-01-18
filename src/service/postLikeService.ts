@@ -8,9 +8,12 @@ import PostService from "./postService";
 import logger from "../config/logger";
 import { CustomError } from "../errors/customError";
 import errorCodes from "../constants/error-codes.json";
+import AlarmsRepository from "../repositories/alarmRepository";
+import { SaveAlarmEntity } from "../entity/alarmEntity";
 class PostLikeService {
   private postLikeRepository = new PostLikeRepository();
   private postService = new PostService();
+  private alarmsRepository = new AlarmsRepository();
   // 게시물 좋아요
   public postLike = async (params: PostLikeDto) => {
     try {
@@ -19,9 +22,18 @@ class PostLikeService {
         className: "PostLikeService",
         functionName: "postLike",
       });
-      await this.postService.existPost(params);
+      const result = await this.postService.existPost(params);
       await this.checkPostLike(params);
       await this.postLikeRepository.postLike(params);
+      const alarmPayment: SaveAlarmEntity = {
+        senderId: params.userId,
+        receiverId: result.userId,
+        alarmType: "LIKE",
+        targetId: params.postId,
+        targetType: "POST",
+        isRead: false,
+      };
+      await this.alarmsRepository.saveAlarm(alarmPayment);
     } catch (error) {
       throw error;
     }
@@ -86,7 +98,7 @@ class PostLikeService {
         functionName: "checkPostLikeCencle",
       });
       const result = await this.postLikeRepository.existPostLike(params);
-      
+
       if (!result) {
         throw new CustomError(
           errorCodes.AUTH.USER_ALREADY_EXISTS.status,
@@ -94,7 +106,6 @@ class PostLikeService {
           "이미 좋아요를 취소한 게시물입니다."
         );
       }
-      
     } catch (error) {
       throw error;
     }

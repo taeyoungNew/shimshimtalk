@@ -9,6 +9,7 @@ import logger from "../config/logger";
 import { CustomError } from "../errors/customError";
 import errorCodes from "../constants/error-codes.json";
 import AlarmsRepository from "../repositories/alarmRepository";
+import { SaveAlarmEntity } from "../entity/alarmEntity";
 class PostLikeService {
   private postLikeRepository = new PostLikeRepository();
   private postService = new PostService();
@@ -21,16 +22,18 @@ class PostLikeService {
         className: "PostLikeService",
         functionName: "postLike",
       });
-      await this.postService.existPost(params);
+      const result = await this.postService.existPost(params);
       await this.checkPostLike(params);
       await this.postLikeRepository.postLike(params);
-      console.log("like = ", params);
-      const alarmPayment = {
+      const alarmPayment: SaveAlarmEntity = {
         senderId: params.userId,
+        receiverId: result.userId,
         alarmType: "LIKE",
         targetId: params.postId,
         targetType: "POST",
+        isRead: false,
       };
+      await this.alarmsRepository.saveAlarm(alarmPayment);
     } catch (error) {
       throw error;
     }

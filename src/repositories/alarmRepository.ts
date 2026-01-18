@@ -11,6 +11,7 @@ class AlarmsRepository {
     targetType,
     alarmType,
     receiverId,
+    isRead,
   }: SaveAlarmEntity) => {
     logger.info("", {
       layer: "Repository",
@@ -24,6 +25,7 @@ class AlarmsRepository {
       alarmType,
       targetId,
       targetType,
+      isRead,
     });
   };
 }

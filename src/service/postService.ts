@@ -166,7 +166,7 @@ class PostService {
     }
   };
   // 그 게시물이 있는지 확인
-  public existPost = async (param: GetPostDto): Promise<void> => {
+  public existPost = async (param: GetPostDto) => {
     try {
       logger.info("", {
         layer: "Service",
@@ -181,6 +181,7 @@ class PostService {
           errorCodes.POST.NOT_FOUND.code,
           "해당 게시물이 존재하지 않습니다."
         );
+      return result;
     } catch (error) {
       throw error;
     }

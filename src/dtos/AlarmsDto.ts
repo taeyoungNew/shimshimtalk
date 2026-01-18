@@ -1,4 +1,4 @@
-export interface SaveAlarmEntity {
+export interface SaveAlarmDto {
   senderId: string;
   receiverId: string;
   targetId: number | string;

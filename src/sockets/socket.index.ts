@@ -1,40 +1,38 @@
 import { Server, Socket } from "socket.io";
-import { socketLogin, socketLogout } from "./auth";
+import { socketLogin, socketLogout } from "./emitters/auth";
 import dotenv from "dotenv";
-import { joinChatRoom, leaveChatRoom } from "./chat";
-import { emitSendMessage } from "./message";
-import { getChatHistory } from "./message";
+import { joinChatRoom, leaveChatRoom } from "./emitters/chat";
+import { emitSendMessage } from "./emitters/message";
+import { getChatHistory } from "./emitters/message";
 import {
   notifyMessageAlarm,
-  readAlarms,
+  readMsgAlarms,
   saveMessageAlarm,
   sendMessageAlarmToMe,
-} from "./messageAlarm";
+} from "./emitters/messageAlarm";
 import { decodeSocketUser } from "./utils/decodeSocketUser";
 import MessagealarmsRepository from "../repositories/messageAlarmRepository";
+import logger from "../config/logger";
+import { initSocketServer } from "./socket.server";
+import { onlineUsers } from "./onlineUsers.store";
+import { isUserOnline } from "./onlineUsers.service";
 
 dotenv.config();
 
-type OnlineUserData = {
-  socketIds: Set<string>; // 현재 로그인된 소켓ID들
-  lastPing: number; // 마지막 하트비트 시간
-};
-
-export default function initSocket(server: any) {
-  const onlineUsers = new Map<string, OnlineUserData>();
+export const setupSocket = (server: any) => {
   const socketIdToUserId = new Map<string, string>();
   let userId: string;
-  const io = new Server(server, {
-    cors: {
-      origin: `${process.env.FRONT_CORS}`,
-      methods: ["GET", "POST"],
-      credentials: true,
-    },
-  });
+
+  const io = initSocketServer(server);
 
   io.on("connection", async (socket) => {
     const socketId = socket.id;
     const decodeAccToken = decodeSocketUser(socket);
+    logger.info("", {
+      layer: "socket",
+      connect: "socket connected!",
+    });
+    socket.emit("connection", "socket connected!");
 
     if (decodeAccToken && decodeAccToken != "jwt exired") {
       userId = decodeAccToken?.userId;
@@ -45,20 +43,49 @@ export default function initSocket(server: any) {
 
     broadcastOnlineUsers(socket);
 
-    socket.on("getalarms", async (_, ack) => {
+    // 현재 로그인중인 유저정보들을 커넥트한클라이언트에 전달
+    socket.on("loginJoinOnlineRoom", async (param, ack) => {
+      socketIdToUserId.set(socketId, param.userId);
+      socket.data.userId = param.userId;
+
+      await socketLogin(socket, param.userId);
+      (socket as any).userId = param.userId;
+
+      if (!isUserOnline(param.userId)) {
+        // 첫로그인
+
+        onlineUsers.set(param.userId, {
+          lastPing: Date.now(),
+          socketIds: new Set([socketId]),
+        });
+      } else {
+        // 한유저가 여러탭이나 다른 브라우저 및 기기에서 접속할수있기때문
+        const onlineUser = onlineUsers.get(param.userId);
+        onlineUser.socketIds.add(socketId);
+      }
+
+      // ❗ 반드시 ack 호출
+      if (typeof ack === "function") {
+        ack({ ok: true });
+      }
+      broadcastOnlineUsers(socket);
+    });
+
+    socket.on("getMsgAlarms", async (_, ack) => {
       const decodeAccToken = decodeSocketUser(socket);
 
       if (decodeAccToken && decodeAccToken != "jwt exired") {
         userId = decodeAccToken?.userId;
         const messageAlarmRepository = new MessagealarmsRepository();
-        const getalarms = await messageAlarmRepository.findUnreadByUser(userId);
-        ack({ ok: true, reason: getalarms });
+        const getMsgAlarms =
+          await messageAlarmRepository.findUnreadByUser(userId);
+        ack({ ok: true, reason: getMsgAlarms });
       } else {
         return ack({ ok: false, reason: "NO_COOKIE" });
       }
     });
 
-    socket.on("alarmsRead", async (param) => {
+    socket.on("msgAlarmsRead", async (param) => {
       const decodeAccToken = decodeSocketUser(socket);
       const { chatRoomId } = param;
       if (decodeAccToken && decodeAccToken != "jwt exired") {
@@ -70,7 +97,7 @@ export default function initSocket(server: any) {
           return;
         }
         sockets.socketIds?.forEach((socketId) => {
-          readAlarms(io, chatRoomId, socketId);
+          readMsgAlarms(io, chatRoomId, socketId);
         });
       }
     });
@@ -109,30 +136,6 @@ export default function initSocket(server: any) {
       }
     });
     socket.on("sendImageOrFile", async () => {});
-
-    // 현재 로그인중인 유저정보들을 커넥트한클라이언트에 전달
-    socket.on("loginJoinOnlineRoom", async (param) => {
-      socketIdToUserId.set(socketId, param.userId);
-
-      socket.data.userId = param.userId;
-
-      await socketLogin(socket, param.userId);
-      (socket as any).userId = param.userId;
-
-      if (!onlineUsers.has(param.userId)) {
-        // 첫로그인
-
-        onlineUsers.set(param.userId, {
-          lastPing: Date.now(),
-          socketIds: new Set([socketId]),
-        });
-      } else {
-        // 한유저가 여러탭이나 다른 브라우저 및 기기에서 접속할수있기때문
-        const onlineUser = onlineUsers.get(param.userId);
-        onlineUser.socketIds.add(socketId);
-      }
-      broadcastOnlineUsers(socket);
-    });
 
     // 해당채팅방의 메세지를 불러오는 이벤트
     socket.on("getChatHistory", async ({ chatRoomId }) => {
@@ -204,6 +207,9 @@ export default function initSocket(server: any) {
         broadcastOnlineUsers(socket);
       }, 3000);
     });
+
+    // ✅ 4. 진짜 마지막에
+    socket.emit("socketReady");
   });
 
   function broadcastOnlineUsers(socket: Socket) {
@@ -213,4 +219,4 @@ export default function initSocket(server: any) {
   }
 
   return io;
-}
+};

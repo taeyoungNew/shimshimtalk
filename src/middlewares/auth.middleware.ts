@@ -9,6 +9,7 @@ import UserRepository from "../repositories/usersRepository";
 import verifyRefToken from "./common/varifyRefToken";
 import { CustomError } from "../errors/customError";
 import errorCodes from "../constants/error-codes.json";
+import * as cookie from "cookie";
 
 /**
  * @param req
@@ -28,7 +29,13 @@ export const authMiddleware = async (
       functionName: "authMiddleware",
     });
     const { authorization } = req.cookies;
-
+    // const cookieHeader = req.headers.cookie;
+    // const { authorization } = cookie.parse(cookieHeader);
+    // if (!authorization) {
+    //   console.log("cookieHeader = ", authorization);
+    //   res.locals.userInfo = {};
+    //   next();
+    // }
     // acctoken의 유무를 확인
     //  -> 없으면 로그인하라는 에러와 함께 로그인화면으로 go
     let tokenType, token;

@@ -11,10 +11,13 @@ import PostService from "./postService";
 import logger from "../config/logger";
 import { CustomError } from "../errors/customError";
 import errorCodes from "../constants/error-codes.json";
+import { SaveAlarmEntity } from "../entity/alarmEntity";
+import { socketGateway } from "../sockets/socket.gateway";
+import AlarmsRepository from "../repositories/alarmRepository";
 
 class CommentService {
   private postService = new PostService();
-
+  private alarmsRepository = new AlarmsRepository();
   private commentRepository = new CommentRepository();
   // 댓글작성
   public createComment = async (params: CreateCommentDto) => {
@@ -25,8 +28,23 @@ class CommentService {
         functionName: "createComment",
       });
       // 게시물이 있는지 확인
-      await this.postService.existPost(params);
-      return await this.commentRepository.createComment(params);
+      const isPost = await this.postService.existPost(params);
+      const result = await this.commentRepository.createComment(params);
+      const alarmPayment: SaveAlarmEntity = {
+        senderId: params.userId,
+        receiverId: isPost.userId,
+        alarmType: "COMMENT",
+        targetId: params.postId,
+        targetType: "COMMENT",
+        isRead: false,
+      };
+
+      const isNotMine = params.userId !== isPost.userId;
+      if (isNotMine) {
+        await this.alarmsRepository.saveAlarm(alarmPayment);
+        socketGateway.sendAlarmToUser(isPost.userId, alarmPayment);
+      }
+      return result;
     } catch (error) {
       throw error;
     }

@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import MessagealarmsRepository from "../repositories/messageAlarmRepository";
+import MessagealarmsRepository from "../../repositories/messageAlarmRepository";
 
 interface AddMessagealarm {
   chatRoomId: string;
@@ -50,10 +50,10 @@ export const notifyMessageAlarm = async (
   io.to(socketId).emit("notifyMessageAlarm", payload);
 };
 
-export const readAlarms = async (
+export const readMsgAlarms = async (
   io: Server,
   chatRoomId: string,
   socketId: string
 ) => {
-  io.to(socketId).emit("alarmsRead", { chatRoomId });
+  io.to(socketId).emit("msgAlarmsRead", { chatRoomId });
 };

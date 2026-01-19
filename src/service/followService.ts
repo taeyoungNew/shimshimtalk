@@ -9,6 +9,8 @@ import FollowRepository from "../repositories/followRepository";
 import UserService from "./usersService";
 import errorCodes from "../constants/error-codes.json";
 import { CustomError } from "../errors/customError";
+import { SaveAlarmEntity } from "../entity/alarmEntity";
+import { socketGateway } from "../sockets/socket.gateway";
 
 class FollowService {
   followRepository = new FollowRepository();
@@ -26,7 +28,7 @@ class FollowService {
 
       // 이미 팔로잉하고있는지
       await this.checkFollowingUser(params);
-      await this.followRepository.following(params);
+      const followingResult = await this.followRepository.following(params);
       // isMyPage가 true일경우 팔로잉한 유저의 정보를 리턴
       // isMyPage가 false일경우 내 정보를 리턴
       const getUserInfoId = params.isMyPage
@@ -40,7 +42,15 @@ class FollowService {
         nickname: getFollowingUserInfo.UserInfo.nickname,
         username: getFollowingUserInfo.UserInfo.username,
       };
-
+      const alarmPayment: SaveAlarmEntity = {
+        senderId: params.userId,
+        receiverId: params.followingId,
+        alarmType: "FOLLOW",
+        targetId: params.followingId,
+        targetType: "USER",
+        isRead: false,
+      };
+      socketGateway.sendAlarmToUser(params.followingId, alarmPayment);
       return followingUserInfo;
     } catch (error) {
       throw error;

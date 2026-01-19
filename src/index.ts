@@ -11,7 +11,7 @@ import { json } from "express";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import cors from "cors";
 import http from "http";
-import initSocket from "./sockets";
+import { setupSocket } from "./sockets/socket.index";
 
 import dotenv from "dotenv";
 
@@ -47,7 +47,7 @@ app.use(errorHandler);
 
 const server = http.createServer(app);
 
-initSocket(server);
+setupSocket(server);
 
 server.listen(PORT, () => {
   logger.info("심심톡 실행 PORT: ${PORT}");

@@ -10,10 +10,12 @@ import { CustomError } from "../errors/customError";
 import errorCodes from "../constants/error-codes.json";
 import AlarmsRepository from "../repositories/alarmRepository";
 import { SaveAlarmEntity } from "../entity/alarmEntity";
+import { socketGateway } from "../sockets/socket.gateway";
 class PostLikeService {
   private postLikeRepository = new PostLikeRepository();
   private postService = new PostService();
   private alarmsRepository = new AlarmsRepository();
+
   // 게시물 좋아요
   public postLike = async (params: PostLikeDto) => {
     try {
@@ -33,7 +35,13 @@ class PostLikeService {
         targetType: "POST",
         isRead: false,
       };
-      await this.alarmsRepository.saveAlarm(alarmPayment);
+
+      const isNotMine = params.userId !== result.userId;
+
+      if (isNotMine) {
+        await this.alarmsRepository.saveAlarm(alarmPayment);
+        socketGateway.sendAlarmToUser(result.userId, alarmPayment);
+      }
     } catch (error) {
       throw error;
     }

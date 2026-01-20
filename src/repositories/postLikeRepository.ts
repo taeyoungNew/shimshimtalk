@@ -22,7 +22,7 @@ class PostLikeRepository {
       className: "PostLikeRepository",
       functionName: "postLike",
     });
-    await PostLikes.create({
+    return await PostLikes.create({
       userId: params.userId,
       postId: params.postId,
     });

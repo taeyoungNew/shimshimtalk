@@ -1,6 +1,8 @@
 import db from "../database/models/index";
 import logger from "../config/logger";
 import { SaveAlarmEntity } from "../entity/alarmEntity";
+import { ReadAlarmEntity } from "../entity/alarmsEntity";
+import { QueryTypes, where } from "sequelize";
 
 const { Alarms } = db;
 
@@ -27,6 +29,55 @@ class AlarmsRepository {
       targetType,
       isRead,
     });
+  };
+  public readAlarm = async ({ alarmId, userId }: ReadAlarmEntity) => {
+    logger.info("", {
+      layer: "Repository",
+      className: "AlarmsRepository",
+      functionName: "saveAlarm",
+    });
+
+    await Alarms.update(
+      { isRead: true },
+      {
+        where: {
+          receiverId: userId,
+          isRead: false,
+          id: alarmId,
+        },
+      },
+    );
+  };
+
+  public getAlarmsByUser = async (userId: string) => {
+    logger.info("", {
+      layer: "Repository",
+      className: "AlarmsRepository",
+      functionName: "getAlarmsByUser",
+    });
+
+    return await db.sequelize.query(
+      `
+      SELECT alarms.id,
+             alarms.senderId,
+             alarms.receiverId,
+             userinfos.nickname AS senderNickname,
+             alarms.targetId,
+             alarms.targetType,
+             alarms.isRead,
+             alarms.createdAt
+        FROM Alarms AS alarms
+        JOIN Users AS users
+          ON users.id = alarms.senderId
+        JOIN Userinfos AS userInfos
+          ON userInfos.userId = users.id
+       WHERE alarms.receiverId = :userId
+       ORDER BY alarms.createdAt DESC`,
+      {
+        replacements: { userId },
+        type: QueryTypes.SELECT,
+      },
+    );
   };
 }
 

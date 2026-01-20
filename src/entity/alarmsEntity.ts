@@ -1,4 +1,4 @@
-export interface SaveAlarmDto {
+export interface SaveAlarmEntity {
   id: number;
   senderId: string;
   senderNickname: string;
@@ -10,7 +10,7 @@ export interface SaveAlarmDto {
   createdAt: string;
 }
 
-export interface ReadAlarmDto {
+export interface ReadAlarmEntity {
   alarmId: number;
   userId: string;
 }

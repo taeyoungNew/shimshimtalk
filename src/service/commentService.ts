@@ -14,11 +14,14 @@ import errorCodes from "../constants/error-codes.json";
 import { SaveAlarmEntity } from "../entity/alarmEntity";
 import { socketGateway } from "../sockets/socket.gateway";
 import AlarmsRepository from "../repositories/alarmRepository";
+import { SaveAlarmDto } from "../dtos/alarmsDto";
+import UserService from "./usersService";
 
 class CommentService {
   private postService = new PostService();
   private alarmsRepository = new AlarmsRepository();
   private commentRepository = new CommentRepository();
+  private userService = new UserService();
   // 댓글작성
   public createComment = async (params: CreateCommentDto) => {
     try {
@@ -29,7 +32,8 @@ class CommentService {
       });
       // 게시물이 있는지 확인
       const isPost = await this.postService.existPost(params);
-      const result = await this.commentRepository.createComment(params);
+
+      const commentResult = await this.commentRepository.createComment(params);
       const alarmPayment: SaveAlarmEntity = {
         senderId: params.userId,
         receiverId: isPost.userId,
@@ -41,10 +45,27 @@ class CommentService {
 
       const isNotMine = params.userId !== isPost.userId;
       if (isNotMine) {
-        await this.alarmsRepository.saveAlarm(alarmPayment);
-        socketGateway.sendAlarmToUser(isPost.userId, alarmPayment);
+        const saveAlarmResult =
+          await this.alarmsRepository.saveAlarm(alarmPayment);
+        console.log(saveAlarmResult);
+
+        const findMyInfosResult = await this.userService.findMyInfos(
+          params.userId,
+        );
+        const alarmData: SaveAlarmDto = {
+          id: saveAlarmResult.id,
+          senderId: params.userId,
+          senderNickname: findMyInfosResult.UserInfo.nickname,
+          receiverId: isPost.userId,
+          alarmType: "COMMENT",
+          targetId: params.postId,
+          targetType: "COMMENT",
+          isRead: false,
+          createdAt: saveAlarmResult.createdAt,
+        };
+        socketGateway.sendAlarmToUser(isPost.userId, alarmData);
       }
-      return result;
+      return commentResult;
     } catch (error) {
       throw error;
     }
@@ -116,7 +137,7 @@ class CommentService {
         throw new CustomError(
           errorCodes.COMMENT.FORBIDDEN.status,
           errorCodes.COMMENT.FORBIDDEN.code,
-          "자신의 댓글이 아닙니다."
+          "자신의 댓글이 아닙니다.",
         );
     } catch (error) {
       throw error;
@@ -136,7 +157,7 @@ class CommentService {
         throw new CustomError(
           errorCodes.COMMENT.NOT_FOUND.status,
           errorCodes.COMMENT.NOT_FOUND.code,
-          "해당 댓글이 존재하지 않습니다."
+          "해당 댓글이 존재하지 않습니다.",
         );
     } catch (error) {
       throw error;

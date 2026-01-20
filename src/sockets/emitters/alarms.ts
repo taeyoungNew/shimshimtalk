@@ -1,10 +1,10 @@
 import { getIO } from "../socket.server";
 import { getSocketIdsByUserId } from "../onlineUsers.service";
-import { SaveAlarmDto } from "../../dtos/AlarmsDto";
+import { SaveAlarmDto } from "../../dtos/alarmsDto";
 
 export const sendAlarmToUser = async (
   userId: string,
-  payload: SaveAlarmDto
+  payload: SaveAlarmDto,
 ) => {
   const io = getIO();
   const socketIds = getSocketIdsByUserId(userId);

@@ -11,10 +11,13 @@ import errorCodes from "../constants/error-codes.json";
 import { CustomError } from "../errors/customError";
 import { SaveAlarmEntity } from "../entity/alarmEntity";
 import { socketGateway } from "../sockets/socket.gateway";
+import { SaveAlarmDto } from "../dtos/alarmsDto";
+import AlarmsRepository from "../repositories/alarmRepository";
 
 class FollowService {
-  followRepository = new FollowRepository();
-  userService = new UserService();
+  private followRepository = new FollowRepository();
+  private userService = new UserService();
+  private alarmsRepository = new AlarmsRepository();
   // 팔로잉하기
   public following = async (params: FollowingDto) => {
     try {
@@ -50,7 +53,23 @@ class FollowService {
         targetType: "USER",
         isRead: false,
       };
-      socketGateway.sendAlarmToUser(params.followingId, alarmPayment);
+      const saveAlarmResult =
+        await this.alarmsRepository.saveAlarm(alarmPayment);
+      const findMyInfosResult = await this.userService.findMyInfos(
+        params.userId,
+      );
+      const alarmData: SaveAlarmDto = {
+        id: saveAlarmResult.id,
+        senderId: params.userId,
+        senderNickname: findMyInfosResult.UserInfo.nickname,
+        receiverId: params.followingId,
+        alarmType: "FOLLOW",
+        targetId: params.followingId,
+        targetType: "USER",
+        isRead: false,
+        createdAt: saveAlarmResult.createdAt,
+      };
+      socketGateway.sendAlarmToUser(params.followingId, alarmData);
       return followingUserInfo;
     } catch (error) {
       throw error;
@@ -114,7 +133,7 @@ class FollowService {
 
   // 상대방을 팔로잉하고있는지 확인
   public checkFollowingUser = async (
-    followingId: FollowingDto
+    followingId: FollowingDto,
   ): Promise<void> => {
     try {
       logger.info("", {
@@ -127,7 +146,7 @@ class FollowService {
         throw new CustomError(
           errorCodes.FOLLOW.FOLLOWING_ALREADY_EXISTS.status,
           errorCodes.FOLLOW.FOLLOWING_ALREADY_EXISTS.code,
-          "이미 팔로잉하고있는 유저입니다."
+          "이미 팔로잉하고있는 유저입니다.",
         );
     } catch (e) {
       throw e;
@@ -137,7 +156,7 @@ class FollowService {
   // 상대방을 팔로잉
   // 상대방을 팔로잉하고있는지 확인
   public checkUnFollowingUser = async (
-    followingId: FollowingDto
+    followingId: FollowingDto,
   ): Promise<void> => {
     try {
       logger.info("", {
@@ -150,7 +169,7 @@ class FollowService {
         throw new CustomError(
           errorCodes.FOLLOW.BAD_REQUEST.status,
           errorCodes.FOLLOW.BAD_REQUEST.code,
-          "팔로잉하고 있지 않습니다."
+          "팔로잉하고 있지 않습니다.",
         );
     } catch (e) {
       throw e;

@@ -11,10 +11,13 @@ import errorCodes from "../constants/error-codes.json";
 import AlarmsRepository from "../repositories/alarmRepository";
 import { SaveAlarmEntity } from "../entity/alarmEntity";
 import { socketGateway } from "../sockets/socket.gateway";
+import { SaveAlarmDto } from "../dtos/alarmsDto";
+import UserService from "./usersService";
 class PostLikeService {
   private postLikeRepository = new PostLikeRepository();
   private postService = new PostService();
   private alarmsRepository = new AlarmsRepository();
+  private userService = new UserService();
 
   // 게시물 좋아요
   public postLike = async (params: PostLikeDto) => {
@@ -26,7 +29,7 @@ class PostLikeService {
       });
       const result = await this.postService.existPost(params);
       await this.checkPostLike(params);
-      await this.postLikeRepository.postLike(params);
+      const likeResult = await this.postLikeRepository.postLike(params);
       const alarmPayment: SaveAlarmEntity = {
         senderId: params.userId,
         receiverId: result.userId,
@@ -39,8 +42,24 @@ class PostLikeService {
       const isNotMine = params.userId !== result.userId;
 
       if (isNotMine) {
-        await this.alarmsRepository.saveAlarm(alarmPayment);
-        socketGateway.sendAlarmToUser(result.userId, alarmPayment);
+        const saveAlarmResult =
+          await this.alarmsRepository.saveAlarm(alarmPayment);
+        const findMyInfosResult = await this.userService.findMyInfos(
+          params.userId,
+        );
+
+        const alarmData: SaveAlarmDto = {
+          id: saveAlarmResult.id,
+          senderId: params.userId,
+          senderNickname: findMyInfosResult.UserInfo.nickname,
+          receiverId: result.userId,
+          alarmType: "LIKE",
+          targetId: params.postId,
+          targetType: "POST",
+          isRead: false,
+          createdAt: saveAlarmResult.createdAt,
+        };
+        socketGateway.sendAlarmToUser(result.userId, alarmData);
       }
     } catch (error) {
       throw error;
@@ -89,7 +108,7 @@ class PostLikeService {
         throw new CustomError(
           errorCodes.AUTH.USER_ALREADY_EXISTS.status,
           errorCodes.AUTH.USER_ALREADY_EXISTS.code,
-          "이미 좋아요를 누른 게시물입니다."
+          "이미 좋아요를 누른 게시물입니다.",
         );
       }
     } catch (error) {
@@ -111,7 +130,7 @@ class PostLikeService {
         throw new CustomError(
           errorCodes.AUTH.USER_ALREADY_EXISTS.status,
           errorCodes.AUTH.USER_ALREADY_EXISTS.code,
-          "이미 좋아요를 취소한 게시물입니다."
+          "이미 좋아요를 취소한 게시물입니다.",
         );
       }
     } catch (error) {

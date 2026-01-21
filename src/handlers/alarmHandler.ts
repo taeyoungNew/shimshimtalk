@@ -18,12 +18,13 @@ class AlarmHandler {
         functionName: "readAlarm",
       });
       const userId = res.locals.userInfo.userId;
-      const alarmId = req.query.alarmId;
+      const alarmId = req.params.alarmId;
 
       const payload: ReadAlarmDto = {
         userId,
         alarmId: Number(alarmId),
       };
+
       await this.alarmService.readAlarm(payload);
       return res.status(200).json({ userId, alarmId });
     } catch (error) {

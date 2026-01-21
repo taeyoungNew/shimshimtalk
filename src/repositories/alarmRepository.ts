@@ -64,6 +64,7 @@ class AlarmsRepository {
              userinfos.nickname AS senderNickname,
              alarms.targetId,
              alarms.targetType,
+             alarms.alarmType,
              alarms.isRead,
              alarms.createdAt
         FROM Alarms AS alarms

@@ -18,7 +18,7 @@ class FollowRepository {
         className: "FollowRepository",
         functionName: "following",
       });
-      await Follows.create({
+      return await Follows.create({
         followerId: params.userId,
         followingId: params.followingId,
       });

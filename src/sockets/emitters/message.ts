@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import MessageRepository from "../repositories/messageRepository";
+import MessageRepository from "../../repositories/messageRepository";
 interface EmitSendMessage {
   chatRoomId: string;
   originalName: string;

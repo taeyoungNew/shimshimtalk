@@ -10,6 +10,8 @@ import chatRouter from "./chatRouter";
 import uploadRouter from "./uploadRouter";
 import messageAlarmRouter from "./messageAlarmRouter";
 import userRelationRouter from "./userRelationRouter";
+import alarmRouter from "./alarmRouter";
+import suggestedUserRouter from "./suggestedUserRouter";
 
 const router = express.Router();
 
@@ -24,5 +26,7 @@ router.use("/chat", chatRouter);
 router.use("/upload", uploadRouter);
 router.use("/message-alarm", messageAlarmRouter);
 router.use("/user-relation", userRelationRouter);
+router.use("/alarms", alarmRouter);
+router.use("/suggested-user", suggestedUserRouter);
 
 export default router;

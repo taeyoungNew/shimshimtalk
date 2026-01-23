@@ -61,7 +61,7 @@ class AlarmsRepository {
       SELECT alarms.id,
              alarms.senderId,
              alarms.receiverId,
-             userinfos.nickname AS senderNickname,
+             userInfos.nickname AS senderNickname,
              alarms.targetId,
              alarms.targetType,
              alarms.alarmType,

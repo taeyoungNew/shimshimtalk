@@ -7,6 +7,7 @@ import Users from "./users";
 
 interface UserInfoAttributes {
   userId: string;
+  profileUrl: string;
   username: string;
   nickname: string;
   aboutMe: string;
@@ -14,11 +15,12 @@ interface UserInfoAttributes {
 }
 
 class UserInfos extends Model implements UserInfoAttributes {
-  public userId!: string;
-  public username!: string;
-  public nickname!: string;
-  public aboutMe!: string;
-  public age!: number;
+  userId!: string;
+  profileUrl!: string;
+  username!: string;
+  nickname!: string;
+  aboutMe!: string;
+  age!: number;
 
   static initModel(sequelize: Sequelize) {
     return UserInfos.init(
@@ -29,6 +31,7 @@ class UserInfos extends Model implements UserInfoAttributes {
           primaryKey: true,
           type: DataTypes.INTEGER,
         },
+
         userId: {
           allowNull: false,
           type: DataTypes.UUID,
@@ -36,6 +39,11 @@ class UserInfos extends Model implements UserInfoAttributes {
             model: Users,
             key: "id",
           },
+        },
+        profileUrl: {
+          allowNull: true,
+          type: DataTypes.STRING,
+          defaultValue: "",
         },
         username: {
           allowNull: false,
@@ -60,7 +68,7 @@ class UserInfos extends Model implements UserInfoAttributes {
           type: DataTypes.DATE,
         },
       },
-      { sequelize: sequelize, modelName: "UserInfos" }
+      { sequelize: sequelize, modelName: "UserInfos" },
     );
   }
 

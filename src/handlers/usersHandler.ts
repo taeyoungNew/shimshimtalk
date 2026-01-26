@@ -13,6 +13,7 @@ import {
 } from "../common/validators/userExp";
 import errorCodes from "../constants/error-codes.json";
 import { CustomError } from "../errors/customError";
+import { uploadToR2 } from "../common/r2Cloud/uploadToR2";
 
 class UserHandler {
   userService = new UserService();
@@ -28,7 +29,7 @@ class UserHandler {
   public createUser = async (
     req: Request<{}, {}, SignupDto, {}>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -43,21 +44,21 @@ class UserHandler {
         throw new CustomError(
           errorCodes.AUTH.EMAIL_INVALID.status,
           errorCodes.AUTH.EMAIL_INVALID.code,
-          "이메일형식이 맞지 않습니다. "
+          "이메일형식이 맞지 않습니다. ",
         );
 
       if (!passwordExp(password))
         throw new CustomError(
           errorCodes.AUTH.PASSWORD_INVALID.status,
           errorCodes.AUTH.PASSWORD_INVALID.code,
-          "패스워드형식이 맞지 않습니다. "
+          "패스워드형식이 맞지 않습니다. ",
         );
 
       if (!nicknameExp(nickname))
         throw new CustomError(
           errorCodes.USER.NICKNAME_INVALID.status,
           errorCodes.USER.NICKNAME_INVALID.code,
-          "닉네임형식에 맞지않습니다."
+          "닉네임형식에 맞지않습니다.",
         );
 
       const signupInfo: SignupDto = {
@@ -75,6 +76,37 @@ class UserHandler {
     }
   };
 
+  public changeMyProfileImg = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    logger.info("", {
+      method: "patch",
+      url: "api/user/my-profile-img",
+      layer: "Handlers",
+      className: "UserHandler",
+      functionName: "chafilengeMyProfileImg",
+    });
+    try {
+      const file = req.file;
+      const userId = res.locals.userInfo.userId;
+
+      if (!file) return res.status(400).json({ message: "파일이 없습니다." });
+      const key = await uploadToR2({
+        file: file,
+        folder: `user-info/profile-img/${userId}/avatar.webp`,
+      });
+      const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
+
+      return res
+        .status(200)
+        .json({ message: "이미지업로드하게?", url: publicUrl });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   /**
    * 모든 회원정보리스트
    *
@@ -88,7 +120,7 @@ class UserHandler {
   public findAllUser = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -118,7 +150,7 @@ class UserHandler {
   public findMyInfos = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -148,7 +180,7 @@ class UserHandler {
   public findUserInfos = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -179,7 +211,7 @@ class UserHandler {
   public findUserByEmail = async (
     req: Request<{ email: string }>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -202,7 +234,7 @@ class UserHandler {
   public findUserById = async (
     req: Request<{ userId: string }, {}, {}, {}>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -232,7 +264,7 @@ class UserHandler {
   public modifyUserInfo = async (
     req: Request<{ id: string }, {}, ModifyUserDto, {}>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -270,7 +302,7 @@ class UserHandler {
   public deleteUser = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -291,7 +323,7 @@ class UserHandler {
   public getBlockedUsers = async (
     req: Request<{}, {}, GetBlockedUsersDto, {}>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {

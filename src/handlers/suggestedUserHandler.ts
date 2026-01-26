@@ -18,6 +18,18 @@ class SuggestedUserHandler {
     try {
       const userId = res.locals.userInfo.userId;
       const result = await this.suggestedUserService.getSuggestedUsers(userId);
+      console.log("result= ", result);
+      result.mutual.forEach((el: { isFollowinged: boolean }) =>
+        el.isFollowinged
+          ? (el.isFollowinged = true)
+          : (el.isFollowinged = false),
+      );
+
+      result.popular.forEach((el: { isFollowinged: boolean }) =>
+        el.isFollowinged
+          ? (el.isFollowinged = true)
+          : (el.isFollowinged = false),
+      );
 
       return res.status(200).json(result);
     } catch (error) {

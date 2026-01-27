@@ -53,15 +53,15 @@ class MessageAlarmsRepository {
           ON users.id = msg.senderId
         JOIN UserInfos AS user_info
           ON users.id = user_info.userId
-        WHERE msg_alarm.userId = :userId
-          AND msg_alarm.isRead = 0
-          AND msg_alarm.id = :alarmId
+       WHERE msg_alarm.userId = :userId
+         AND msg_alarm.isRead = 0
+         AND msg_alarm.id = :alarmId
       
       `,
       {
         replacements: { userId, alarmId },
         type: QueryTypes.SELECT,
-      }
+      },
     );
   };
 
@@ -93,7 +93,7 @@ class MessageAlarmsRepository {
       {
         replacements: { userId },
         type: QueryTypes.SELECT,
-      }
+      },
     );
   };
 
@@ -115,7 +115,7 @@ class MessageAlarmsRepository {
             chatRoomId,
             isRead: false,
           },
-        }
+        },
       );
     } catch (error) {
       throw error;

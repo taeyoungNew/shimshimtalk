@@ -48,6 +48,7 @@ class UserRepository {
     });
     await UserInfos.create({
       userId: signupInfo!.userId,
+      profileUrl: "",
       username: signupInfo.username,
       aboutMe: signupInfo.aboutMe,
       nickname: signupInfo.nickname,
@@ -352,7 +353,7 @@ class UserRepository {
         where: {
           userId: userId,
         },
-      }
+      },
     );
   };
   // aboutMe수정
@@ -368,7 +369,7 @@ class UserRepository {
         where: {
           userId: userId,
         },
-      }
+      },
     );
   };
   // age수정
@@ -394,7 +395,7 @@ class UserRepository {
         where: {
           userId: userId,
         },
-      }
+      },
     );
   };
 

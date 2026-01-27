@@ -22,6 +22,11 @@ module.exports = {
           model: "Users",
         },
       },
+      profileUrl: {
+        defaultValue: "",
+        allowNull: true,
+        type: Sequelize.STRING,
+      },
       username: {
         type: Sequelize.STRING(30),
       },

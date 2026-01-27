@@ -24,7 +24,7 @@ class AuthHandler {
   public loginUser = async (
     req: Request<{}, {}, LoginDto>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     const { email, password } = req.body;
 
@@ -93,7 +93,7 @@ class AuthHandler {
   public logoutUser = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -137,7 +137,7 @@ class AuthHandler {
         });
 
       const getUserLoginInfo = JSON.parse(
-        await userCache.get(`token:${token}`)
+        await userCache.get(`token:${token}`),
       );
       if (getUserLoginInfo) {
         return res.status(200).json({
@@ -169,7 +169,7 @@ class AuthHandler {
       throw new CustomError(
         errorCodes.AUTH.PASSWORD_INVALID.status,
         errorCodes.AUTH.PASSWORD_INVALID.code,
-        "패스워드가 일치하지않습니다."
+        "패스워드가 일치하지않습니다.",
       );
   };
 }

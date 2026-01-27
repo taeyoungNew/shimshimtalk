@@ -126,7 +126,7 @@ class PostRepository {
           userId: postInfo.userId,
           id: postInfo.postId,
         },
-      }
+      },
     );
   };
   // user의 Post 불러오기
@@ -162,6 +162,16 @@ class PostRepository {
                WHERE users.id = Posts.userId
             )`),
             "userNickname",
+          ],
+          [
+            sequelize.literal(`(
+              select userinfo.profileUrl
+                FROM Users AS users
+           LEFT JOIN UserInfos AS userinfo
+                  ON users.id = userinfo.userId
+               WHERE users.id = Posts.userId
+            )`),
+            "profileUrl",
           ],
           [
             sequelize.literal(`(
@@ -204,6 +214,16 @@ class PostRepository {
                WHERE users.id = Posts.userId
             )`),
             "userNickname",
+          ],
+          [
+            sequelize.literal(`(
+              select userinfo.profileUrl
+                FROM Users AS users
+           LEFT JOIN UserInfos AS userinfo
+                  ON users.id = userinfo.userId
+               WHERE users.id = Posts.userId
+            )`),
+            "profileUrl",
           ],
           [
             sequelize.literal(`(

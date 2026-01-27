@@ -12,6 +12,7 @@ interface UserInfoAttributes {
   nickname: string;
   aboutMe: string;
   age: number;
+  profileUrlUpdatedAt: string;
 }
 
 class UserInfos extends Model implements UserInfoAttributes {
@@ -21,6 +22,7 @@ class UserInfos extends Model implements UserInfoAttributes {
   nickname!: string;
   aboutMe!: string;
   age!: number;
+  profileUrlUpdatedAt!: string;
 
   static initModel(sequelize: Sequelize) {
     return UserInfos.init(
@@ -59,6 +61,9 @@ class UserInfos extends Model implements UserInfoAttributes {
         age: DataTypes.INTEGER({
           length: 100,
         }),
+        profileUrlUpdatedAt: {
+          type: DataTypes.DATE,
+        },
         createdAt: {
           allowNull: false,
           type: DataTypes.DATE,

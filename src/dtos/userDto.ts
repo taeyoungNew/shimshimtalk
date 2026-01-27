@@ -21,3 +21,9 @@ export interface GetFindUserInfosDto {
   myId?: string;
   userId: string;
 }
+
+export interface ChangeUserProfileImg {
+  userId: string;
+  profileUrl: string;
+  timestamp: number;
+}

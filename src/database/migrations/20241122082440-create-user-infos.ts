@@ -42,6 +42,9 @@ module.exports = {
           length: 100,
         }),
       },
+      profileUrlUpdatedAt: {
+        type: Sequelize.DATE,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

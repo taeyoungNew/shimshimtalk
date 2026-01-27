@@ -3,7 +3,11 @@ import { ModifyUserDto } from "../dtos/modifyUserDto";
 import UserRepository from "../repositories/usersRepository";
 import logger from "../config/logger";
 import bcrypt from "bcrypt";
-import { GetBlockedUsersDto, GetFindUserInfosDto } from "../dtos/userDto";
+import {
+  ChangeUserProfileImg,
+  GetBlockedUsersDto,
+  GetFindUserInfosDto,
+} from "../dtos/userDto";
 import { CustomError } from "../errors/customError";
 import errorCodes from "../constants/error-codes.json";
 import FollowRepository from "../repositories/followRepository";
@@ -32,7 +36,7 @@ class UserService {
       // password암호화하기
       const hashpassword = bcrypt.hashSync(
         userInfo.password,
-        Number(process.env.SALT_ROUND)
+        Number(process.env.SALT_ROUND),
       );
       // payment
       const signupUser = {
@@ -55,6 +59,27 @@ class UserService {
       await this.userRepository.createUserInfo(signupUserInfo);
     } catch (e) {
       throw e;
+    }
+  };
+
+  public changeMyProfileImg = async ({
+    userId,
+    profileUrl,
+    timestamp,
+  }: ChangeUserProfileImg) => {
+    logger.info("", {
+      layer: "Service",
+      className: "UserService",
+      functionName: "changeMyProfileImg",
+    });
+    try {
+      return await this.userRepository.changeMyProfileImg({
+        userId,
+        profileUrl,
+        timestamp,
+      });
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -120,7 +145,7 @@ class UserService {
           userId: params.myId,
         });
         isFollowingedIds = getMyFollowings.map(
-          (el: { followingId: string }) => el.followingId
+          (el: { followingId: string }) => el.followingId,
         );
         result.isFollowingedIds = isFollowingedIds;
       }
@@ -210,7 +235,7 @@ class UserService {
         throw new CustomError(
           errorCodes.AUTH.USER_NOT_FOUND.status,
           errorCodes.AUTH.USER_NOT_FOUND.code,
-          "존재하지않는 회원입니다."
+          "존재하지않는 회원입니다.",
         );
       }
       return result;
@@ -233,11 +258,13 @@ class UserService {
         functionName: "checkUserByEmail",
       });
       const result = await this.userRepository.findByEmail(email);
+      console.log("result = ", result);
+
       if (result) {
         throw new CustomError(
           errorCodes.AUTH.USER_ALREADY_EXISTS.status,
           errorCodes.AUTH.USER_ALREADY_EXISTS.code,
-          "이미 존재하는 회원입니다. "
+          "이미 존재하는 회원입니다. ",
         );
       }
     } catch (error) {
@@ -263,7 +290,7 @@ class UserService {
         throw new CustomError(
           errorCodes.USER.NICKNAME_ALREADY_EXISTS.status,
           errorCodes.USER.NICKNAME_ALREADY_EXISTS.code,
-          "이미 사용중인 닉네임입니다.."
+          "이미 사용중인 닉네임입니다..",
         );
       }
     } catch (error) {
@@ -293,7 +320,7 @@ class UserService {
         throw new CustomError(
           errorCodes.AUTH.USER_NOT_FOUND.status,
           errorCodes.AUTH.USER_NOT_FOUND.code,
-          "존재하지않는 회원입니다."
+          "존재하지않는 회원입니다.",
         );
       }
 

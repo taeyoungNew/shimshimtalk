@@ -10,6 +10,12 @@ export interface SignupUserInfosEntity {
   age: number;
 }
 
+export interface ChangeMyProfileImgEntity {
+  userId: string;
+  profileUrl: string;
+  timestamp: number;
+}
+
 export interface ModifyUserEntity {
   userId: string;
   username: string;

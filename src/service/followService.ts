@@ -27,7 +27,9 @@ class FollowService {
         functionName: "following",
       });
       // 팔로잉하려는 유저가 존재하는지
-      await this.userService.findUserById(params.followingId);
+      const targetUser = await this.userService.findUserById(
+        params.followingId,
+      );
 
       // 이미 팔로잉하고있는지
       await this.checkFollowingUser(params);
@@ -44,6 +46,7 @@ class FollowService {
         id: getFollowingUserInfo.id,
         nickname: getFollowingUserInfo.UserInfo.nickname,
         username: getFollowingUserInfo.UserInfo.username,
+        profileUrl: targetUser.UserInfo.profileUrl,
       };
       const alarmPayment: SaveAlarmEntity = {
         senderId: params.userId,

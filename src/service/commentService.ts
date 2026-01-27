@@ -47,7 +47,6 @@ class CommentService {
       if (isNotMine) {
         const saveAlarmResult =
           await this.alarmsRepository.saveAlarm(alarmPayment);
-        console.log(saveAlarmResult);
 
         const findMyInfosResult = await this.userService.findMyInfos(
           params.userId,

@@ -16,6 +16,7 @@ class UserRelationRepository {
           SELECT follow1.followingId AS friendId,
                 users.email,
                 userInfos.nickname,
+                userInfos.profileUrl,
                 chatRooms.id AS chatRoomId
             FROM Follows follow1
             JOIN Follows follow2
@@ -35,7 +36,7 @@ class UserRelationRepository {
         {
           replacements: { userId },
           type: QueryTypes.SELECT,
-        }
+        },
       );
     } catch (error) {
       throw error;
@@ -60,34 +61,13 @@ class UserRelationRepository {
               {
                 association:
                   Follows.associations.following.target.associations.UserInfo,
-                attributes: ["nickname"],
+                attributes: ["nickname", "profileUrl"],
               },
             ],
           },
         ],
         raw: true,
       });
-      // console.log("rows = ", rows);
-
-      // return await Follows.findAll({
-      //   attributes: ["followingId"],
-      //   include: [
-      //     {
-      //       association: Follows.associations.following,
-      //       attributes: ["id"],
-      //       include: [
-      //         {
-      //           association:
-      //             Follows.associations.following.target.associations.UserInfo,
-      //           attributes: ["nickname"],
-      //         },
-      //       ],
-      //     },
-      //   ],
-      //   where: {
-      //     followerId: userId,
-      //   },
-      // });
     } catch (error) {
       throw error;
     }

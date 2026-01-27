@@ -38,24 +38,25 @@ class MessageAlarmsRepository {
     });
     return await db.sequelize.query(
       `
-      SELECT msg_alarm.id, 
+      SELECT msgAlarm.id, 
              msg.chatRoomId,
              msg.senderId,
-             user_info.nickname AS senderNickname,
+             userInfo.profileUrl AS profileUrl
+             userInfo.nickname AS senderNickname,
              msg.content,
              msg.contentType,
              msg.id AS messageId,
-             msg_alarm.createdAt
-        FROM MessageAlarms AS msg_alarm
+             msgAlarm.createdAt
+        FROM MessageAlarms AS msgAlarm
         JOIN Messages AS msg
-          ON msg.id = msg_alarm.messageId
+          ON msg.id = msgAlarm.messageId
         JOIN Users AS users
           ON users.id = msg.senderId
-        JOIN UserInfos AS user_info
-          ON users.id = user_info.userId
-       WHERE msg_alarm.userId = :userId
-         AND msg_alarm.isRead = 0
-         AND msg_alarm.id = :alarmId
+        JOIN UserInfos AS userInfo
+          ON users.id = userInfo.userId
+       WHERE msgAlarm.userId = :userId
+         AND msgAlarm.isRead = 0
+         AND msgAlarm.id = :alarmId
       
       `,
       {
@@ -72,24 +73,24 @@ class MessageAlarmsRepository {
       functionName: "findUnreadByUser",
     });
     return await db.sequelize.query(
-      `SELECT msg_alarm.id, 
+      `SELECT msgAlarm.id, 
              msg.chatRoomId,
              msg.senderId,
-             user_info.nickname AS senderNickname,
+             userInfo.nickname AS senderNickname,
              msg.content,
              msg.contentType,
              msg.id AS messageId,
-             msg_alarm.createdAt
-        FROM MessageAlarms AS msg_alarm
+             msgAlarm.createdAt
+        FROM MessageAlarms AS msgAlarm
         JOIN Messages AS msg
-          ON msg.id = msg_alarm.messageId
+          ON msg.id = msgAlarm.messageId
         JOIN Users AS users
           ON users.id = msg.senderId
-        JOIN UserInfos AS user_info
-          ON users.id = user_info.userId
-        WHERE msg_alarm.userId = :userId
-          AND msg_alarm.isRead = 0
-        ORDER BY msg_alarm.createdAt ASC`,
+        JOIN UserInfos AS userInfo
+          ON users.id = userInfo.userId
+        WHERE msgAlarm.userId = :userId
+          AND msgAlarm.isRead = 0
+        ORDER BY msgAlarm.createdAt ASC`,
       {
         replacements: { userId },
         type: QueryTypes.SELECT,

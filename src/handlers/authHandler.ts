@@ -49,9 +49,9 @@ class AuthHandler {
 
       // refToken 저장
       await this.authService.saveRefToken(refToken, getUserInfo.id);
-
       const loginUserInfo = {
         id: getUserInfo.id,
+        profileUrl: getUserInfo.UserInfo.profileUrl,
         email: getUserInfo.email,
         userNickname: getUserInfo.UserInfo.nickname,
       };
@@ -70,10 +70,12 @@ class AuthHandler {
         method: "post",
         uer: "api/auth/login",
       });
+
       return res.status(200).json({
         message: "로그인되었습니다. ",
         data: {
           id: getUserInfo.id,
+          profileUrl: getUserInfo.UserInfo.profileUrl,
           email: getUserInfo.email,
           nickname: getUserInfo.UserInfo.nickname,
         },
@@ -139,11 +141,13 @@ class AuthHandler {
       const getUserLoginInfo = JSON.parse(
         await userCache.get(`token:${token}`),
       );
+
       if (getUserLoginInfo) {
         return res.status(200).json({
           isLogin: true,
           user: {
             id: getUserLoginInfo.id,
+            profileUrl: getUserLoginInfo.profileUrl,
             email: getUserLoginInfo.email,
             nickname: getUserLoginInfo.userNickname,
           },

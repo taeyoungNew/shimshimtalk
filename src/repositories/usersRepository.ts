@@ -1,4 +1,6 @@
 import {
+  ChangeMyBackgroundImgEntity,
+  ChangeMyProfileImgEntity,
   GetBlockedUsersEntity,
   GetFindUserInfosEntity,
   ModifyUserEntity,
@@ -6,7 +8,7 @@ import {
   SignupUserInfosEntity,
 } from "../entity/userEntity";
 import logger from "../config/logger";
-import sequelize from "sequelize";
+import sequelize, { where } from "sequelize";
 import db from "../database/models/index";
 import { Op } from "sequelize";
 
@@ -37,6 +39,52 @@ class UserRepository {
       email: signupInfo.email,
       password: signupInfo.password,
     });
+  };
+
+  public changeMyProfileImg = async ({
+    userId,
+    profileUrl,
+    timestamp,
+  }: ChangeMyProfileImgEntity) => {
+    logger.info("", {
+      layer: "Repository",
+      className: "UserRepository",
+      functionName: "changeMyProfileImg",
+    });
+    await UserInfos.update(
+      {
+        profileUrl,
+        profileUpdatedAt: timestamp,
+      },
+      {
+        where: {
+          userId,
+        },
+      },
+    );
+  };
+
+  public changeMyBackgroundImg = async ({
+    userId,
+    backgroundUrl,
+    timestamp,
+  }: ChangeMyBackgroundImgEntity) => {
+    logger.info("", {
+      layer: "Repository",
+      className: "UserRepository",
+      functionName: "changeMyProfileImg",
+    });
+    await UserInfos.update(
+      {
+        backgroundUrl,
+        backgroundUrlUpdatedAt: timestamp,
+      },
+      {
+        where: {
+          userId,
+        },
+      },
+    );
   };
 
   // UserInfos 회원가입
@@ -114,14 +162,24 @@ class UserRepository {
       include: [
         {
           model: UserInfos,
-          attributes: ["username", "nickname", "aboutMe", "age"],
+          attributes: [
+            "username",
+            "nickname",
+            "profileUrl",
+            "backgroundUrl",
+            "aboutMe",
+            "age",
+          ],
         },
         {
           model: Users,
           as: "Followings",
           attributes: ["id"],
           include: [
-            { model: UserInfos, attributes: ["id", "nickname", "username"] },
+            {
+              model: UserInfos,
+              attributes: ["id", "nickname", "profileUrl", "username"],
+            },
           ],
           through: { attributes: [] }, // 중간 테이블 제거
         },
@@ -130,7 +188,10 @@ class UserRepository {
           as: "Followers",
           attributes: ["id"],
           include: [
-            { model: UserInfos, attributes: ["id", "nickname", "username"] },
+            {
+              model: UserInfos,
+              attributes: ["id", "nickname", "username", "profileUrl"],
+            },
           ],
           through: { attributes: [] }, // 중간 테이블 제거
         },
@@ -209,14 +270,24 @@ class UserRepository {
       include: [
         {
           model: UserInfos,
-          attributes: ["username", "nickname", "aboutMe", "age"],
+          attributes: [
+            "username",
+            "nickname",
+            "aboutMe",
+            "profileUrl",
+            "backgroundUrl",
+            "age",
+          ],
         },
         {
           model: Users,
           as: "Followings",
           attributes: ["id"],
           include: [
-            { model: UserInfos, attributes: ["id", "nickname", "username"] },
+            {
+              model: UserInfos,
+              attributes: ["id", "nickname", "profileUrl", "username"],
+            },
           ],
           through: { attributes: [] }, // 중간 테이블 제거
         },
@@ -225,7 +296,10 @@ class UserRepository {
           as: "Followers",
           attributes: ["id"],
           include: [
-            { model: UserInfos, attributes: ["id", "nickname", "username"] },
+            {
+              model: UserInfos,
+              attributes: ["id", "nickname", "profileUrl", "username"],
+            },
           ],
           through: { attributes: [] }, // 중간 테이블 제거
         },
@@ -249,7 +323,7 @@ class UserRepository {
       include: [
         {
           model: UserInfos,
-          attributes: ["username", "nickname", "aboutMe", "age"],
+          attributes: ["username", "nickname", "profileUrl", "aboutMe", "age"],
         },
       ],
       where: {
@@ -297,7 +371,7 @@ class UserRepository {
       },
       include: {
         model: UserInfos,
-        attributes: ["username", "nickname", "aboutMe", "age"],
+        attributes: ["username", "nickname", "aboutMe", "profileUrl", "age"],
       },
       subQuery: true,
       where: { id },

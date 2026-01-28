@@ -27,6 +27,11 @@ module.exports = {
         allowNull: true,
         type: Sequelize.STRING,
       },
+      backgroundUrl: {
+        defaultValue: "",
+        allowNull: true,
+        type: Sequelize.STRING,
+      },
       username: {
         type: Sequelize.STRING(30),
       },
@@ -41,6 +46,12 @@ module.exports = {
         type: Sequelize.INTEGER({
           length: 100,
         }),
+      },
+      profileUrlUpdatedAt: {
+        type: Sequelize.DATE,
+      },
+      backgroundUrlUpdatedAt: {
+        type: Sequelize.DATE,
       },
       createdAt: {
         allowNull: false,

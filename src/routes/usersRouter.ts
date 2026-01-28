@@ -22,6 +22,14 @@ userRouter.patch(
   userHandler.changeMyProfileImg,
 );
 
+userRouter.patch(
+  "/my-background-img",
+  isLogoutMiddleware,
+  authMiddleware,
+  upload.single("file"),
+  userHandler.changeMyBackgroundImg,
+);
+
 // 모든회원정보가져오기
 userRouter.get("/", userHandler.findAllUser);
 

@@ -6,7 +6,7 @@ class ChatHandler {
   public getChatList = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     logger.info("", {
       method: "post",
@@ -18,7 +18,6 @@ class ChatHandler {
     try {
       const userId = res.locals.userInfo.userId;
       const result = await this.chatService.getChatList(userId);
-      console.log(result);
       return res.status(200).json(result);
     } catch (e) {
       next(e);
@@ -27,7 +26,7 @@ class ChatHandler {
   public createChatRoom = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     logger.info("", {
       method: "post",

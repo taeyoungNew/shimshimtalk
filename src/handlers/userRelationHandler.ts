@@ -8,7 +8,7 @@ class UserRelationHandler {
   public getFriends = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     logger.info("", {
       layer: "Handler",
@@ -18,7 +18,7 @@ class UserRelationHandler {
     try {
       const userId = res.locals.userInfo.userId;
       const result = await userRelationService.getFriends(userId);
-      console.log(result);
+
       return res.status(200).json(result);
     } catch (error) {
       next(error);
@@ -28,7 +28,7 @@ class UserRelationHandler {
   public getFollowings = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     logger.info("", {
       layer: "Handler",
@@ -42,6 +42,7 @@ class UserRelationHandler {
       const rows = result.map(
         (row: {
           id: number;
+          "following.UserInfo.profileUrl": string;
           followingId: string;
           "following.id": string;
           "following.email": string;
@@ -51,10 +52,11 @@ class UserRelationHandler {
           return {
             id: row.id,
             followingId: row.followingId,
+            profileUrl: row["following.UserInfo.profileUrl"],
             followingEmail: row["following.email"],
             followingNickname: row["following.UserInfo.nickname"],
           };
-        }
+        },
       );
 
       return res.status(200).json({ rows });

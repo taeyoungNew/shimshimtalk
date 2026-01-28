@@ -14,6 +14,8 @@ import {
 import errorCodes from "../constants/error-codes.json";
 import { CustomError } from "../errors/customError";
 import { uploadToR2 } from "../common/r2Cloud/uploadToR2";
+import { userCache } from "../common/cacheLocal/userIdCache";
+import { uploadProfileToR2 } from "../common/r2Cloud/uploadProfileToR2";
 
 class UserHandler {
   userService = new UserService();
@@ -76,6 +78,7 @@ class UserHandler {
     }
   };
 
+  // 유저의 프사설정
   public changeMyProfileImg = async (
     req: Request,
     res: Response,
@@ -89,19 +92,69 @@ class UserHandler {
       functionName: "chafilengeMyProfileImg",
     });
     try {
+      const { authorization } = req.cookies;
+      const [tokenType, token] = authorization.split(" ");
       const file = req.file;
       const userId = res.locals.userInfo.userId;
+      const userInfo = await userCache.get(`token:${token}`);
+      const timestamp = Date.now();
+      const useInfoParse = await JSON.parse(userInfo);
 
       if (!file) return res.status(400).json({ message: "파일이 없습니다." });
-      const key = await uploadToR2({
+      const key = await uploadProfileToR2({
         file: file,
-        folder: `user-info/profile-img/${userId}/avatar.webp`,
+        key: `user-info/profile-img/${userId}/avatar.webp`,
       });
-      const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
+      const profileUrl = `${process.env.R2_PUBLIC_URL}/${key}?v=${timestamp}`;
+      useInfoParse.profileUrl = profileUrl;
+      await userCache.set(`token:${token}`, JSON.stringify(useInfoParse));
+      const payment = {
+        userId,
+        profileUrl,
+        timestamp,
+      };
+      await this.userService.changeMyProfileImg(payment);
+      return res.status(200).json({ url: profileUrl });
+    } catch (error) {
+      next(error);
+    }
+  };
 
-      return res
-        .status(200)
-        .json({ message: "이미지업로드하게?", url: publicUrl });
+  public changeMyBackgroundImg = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    logger.info("", {
+      method: "patch",
+      url: "api/user/my-background-img",
+      layer: "Handlers",
+      className: "UserHandler",
+      functionName: "changeMyBackgroundImg",
+    });
+    try {
+      const { authorization } = req.cookies;
+      const [tokenType, token] = authorization.split(" ");
+      const file = req.file;
+      const userId = res.locals.userInfo.userId;
+      const userInfo = await userCache.get(`token:${token}`);
+      const timestamp = Date.now();
+      const useInfoParse = await JSON.parse(userInfo);
+      if (!file) return res.status(400).json({ message: "파일이 없습니다." });
+      const key = await uploadProfileToR2({
+        file: file,
+        key: `user-info/background-img/${userId}/avatar.webp`,
+      });
+      const backgroundUrl = `${process.env.R2_PUBLIC_URL}/${key}?v=${timestamp}`;
+      useInfoParse.backgroundUrl = backgroundUrl;
+      await userCache.set(`token:${token}`, JSON.stringify(useInfoParse));
+      const payment = {
+        userId,
+        backgroundUrl,
+        timestamp,
+      };
+      await this.userService.changeMyBackgroundImg(payment);
+      return res.status(200).json({ url: backgroundUrl });
     } catch (error) {
       next(error);
     }

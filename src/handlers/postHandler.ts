@@ -25,7 +25,7 @@ class PostHandler {
   public createPost: RequestHandler = async (
     req: Request<{}, {}, CreatePostDto, {}>,
     res: Response,
-    next
+    next,
   ) => {
     try {
       logger.info("", {
@@ -44,7 +44,7 @@ class PostHandler {
         throw new CustomError(
           errorCodes.POST.VALIDATION_ERROR.status,
           errorCodes.POST.VALIDATION_ERROR.code,
-          "300자내로 적어주세요. "
+          "300자내로 적어주세요. ",
         );
 
       const postPayment: CreatePostDto = {
@@ -62,20 +62,20 @@ class PostHandler {
         const cacheUserPostIds = await userPostsCache.lRange(
           `userPosts:${userId}:List`,
           0,
-          -1
+          -1,
         );
 
         if (cacheUserPostIds.length !== 0) {
           const userPostListTTL = await userPostsCache.ttl(
-            `userPosts:${userId}:List`
+            `userPosts:${userId}:List`,
           );
           await userPostsCache.lPush(
             `userPosts:${userId}:List`,
-            String(newPost.id)
+            String(newPost.id),
           );
           await userPostsCache.expire(
             `userPosts:${userId}:List`,
-            userPostListTTL
+            userPostListTTL,
           );
           await userPostsCache.set(
             `post:${newPost.id}`,
@@ -88,7 +88,7 @@ class PostHandler {
               commentCnt: newPost.dataValues.commentCnt,
               Comments: newPost.dataValues.Comments,
             }),
-            { EX: userPostListTTL }
+            { EX: userPostListTTL },
           );
         }
         await postCache.expire("posts:list", postListTTL);
@@ -103,7 +103,7 @@ class PostHandler {
             commentCnt: newPost.dataValues.commentCnt,
             Comments: newPost.dataValues.Comments,
           }),
-          { EX: postListTTL }
+          { EX: postListTTL },
         );
       } else {
         const postList: Posts[] = [];
@@ -124,7 +124,7 @@ class PostHandler {
   public getAllPosts: RequestHandler = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -154,7 +154,6 @@ class PostHandler {
       // 첫랜더링
       if (ids.length === 0) {
         result = await this.postService.getAllPosts(userId);
-
         await this.cachePosts(result);
         let posts;
         if (result.length != 0) {
@@ -172,7 +171,7 @@ class PostHandler {
         const targetIds = ids.slice(lastPostIdx + 1, lastPostIdx + 6);
 
         const postJsons = await Promise.all(
-          targetIds.map((id: string) => postCache.get(`post:${id}`))
+          targetIds.map((id: string) => postCache.get(`post:${id}`)),
         );
 
         const posts = postJsons.map((post) => JSON.parse(post));
@@ -190,7 +189,7 @@ class PostHandler {
   public getPost = async (
     req: Request<{}, {}, {}, { postId: string; postUserId: string }>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -233,6 +232,7 @@ class PostHandler {
           `post:${result.dataValues.id}`,
           JSON.stringify({
             id: result.dataValues.id,
+            profileUrl: result.dataValues.profileUrl,
             userId: result.dataValues.userId,
             isLiked: result.dataValues.isLiked,
             content: result.dataValues.content,
@@ -242,7 +242,7 @@ class PostHandler {
             commentCnt: result.dataValues.commentCnt,
             Comments: result.dataValues.Comments,
           }),
-          { EX: 600 }
+          { EX: 600 },
         );
       }
       // 레디스에 없으면 DB에서 가져오고 redis에도 저장
@@ -256,7 +256,7 @@ class PostHandler {
   public modifyPost = async (
     req: Request<{ postId: string }, {}, ModifyPostDto, { postUserId: string }>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -278,7 +278,7 @@ class PostHandler {
         throw new CustomError(
           errorCodes.POST.VALIDATION_ERROR.status,
           errorCodes.POST.VALIDATION_ERROR.code,
-          "500자내로 적어주세요. "
+          "500자내로 적어주세요. ",
         );
 
       const modifyPayment: IsUserPost = {
@@ -332,7 +332,7 @@ class PostHandler {
       { userId: string; postLastId: string }
     >,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -346,7 +346,7 @@ class PostHandler {
       const ids: [] = await userPostsCache.lRange(
         `userPosts:${req.query.userId}:List`,
         0,
-        -1
+        -1,
       );
 
       let isLikedPostIds;
@@ -384,7 +384,7 @@ class PostHandler {
         const targetIds = ids.slice(lastUserPostIdx + 1, lastUserPostIdx + 6);
 
         const postJsons = await Promise.all(
-          targetIds.map((id: string) => postCache.get(`post:${id}`))
+          targetIds.map((id: string) => postCache.get(`post:${id}`)),
         );
         const userPosts = postJsons.map((post) => JSON.parse(post));
         const isLast = userPosts.length < 5 ? true : false;
@@ -399,7 +399,7 @@ class PostHandler {
   public deletePost = async (
     req: Request<{ postId: string }, {}, {}, {}>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       logger.info("", {
@@ -424,7 +424,7 @@ class PostHandler {
       const userPostIds: string[] = await userPostsCache.lRange(
         `userPosts:${userId}:List`,
         0,
-        -1
+        -1,
       );
       const param: GetUserPostsDto = {
         userId,
@@ -450,7 +450,7 @@ class PostHandler {
 
         await postCache.rPush(
           "posts:list",
-          filterIds.map((el: string) => JSON.stringify(el))
+          filterIds.map((el: string) => JSON.stringify(el)),
         );
 
         await postCache.expire("posts:list", postListTTL);
@@ -464,13 +464,13 @@ class PostHandler {
         const cacheUserPostIds = await userPostsCache.lRange(
           `userPosts:${userId}:List`,
           0,
-          -1
+          -1,
         );
         const userPostListTTL = await userPostsCache.ttl(
-          `userPosts:${userId}:List`
+          `userPosts:${userId}:List`,
         );
         const userPostIds = cacheUserPostIds.map((el: string) =>
-          JSON.parse(el)
+          JSON.parse(el),
         );
         const filterUserPostIds = userPostIds.filter((el: number) => {
           return el.toString() !== postId;
@@ -479,11 +479,11 @@ class PostHandler {
         await userPostsCache.del(`userPosts:${userId}:List`);
         await userPostsCache.rPush(
           `userPosts:${userId}:List`,
-          filterUserPostIds.map((el: string) => JSON.stringify(el))
+          filterUserPostIds.map((el: string) => JSON.stringify(el)),
         );
         await userPostsCache.expire(
           `userPosts:${userId}:List`,
-          userPostListTTL
+          userPostListTTL,
         );
       }
 
@@ -512,6 +512,7 @@ class PostHandler {
         `post:${posts[idx].dataValues.id}`,
         JSON.stringify({
           id: posts[idx].dataValues.id,
+          profileUrl: posts[idx].dataValues.profileUrl,
           userId: posts[idx].dataValues.userId,
           content: posts[idx].dataValues.content,
           userNickname: posts[idx].dataValues.userNickname,
@@ -520,7 +521,7 @@ class PostHandler {
           commentCnt: posts[idx].dataValues.commentCnt,
           Comments: posts[idx].dataValues.Comments,
         }),
-        { EX: 600 }
+        { EX: 600 },
       );
     }
   };
@@ -530,6 +531,7 @@ class PostHandler {
       `post:${post.dataValues.postId}`,
       JSON.stringify({
         id: post.dataValues.id,
+        profileUrl: post.dataValues.profileUrl,
         userId: post.dataValues.userId,
         content: post.dataValues.content,
         userNickname: post.dataValues.userNickname,
@@ -537,7 +539,7 @@ class PostHandler {
         commentCnt: post.dataValues.commentCnt,
         Comments: post.dataValues.Comments,
       }),
-      { EX: 600 }
+      { EX: 600 },
     );
   };
 
@@ -553,6 +555,7 @@ class PostHandler {
         `post:${userPosts[idx].dataValues.id}`,
         JSON.stringify({
           id: userPosts[idx].dataValues.id,
+          profileUrl: userPosts[idx].dataValues.profileUrl,
           userId: userPosts[idx].dataValues.userId,
           content: userPosts[idx].dataValues.content,
           userNickname: userPosts[idx].dataValues.userNickname,
@@ -560,7 +563,7 @@ class PostHandler {
           commentCnt: userPosts[idx].dataValues.commentCnt,
           Comments: userPosts[idx].dataValues.Comments,
         }),
-        { EX: 600 }
+        { EX: 600 },
       );
     }
   };

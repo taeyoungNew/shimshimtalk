@@ -18,7 +18,8 @@ class SuggestedUserHandler {
     try {
       const userId = res.locals.userInfo.userId;
       const result = await this.suggestedUserService.getSuggestedUsers(userId);
-      console.log("result= ", result);
+      console.log("suggested user = ", result);
+
       result.mutual.forEach((el: { isFollowinged: boolean }) =>
         el.isFollowinged
           ? (el.isFollowinged = true)

@@ -17,6 +17,7 @@ class UserRelationRepository {
                 users.email,
                 userInfos.nickname,
                 userInfos.profileUrl,
+                userinfos.backgroundUrl,
                 chatRooms.id AS chatRoomId
             FROM Follows follow1
             JOIN Follows follow2

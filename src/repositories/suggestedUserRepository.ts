@@ -1,13 +1,13 @@
 import { QueryTypes } from "sequelize";
 import db from "../database/models/index";
 
-const { Users } = db;
-
 class SuggestedUserRepository {
   public getPopularUsers = async (userId: string) => {
     return await db.sequelize.query(
       `SELECT users.id AS userId,
-              userinfos.nickname, 
+              userinfos.nickname,
+              userinfos.profileUrl,
+              userinfos.backgroundUrl,
               COUNT(follows.followerId) AS followerCnt,
               CASE 
                 WHEN myFollow.followingId IS NOT NULL THEN TRUE
@@ -32,7 +32,10 @@ class SuggestedUserRepository {
              AND f1.followerId = f2.followingId
            WHERE f1.followerId = :userId
          )
-       GROUP BY users.id, userinfos.nickname
+       GROUP BY users.id, 
+                userinfos.nickname, 
+                userinfos.profileUrl,
+                userinfos.backgroundUrl
        HAVING followerCnt >= 3
        ORDER BY followerCnt DESC, RAND()
        LIMIT 50`,
@@ -46,6 +49,8 @@ class SuggestedUserRepository {
     return await db.sequelize.query(
       `SELECT users.id AS userId,
 	            userinfos.nickname,
+              userinfos.profileUrl,
+              userinfos.backgroundUrl,
               COUNT(distinct follows2.followerId) AS  mutualFriendsCount,
               CASE 
                 WHEN myFollow.followingId IS NOT NULL THEN TRUE
@@ -72,7 +77,10 @@ class SuggestedUserRepository {
                AND f1.followerId = f2.followingId
              WHERE f1.followerId = :userId 
                AND f1.followingId = users.id)
-        GROUP BY users.id, userinfos.nickname
+        GROUP BY users.id, 
+                 userinfos.nickname, 
+                 userinfos.profileUrl,
+                 userinfos.backgroundUrl
         HAVING mutualFriendsCount > 0  
         ORDER BY mutualFriendsCount DESC, RAND()`,
       {

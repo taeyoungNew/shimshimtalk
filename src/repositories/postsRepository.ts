@@ -175,6 +175,16 @@ class PostRepository {
           ],
           [
             sequelize.literal(`(
+              select userinfo.backgroundUrl
+                FROM Users AS users
+           LEFT JOIN UserInfos AS userinfo
+                  ON users.id = userinfo.userId
+               WHERE users.id = Posts.userId
+            )`),
+            "backgroundUrl",
+          ],
+          [
+            sequelize.literal(`(
               SELECT COUNT(*)
                 FROM PostLikes AS postLike
                WHERE postLike.postId = Posts.id
@@ -224,6 +234,16 @@ class PostRepository {
                WHERE users.id = Posts.userId
             )`),
             "profileUrl",
+          ],
+          [
+            sequelize.literal(`(
+              select userinfo.backgroundUrl
+                FROM Users AS users
+           LEFT JOIN UserInfos AS userinfo
+                  ON users.id = userinfo.userId
+               WHERE users.id = Posts.userId
+            )`),
+            "backgroundUrl",
           ],
           [
             sequelize.literal(`(

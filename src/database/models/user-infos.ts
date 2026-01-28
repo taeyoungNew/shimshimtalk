@@ -47,6 +47,11 @@ class UserInfos extends Model implements UserInfoAttributes {
           type: DataTypes.STRING,
           defaultValue: "",
         },
+        backgroundUrl: {
+          allowNull: true,
+          type: DataTypes.STRING,
+          defaultValue: "",
+        },
         username: {
           allowNull: false,
           type: DataTypes.STRING,
@@ -62,6 +67,9 @@ class UserInfos extends Model implements UserInfoAttributes {
           length: 100,
         }),
         profileUrlUpdatedAt: {
+          type: DataTypes.DATE,
+        },
+        backgroundUrlUpdatedAt: {
           type: DataTypes.DATE,
         },
         createdAt: {

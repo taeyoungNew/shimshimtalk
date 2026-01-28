@@ -27,3 +27,9 @@ export interface ChangeUserProfileImg {
   profileUrl: string;
   timestamp: number;
 }
+
+export interface ChangeUserBackgroundImg {
+  userId: string;
+  backgroundUrl: string;
+  timestamp: number;
+}

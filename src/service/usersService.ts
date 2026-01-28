@@ -4,6 +4,7 @@ import UserRepository from "../repositories/usersRepository";
 import logger from "../config/logger";
 import bcrypt from "bcrypt";
 import {
+  ChangeUserBackgroundImg,
   ChangeUserProfileImg,
   GetBlockedUsersDto,
   GetFindUserInfosDto,
@@ -76,6 +77,27 @@ class UserService {
       return await this.userRepository.changeMyProfileImg({
         userId,
         profileUrl,
+        timestamp,
+      });
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  public changeMyBackgroundImg = async ({
+    userId,
+    backgroundUrl,
+    timestamp,
+  }: ChangeUserBackgroundImg) => {
+    logger.info("", {
+      layer: "Service",
+      className: "UserService",
+      functionName: "changeMyProfileImg",
+    });
+    try {
+      return await this.userRepository.changeMyBackgroundImg({
+        userId,
+        backgroundUrl,
         timestamp,
       });
     } catch (error) {

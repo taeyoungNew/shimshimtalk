@@ -41,7 +41,8 @@ class MessageAlarmsRepository {
       SELECT msgAlarm.id, 
              msg.chatRoomId,
              msg.senderId,
-             userInfo.profileUrl AS profileUrl
+             userInfo.profileUrl AS profileUrl,
+             userInfo.backgroundUrl AS backgroundUrl,
              userInfo.nickname AS senderNickname,
              msg.content,
              msg.contentType,

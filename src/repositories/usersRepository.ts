@@ -1,4 +1,5 @@
 import {
+  ChangeMyBackgroundImgEntity,
   ChangeMyProfileImgEntity,
   GetBlockedUsersEntity,
   GetFindUserInfosEntity,
@@ -54,6 +55,29 @@ class UserRepository {
       {
         profileUrl,
         profileUpdatedAt: timestamp,
+      },
+      {
+        where: {
+          userId,
+        },
+      },
+    );
+  };
+
+  public changeMyBackgroundImg = async ({
+    userId,
+    backgroundUrl,
+    timestamp,
+  }: ChangeMyBackgroundImgEntity) => {
+    logger.info("", {
+      layer: "Repository",
+      className: "UserRepository",
+      functionName: "changeMyProfileImg",
+    });
+    await UserInfos.update(
+      {
+        backgroundUrl,
+        backgroundUrlUpdatedAt: timestamp,
       },
       {
         where: {
@@ -138,7 +162,14 @@ class UserRepository {
       include: [
         {
           model: UserInfos,
-          attributes: ["username", "nickname", "profileUrl", "aboutMe", "age"],
+          attributes: [
+            "username",
+            "nickname",
+            "profileUrl",
+            "backgroundUrl",
+            "aboutMe",
+            "age",
+          ],
         },
         {
           model: Users,
@@ -239,7 +270,14 @@ class UserRepository {
       include: [
         {
           model: UserInfos,
-          attributes: ["username", "nickname", "aboutMe", "profileUrl", "age"],
+          attributes: [
+            "username",
+            "nickname",
+            "aboutMe",
+            "profileUrl",
+            "backgroundUrl",
+            "age",
+          ],
         },
         {
           model: Users,

@@ -555,6 +555,7 @@ class PostHandler {
         `post:${userPosts[idx].dataValues.id}`,
         JSON.stringify({
           id: userPosts[idx].dataValues.id,
+          profileUrl: userPosts[idx].dataValues.profileUrl,
           userId: userPosts[idx].dataValues.userId,
           content: userPosts[idx].dataValues.content,
           userNickname: userPosts[idx].dataValues.userNickname,

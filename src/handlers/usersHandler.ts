@@ -120,6 +120,46 @@ class UserHandler {
     }
   };
 
+  public changeMyBackgroundImg = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    logger.info("", {
+      method: "patch",
+      url: "api/user/my-background-img",
+      layer: "Handlers",
+      className: "UserHandler",
+      functionName: "changeMyBackgroundImg",
+    });
+    try {
+      const { authorization } = req.cookies;
+      const [tokenType, token] = authorization.split(" ");
+      const file = req.file;
+      const userId = res.locals.userInfo.userId;
+      const userInfo = await userCache.get(`token:${token}`);
+      const timestamp = Date.now();
+      const useInfoParse = await JSON.parse(userInfo);
+      if (!file) return res.status(400).json({ message: "파일이 없습니다." });
+      const key = await uploadProfileToR2({
+        file: file,
+        key: `user-info/background-img/${userId}/avatar.webp`,
+      });
+      const backgroundUrl = `${process.env.R2_PUBLIC_URL}/${key}?v=${timestamp}`;
+      useInfoParse.backgroundUrl = backgroundUrl;
+      await userCache.set(`token:${token}`, JSON.stringify(useInfoParse));
+      const payment = {
+        userId,
+        backgroundUrl,
+        timestamp,
+      };
+      await this.userService.changeMyBackgroundImg(payment);
+      return res.status(200).json({ url: backgroundUrl });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   /**
    * 모든 회원정보리스트
    *

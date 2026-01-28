@@ -70,7 +70,7 @@ class AlarmsRepository {
         FROM Alarms AS alarms
         JOIN Users AS users
           ON users.id = alarms.senderId
-        JOIN Userinfos AS userInfos
+        JOIN UserInfos AS userInfos
           ON userInfos.userId = users.id
        WHERE alarms.receiverId = :userId
        ORDER BY alarms.createdAt DESC`,

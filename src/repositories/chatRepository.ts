@@ -27,7 +27,7 @@ class ChatRepository {
         THEN chatrooms.userBId 
         ELSE chatrooms.userAId
          END
-        JOIN simsim_talk.UserInfos userinfos
+        JOIN UserInfos userinfos
           ON userinfos.userId = users.id
         LEFT JOIN simsim_talk.Messages messages
           ON messages.id = (

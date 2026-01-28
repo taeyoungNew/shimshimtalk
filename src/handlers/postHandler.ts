@@ -154,6 +154,7 @@ class PostHandler {
       // 첫랜더링
       if (ids.length === 0) {
         result = await this.postService.getAllPosts(userId);
+
         await this.cachePosts(result);
         let posts;
         if (result.length != 0) {

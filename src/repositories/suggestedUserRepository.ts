@@ -57,7 +57,7 @@ class SuggestedUserRepository {
                 ELSE FALSE
                END AS isFollowinged 
          FROM Users users
-         JOIN Userinfos userinfos
+         JOIN UserInfos userinfos
            ON users.id = userinfos.userId
          LEFT JOIN Follows follows1  
            ON follows1.followerId = :userId

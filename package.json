@@ -1,5 +1,5 @@
 {
-  "name": "simsim-talk",
+  "name": "simsim-talk-server",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {

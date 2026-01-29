@@ -79,7 +79,8 @@ export const setupSocket = (server: any) => {
         const messageAlarmRepository = new MessagealarmsRepository();
         const getMsgAlarms =
           await messageAlarmRepository.findUnreadByUser(userId);
-        ack({ ok: true, reason: getMsgAlarms });
+
+        await ack({ ok: true, reason: getMsgAlarms });
       } else {
         return ack({ ok: false, reason: "NO_COOKIE" });
       }
@@ -125,12 +126,12 @@ export const setupSocket = (server: any) => {
           socket,
           chatRoomId,
           targetUserId,
-          messageId
+          messageId,
         );
 
         if (userSocketInfo) {
           userSocketInfo.socketIds.forEach((socketId) =>
-            notifyMessageAlarm(io, socketId, alarmData)
+            notifyMessageAlarm(io, socketId, alarmData),
           );
         }
       }

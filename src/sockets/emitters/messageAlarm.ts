@@ -15,7 +15,7 @@ export const saveMessageAlarm = async (
   socket: Socket,
   chatRoomId: string,
   userId: string,
-  messageId: string
+  messageId: string,
 ) => {
   const messageAlarmRepository = new MessagealarmsRepository();
 
@@ -29,7 +29,7 @@ export const saveMessageAlarm = async (
 
   const alarmData = await messageAlarmRepository.findAlarmById(
     receiverId,
-    alarmId
+    alarmId,
   );
 
   return alarmData[0];
@@ -37,15 +37,15 @@ export const saveMessageAlarm = async (
 
 export const sendMessageAlarmToMe = async (socket: Socket, userId: string) => {
   const messageAlarmRepository = new MessagealarmsRepository();
-  const getalarms = await messageAlarmRepository.findUnreadByUser(userId);
+  const getAlarms = await messageAlarmRepository.findUnreadByUser(userId);
 
-  socket.emit("emitalarms", { getalarms });
+  socket.emit("emitAlarms", { getAlarms });
 };
 
 export const notifyMessageAlarm = async (
   io: Server,
   socketId: string,
-  payload: AddMessagealarm
+  payload: AddMessagealarm,
 ) => {
   io.to(socketId).emit("notifyMessageAlarm", payload);
 };
@@ -53,7 +53,7 @@ export const notifyMessageAlarm = async (
 export const readMsgAlarms = async (
   io: Server,
   chatRoomId: string,
-  socketId: string
+  socketId: string,
 ) => {
   io.to(socketId).emit("msgAlarmsRead", { chatRoomId });
 };

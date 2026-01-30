@@ -32,7 +32,7 @@ export const setupSocket = (server: any) => {
       layer: "socket",
       connect: "socket connected!",
     });
-    socket.emit("connection", "socket connected!");
+    socket.emit("socket:ready", "socket connected!");
 
     if (decodeAccToken && decodeAccToken != "jwt exired") {
       userId = decodeAccToken?.userId;

@@ -10,6 +10,7 @@ import verifyRefToken from "./common/varifyRefToken";
 import { CustomError } from "../errors/customError";
 import errorCodes from "../constants/error-codes.json";
 import * as cookie from "cookie";
+import { parseAuthFromCookie } from "../utils/auth/parseAuthFromCookie";
 
 /**
  * @param req
@@ -28,12 +29,17 @@ export const authMiddleware = async (
       layer: "middleware",
       functionName: "authMiddleware",
     });
-    const { authorization } = req.cookies;
-    let tokenType, token;
+    const cookieHeader = req.headers.cookie;
+    const cookieParseResult = parseAuthFromCookie(cookieHeader);
 
-    [tokenType, token] = authorization.split(" ");
+    if (!cookieParseResult) {
+      req.user = null;
+      return next();
+    }
 
-    checkAuth(authorization, tokenType, token);
+    const { tokenType, token } = cookieParseResult;
+
+    checkAuth(tokenType, token);
 
     const accTokenPayment: tokenType = {
       token: token,

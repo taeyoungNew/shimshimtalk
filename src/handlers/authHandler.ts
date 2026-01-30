@@ -9,6 +9,7 @@ import logger from "../config/logger";
 import bcrypt from "bcrypt";
 import { CustomError } from "../errors/customError";
 import errorCodes from "../constants/error-codes.json";
+import { parseAuthFromCookie } from "../utils/auth/parseAuthFromCookie";
 
 class AuthHandler {
   userService = new UserService();
@@ -131,12 +132,13 @@ class AuthHandler {
         className: "AuthHandler",
         functionName: "authMe",
       });
-      const { authorization } = req.cookies;
-      const [tokenType, token] = authorization.split(" ");
-      if (authorization === undefined || authorization === null)
+      const cookieHeader = req.headers.cookie;
+      const cookieParseResult = parseAuthFromCookie(cookieHeader);
+      if (!cookieParseResult)
         return res.status(401).json({
           isLogin: false,
         });
+      const { tokenType, token } = cookieParseResult;
 
       const getUserLoginInfo = JSON.parse(
         await userCache.get(`token:${token}`),

@@ -123,20 +123,22 @@ class AuthHandler {
   };
 
   public authMe = async (req: Request, res: Response, next: NextFunction) => {
+    logger.info("", {
+      method: "post",
+      url: "api/auth/auth-me",
+      layer: "Handlers",
+      className: "AuthHandler",
+      functionName: "authMe",
+    });
     try {
-      logger.info("", {
-        method: "post",
-        url: "api/auth/auth-me",
-        layer: "Handlers",
-        className: "AuthHandler",
-        functionName: "authMe",
-      });
       const { authorization } = req.cookies;
-      const [tokenType, token] = authorization.split(" ");
+
       if (authorization === undefined || authorization === null)
-        return res.status(401).json({
+        return res.status(200).json({
           isLogin: false,
+          user: null,
         });
+      const [tokenType, token] = authorization.split(" ");
 
       const getUserLoginInfo = JSON.parse(
         await userCache.get(`token:${token}`),
@@ -153,7 +155,10 @@ class AuthHandler {
           },
         });
       } else {
-        return res.status(404).json({ message: "로그인하지 않았습니다." });
+        return res.status(200).json({
+          isLogin: false,
+          user: null,
+        });
       }
     } catch (e) {
       next(e);

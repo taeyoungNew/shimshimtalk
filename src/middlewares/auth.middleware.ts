@@ -29,6 +29,12 @@ export const authMiddleware = async (
       functionName: "authMiddleware",
     });
     const { authorization } = req.cookies;
+
+    // 1. 토큰이 아예 없는 경우 -> 비로그인 유저로 간주하고 통과
+    if (!authorization) {
+      res.locals.userInfo = null;
+      return next();
+    }
     let tokenType, token;
 
     [tokenType, token] = authorization.split(" ");
